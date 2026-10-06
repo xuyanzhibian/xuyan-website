@@ -97,6 +97,35 @@
 
     /* ---------- 提示条 ---------- */
     var tipTimer = null;
+    var tipEl = null;
+    /**
+     * 取提示容器。
+     * 各页自带的底部提示条命名并不统一（tipBar / globalBottomTip /
+     * bottomTextTip / bottomTip / .bottom-text-tip），这里统一兜底查找；
+     * 实在没有才动态建一个，避免 showTip 静默失效。
+     */
+    function tipContainer() {
+        if (tipEl && document.body && document.body.contains(tipEl)) return tipEl;
+        tipEl = document.getElementById('tipBar')
+            || document.querySelector('.tip-bar')
+            || document.getElementById('globalBottomTip')
+            || document.getElementById('bottomTextTip')
+            || document.getElementById('bottomTip')
+            || document.querySelector('.bottom-text-tip');
+        if (!tipEl && document.body) {
+            tipEl = document.createElement('div');
+            tipEl.id = 'tipBar';
+            tipEl.className = 'tip-bar';
+            /* 页面没定义 .tip-bar 样式时给一套保底样式 */
+            tipEl.style.cssText = 'position:fixed;bottom:30px;left:50%;'
+                + 'transform:translateX(-50%);padding:10px 18px;border-radius:40px;'
+                + 'background:rgba(20,16,36,.72);color:#e0d8ff;font-size:16px;'
+                + 'z-index:10000;opacity:0;transition:opacity .35s ease;'
+                + 'pointer-events:none;text-align:center;max-width:80%;';
+            document.body.appendChild(tipEl);
+        }
+        return tipEl;
+    }
     /**
      * 显示一条底部提示。
      * @param {string} text 提示文案
@@ -104,20 +133,28 @@
      */
     function showTip(text, duration) {
         duration = duration || 2000;
-        var tip = document.getElementById('tipBar') || document.querySelector('.tip-bar');
+        var tip = tipContainer();
         if (!tip) return;
         tip.textContent = text;
         tip.classList.add('show');
+        /* 有的页面用 .show，有的用内联 opacity，两种都兼容 */
+        tip.style.opacity = '1';
         if (tipTimer) clearTimeout(tipTimer);
-        tipTimer = setTimeout(function () { tip.classList.remove('show'); }, duration);
+        tipTimer = setTimeout(function () {
+            tip.classList.remove('show');
+            tip.style.opacity = '';
+        }, duration);
         /* 无障碍：同步播报 */
         tip.setAttribute('role', 'status');
         tip.setAttribute('aria-live', 'polite');
     }
 
     function hideTip() {
-        var tip = document.getElementById('tipBar') || document.querySelector('.tip-bar');
-        if (tip) tip.classList.remove('show');
+        var tip = tipContainer();
+        if (tip) {
+            tip.classList.remove('show');
+            tip.style.opacity = '';
+        }
         if (tipTimer) { clearTimeout(tipTimer); tipTimer = null; }
     }
 
