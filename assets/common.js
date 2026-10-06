@@ -256,6 +256,16 @@
          [quote]引用段落[/quote]
          [hr]                               一条分隔线
 
+       ── 整格格式（等价替代写法）──────────────────────────────
+         想让**整段正文**统一加粗 / 斜体 / 居中 / 换色，不必写标记：
+         直接在腾讯文档里给那个单元格设格式即可，网页会照搬这一格的格式。
+         例如单元格设「加粗 + 居中」，效果等于 [center][b]…[/b][/center]。
+
+         代价必须说清：表格接口只能设「整个单元格」的格式，
+         **没法只给一句话里的某几个词**上格式。句中局部强调仍然要写
+         [b]…[/b] / [i]…[/i] / [s]…[/s] / [u]…[/u] 这类标记。
+         （整格格式经 sync_styles.py 缓存 → sync_online.py 合并 → 网页套用）
+
        ── 换行 ────────────────────────────────────────────────
          单元格里直接按回车换行即可（换行符会渲染成 <br>）；
          表格里已经不需要再写 <br>——旧内容里的 <br> 仍兼容。
@@ -567,6 +577,61 @@
     function cfgHover(sheet, name, d) { return cfgCell(sheet, name, COL_HOVER, d); }
     function cfgRes(sheet, name, d) { return cfgCell(sheet, name, COL_RES, d); }
 
+    /* ---------- 整格样式（表格里的单元格格式） ----------
+       腾讯文档的「加粗 / 居中 / 斜体」只能设在**整个单元格**上，网页这边
+       也就对应「整块元素」。样式由 .虚衍网站内容配置总表.ref/sync_styles.py
+       在 WorkBuddy 内抓取并缓存，sync_online.py 再合并进配置的「样式」字段。 */
+
+    var COL_STYLE = '样式';
+    var COL_VALUE_STYLE = '值样式';
+
+    /**
+     * 取某条记录对应的整格样式。
+     * @param {string} sheet 分表名
+     * @param {string} name 元素名称
+     * @param {string} [which] 传 'value' 取「当前内容/值」那格的格式；默认取正文那格
+     * @returns {Object|null} 形如 { bold:true, align:'center', scale:1.2, color:'#AABBCC' }
+     */
+    function cfgStyle(sheet, name, which) {
+        var it = cfgItem(sheet, name);
+        if (!it) return null;
+        var st = (which === 'value') ? it[COL_VALUE_STYLE] : it[COL_STYLE];
+        return (st && typeof st === 'object') ? st : null;
+    }
+
+    /**
+     * 把整格样式套成元素的内联样式。
+     * @param {Element} el 目标元素
+     * @param {Object} style cfgStyle() 的返回值
+     * @returns {number} 实际写入的样式条数
+     */
+    function applyCellStyle(el, style) {
+        if (!el || !style || !el.style) return 0;
+        var s = el.style, n = 0;
+        function put(k, v) { if (v) { s.setProperty(k, v); n++; } }
+
+        if (style.bold) put('font-weight', '700');
+        if (style.italic) put('font-style', 'italic');
+
+        var deco = [];
+        var u = String(style.underline || '').toLowerCase();
+        if (u) {
+            deco.push('underline');
+            if (u.indexOf('double') === 0) put('text-decoration-style', 'double');
+        }
+        if (style.strike) deco.push('line-through');
+        if (deco.length) put('text-decoration', deco.join(' '));
+
+        if (style.align) put('text-align', style.align);
+        if (style.color) put('color', style.color);
+        if (style.bg) put('background-color', style.bg);
+        if (style.scale) {
+            var v = Math.max(0.6, Math.min(2.5, parseFloat(style.scale) || 1));
+            if (Math.abs(v - 1) > 0.02) put('font-size', v + 'em');
+        }
+        return n;
+    }
+
     /**
      * 取跳转目标：优先「跳转目标」列，没有就退回「当前内容/值」
      * （很多行本身就是一行「跳转链接」，值直接写在「当前内容/值」里）。
@@ -732,9 +797,14 @@
                                              data-config-active-value 属性，
                                              页面自行在切换时读取
          data-config-text-target="#box"      「点击后显示的文本」渲染进该容器
+         data-config-style="off"             不套用表格里的整格格式
 
        应用后元素上还会留下 data-config-value（本次实际取值），
        页面可据此回读，便于处理多状态元素。
+
+       关于「整格格式」：表格里给单元格设的加粗/斜体/下划线/删除线/对齐/字号/字色，
+       会自动套成元素的内联样式（粒度就是整个元素）。数据来自 sync_styles.py 抓取的
+       .cell-styles.json —— 直读通道读不到单元格格式，所以必须缓存。
 
        例：<button id="mainBtn" data-config-sheet="01_主页"
                    data-config-name="主按钮 · 默认态"
@@ -765,15 +835,26 @@
             var value = item['当前内容/值'] || '';
             var col = el.getAttribute('data-config-col');
             if (col) value = item[col] || '';
+            var attr = el.getAttribute('data-config-attr');
+            var styleOff = el.getAttribute('data-config-style') === 'off';
             if (value) {
                 el.setAttribute('data-config-value', value);
-                var attr = el.getAttribute('data-config-attr');
                 if (attr) {
                     el.setAttribute(attr, value);
                 } else if (el.getAttribute('data-config-mode') === 'rich') {
                     el.innerHTML = renderRichText(value);
                 } else {
                     el.textContent = value;
+                }
+            }
+
+            /* 整格样式：默认套用「取值那一列」对应的单元格格式。
+               写成属性（href 等）时不套样式；data-config-style="off" 可显式关掉。 */
+            if (!attr && !styleOff) {
+                var which = 'value';
+                if (col) which = (col === COL_TEXT) ? 'text' : null;
+                if (which) {
+                    applyCellStyle(el, item[which === 'value' ? COL_VALUE_STYLE : COL_STYLE]);
                 }
             }
 
@@ -789,10 +870,13 @@
                 }
             }
 
-            /* 「点击后显示的文本」渲染进指定容器 */
+            /* 「点击后显示的文本」渲染进指定容器（连同该格的整格样式） */
             var target = el.getAttribute('data-config-text-target');
             var longText = item['点击后显示的文本'] || '';
-            if (target && longText) renderRichTextInto(target, longText);
+            if (target && longText) {
+                var tEl = renderRichTextInto(target, longText);
+                if (tEl && !styleOff) applyCellStyle(tEl, item[COL_STYLE]);
+            }
         }
         return hit;
     }
@@ -868,6 +952,8 @@
         cfgParams: cfgParams,
         splitList: splitList,
         splitPair: splitPair,
+        cfgStyle: cfgStyle,
+        applyCellStyle: applyCellStyle,
         applyTokens: applyTokens,
         applyDocMeta: applyDocMeta,
         setImg: setImg

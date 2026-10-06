@@ -1970,6 +1970,8 @@
                             if (hover) { node.hoverText = hover; node.article.subTitle = hover; }
                             if (bg && bg !== "—") node.bgImg = bg;
                             if (body) node.article.content = body;
+                            // 整格格式（腾讯文档里给单元格设的加粗/斜体/居中等）
+                            if (r["样式"] && node.article) node.article.cellStyle = r["样式"];
                             BOOK_CFG.nodes++;
                         }
                         if (node.children) walk(node.children);
@@ -2182,6 +2184,10 @@
                     heroSubEl.innerText = art.subTitle || '';
                     const rawContent = art.content || '（内容为空）';
                     articleBody.innerHTML = renderContent(rawContent);
+                    // 套用该节点在表格里的整格格式（加粗 / 斜体 / 居中 …）
+                    if (art.cellStyle && XY.applyCellStyle) {
+                        XY.applyCellStyle(articleBody, art.cellStyle);
+                    }
                     updateProjection(activeNode.bgImg);
                 } else {
                     heroTitleEl.innerText = PAGE_TITLE_TEXT;

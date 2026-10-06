@@ -32,6 +32,9 @@
    "[center][/center]",
    "（换行直接在单元格里按回车）"
   ],
+  "styles": {
+   "available": false
+  },
   "note": "由 sync_online.py 从腾讯文档在线总表同步生成；也可用 build.py --export-only 从本地 xlsx 生成。网页用 XY.loadSiteConfig() / XY.configItem() 读取。"
  },
  "sheets": {
