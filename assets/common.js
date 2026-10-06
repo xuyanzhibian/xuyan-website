@@ -318,15 +318,48 @@
        ================================================================ */
     var siteConfigCache = null;
 
+    /* ---------- 防「先显示内置默认、配置到了再变」的闪烁 ----------
+     * 成因：HTML 里写死了内置默认文案（首帧先画出来），配置要等异步请求回来
+     * 才能覆盖，两者之间就有一瞬间的旧文案。
+     * 对策分两层：
+     *   1) <head> 里同步加载 assets/site-config.js，首次绘制前配置已就位（治本）；
+     *   2) 本文件在 <head> 执行时先给 <html> 打上 xy-cfg-pending，
+     *      配合 theme.css 把带 data-config-name 的元素暂时 visibility:hidden
+     *      （保留占位、不跳版），配置套用完立即摘掉；1.5s 兜底强制摘掉，
+     *      保证配置永远读不到时也不会一直空白。
+     */
+    var CFG_PENDING_CLASS = 'xy-cfg-pending';
+    var CFG_PENDING_TIMEOUT = 1500;
+
+    function markConfigPending() {
+        var root = document.documentElement;
+        if (!root || !root.classList) return;
+        root.classList.add(CFG_PENDING_CLASS);
+        global.setTimeout(clearConfigPending, CFG_PENDING_TIMEOUT);
+    }
+
+    function clearConfigPending() {
+        var root = document.documentElement;
+        if (root && root.classList) root.classList.remove(CFG_PENDING_CLASS);
+    }
+
+    markConfigPending();
+
     /**
-     * 读取站点配置（结果会缓存）。不调用则完全不产生额外请求。
-     * 走 no-store，避免浏览器缓存旧配置导致「改了表但页面不变」。
+     * 读取站点配置（结果会缓存）。
+     * 优先取 <head> 里同步加载的 window.__XY_CONFIG__（无请求、零延迟、file:// 也能用）；
+     * 没有时才回退到 fetch ./assets/site-config.json。
+     * 该回退走 no-store，避免浏览器缓存旧配置导致「改了表但页面不变」。
      * @param {string} [url='./assets/site-config.json']
      * @returns {Promise<Object>}
      */
     function loadSiteConfig(url) {
-        url = url || './assets/site-config.json';
         if (siteConfigCache) return Promise.resolve(siteConfigCache);
+        if (global.__XY_CONFIG__) {
+            siteConfigCache = global.__XY_CONFIG__;
+            return Promise.resolve(siteConfigCache);
+        }
+        url = url || './assets/site-config.json';
         if (!global.fetch) return Promise.reject(new Error('当前环境不支持 fetch'));
         return global.fetch(url, { cache: 'no-store' }).then(function (r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -450,10 +483,29 @@
      */
     function autoApplyConfig(root) {
         return loadSiteConfig().then(function (cfg) {
-            return { config: cfg, applied: applyConfig(root || document, cfg) };
+            var n = applyConfig(root || document, cfg);
+            clearConfigPending();
+            return { config: cfg, applied: n };
         }).catch(function () {
+            clearConfigPending();   /* 读不到配置也要放行显示，避免一直空白 */
             return { config: null, applied: 0 };
         });
+    }
+
+    /* 若 <head> 已同步加载 site-config.js，则在 DOM 建好后立刻套用并放行，
+       不经过任何异步等待 —— 首帧就是正确文案，从根上杜绝闪烁。 */
+    function applyConfigEarly() {
+        if (!global.__XY_CONFIG__) return;
+        try {
+            applyConfig(document, global.__XY_CONFIG__);
+        } catch (e) { /* 配置异常不该影响页面，静默跳过 */ }
+        clearConfigPending();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyConfigEarly);
+    } else {
+        applyConfigEarly();
     }
 
     global.XY = {
@@ -474,6 +526,7 @@
         configItem: configItem,
         findConfigItem: findConfigItem,
         applyConfig: applyConfig,
-        autoApplyConfig: autoApplyConfig
+        autoApplyConfig: autoApplyConfig,
+        clearConfigPending: clearConfigPending
     };
 })(window);
