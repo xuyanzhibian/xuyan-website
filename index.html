@@ -386,7 +386,9 @@
     <div class="mist"></div>
 </div>
 <div class="logo" id="homeLogoBtn" role="button" tabindex="0" aria-label="前往万象导览" title="前往万象导览">
-    <img class="logo-img" id="logoImg" alt="虚衍文化科技Logo">
+    <img class="logo-img" id="logoImg" alt="虚衍文化科技Logo"
+         data-config-sheet="01_主页" data-config-name="左上角 Logo"
+         data-config-col="资源路径" data-config-attr="src">
 </div>
 
 <div class="main-content" role="main">
@@ -398,67 +400,113 @@
     <div class="nav-overlay" id="navOverlay"></div>
 </div>
 
-<div class="idle-footer-tip" id="idleTip">长按按钮收集光点切换界面状态</div>
+<div class="idle-footer-tip" id="idleTip" data-config-sheet="01_主页" data-config-name="底部闲置提示" data-config-col="当前内容/值">长按按钮收集光点切换界面状态</div>
 
 <script>
     (function(){
         "use strict";
 
-        // ---------- 直接定义常量（参数回归分散）----------
-        const LOGO_IMG_SRC = "./0虚衍主页/logo-0.webp";
-        const FAVICON_SRC = "./0虚衍主页/logo.webp";
-        const MAIN_TITLE_TEXT = "虚衍文化科技";
-        const SUB_TITLE_TEXT = "吾等自虚无衍化，故应亦同为一体";
-        let BTN_DEFAULT_TEXT = "了解更多";
-        let BTN_ACTIVE_TEXT = "回归初始";
+        // ---------- 表格驱动：所有内容先向《配置总表》01_主页 取值 ----------
+        // 读不到表格（离线 / 首次加载异常）时逐个回落下面写的内置默认值，
+        // 所以这里随便改哪个默认值都不会影响线上 —— 线上以表格为准。
+        const CFG_SHEET = "01_主页";
+        function cv(name, dflt) {
+            return (window.XY && XY.cfgVal) ? XY.cfgVal(CFG_SHEET, name, dflt) : dflt;
+        }
+        function cp(name) {
+            return (window.XY && XY.cfgParams) ? XY.cfgParams(CFG_SHEET, name, {}) : {};
+        }
+        function cn(obj, key, dflt) {
+            var v = obj[key];
+            return (typeof v === "number" && isFinite(v)) ? v : dflt;
+        }
+        function clist(name, dflt) {
+            var raw = cv(name, dflt);
+            return (window.XY && XY.splitList) ? XY.splitList(raw, " / ") : String(raw).split(" / ");
+        }
 
-        const NAV_BUTTONS = [
-            { text: "虚衍世界", link: "1虚衍世界.html", target: "_self" },
-            { text: "造物信息", link: "2造物信息.html", target: "_self" },
-            { text: "了解我们", link: "3了解我们.html", target: "_self" },
-            { text: "加入我们", link: "4加入我们.html", target: "_self" }
-        ];
+        // 表内「特效 / 配置参数」分组的取参对象
+        const P_STAR  = cp("远景星点");
+        const P_FLOW  = cp("星光流点");
+        const P_TW    = cp("星点闪烁时长与透明度");
+        const P_BTN   = cp("按钮粒子");
+        const P_FLOAT = cp("漂浮粒子");
+        const P_CORE  = cp("触发所需光点数");
+        const P_HOLD  = cp("长按消耗时长");
+        const P_PEAK  = cp("光点峰值停留");
+        const P_RING  = cp("进度环动画时长");
+        const P_RANGE = cp("光点吸附范围");
+        const P_SMOOTH= cp("鼠标吸附平滑度");
+        const P_FADE  = cp("白闪渐变粒度");
+
+        // ---------- 内容常量（值来自表格）----------
+        const LOGO_IMG_SRC = (window.XY && XY.cfgRes)
+            ? XY.cfgRes(CFG_SHEET, "左上角 Logo", "./0虚衍主页/logo-0.webp")
+            : "./0虚衍主页/logo-0.webp";
+        const LOGO_HOME_HREF = (window.XY && XY.cfgLink)
+            ? XY.cfgLink(CFG_SHEET, "Logo 跳转目标", "./0-1虚衍导航.html")
+            : "./0-1虚衍导航.html";
+        const FAVICON_SRC = (window.XY && XY.cfgRes)
+            ? XY.cfgRes(CFG_SHEET, "浏览器图标 Favicon", "./0虚衍主页/logo.webp")
+            : "./0虚衍主页/logo.webp";
+        const MAIN_TITLE_TEXT = cv("主标题", "虚衍文化科技");
+        const SUB_TITLE_TEXT = cv("副标题", "吾等自虚无衍化，故应亦同为一体");
+        let BTN_DEFAULT_TEXT = cv("主按钮 · 默认态", "了解更多");
+        let BTN_ACTIVE_TEXT = cv("主按钮 · 激活态", "回归初始");
+
+        // 导航按钮：文案与跳转目标都来自表格（两列按顺序一一对应）
+        const NAV_LABELS = clist("长按展开的导航按钮", "虚衍世界 / 造物信息 / 了解我们 / 加入我们");
+        const NAV_HREFS = (function () {
+            const raw = (window.XY && XY.cfgLink)
+                ? XY.cfgLink(CFG_SHEET, "长按展开的导航按钮",
+                    "1虚衍世界.html / 2造物信息.html / 3了解我们.html / 4加入我们.html")
+                : "1虚衍世界.html / 2造物信息.html / 3了解我们.html / 4加入我们.html";
+            return (window.XY && XY.splitList) ? XY.splitList(raw, " / ") : String(raw).split(" / ");
+        })();
+        const NAV_BUTTONS = NAV_LABELS.map(function (t, i) {
+            return { text: t, link: NAV_HREFS[i] || "#", target: "_self" };
+        });
 
         // 星星相关常量
-        const DISTANT_STAR_COUNT = 35;
-        const DISTANT_STAR_MIN_SIZE = 1.5;
-        const DISTANT_STAR_MAX_SIZE = 5;
-        const TWINKLE_MIN_DUR = 2;
-        const TWINKLE_MAX_DUR = 5;
+        const DISTANT_STAR_COUNT = cn(P_STAR, "DISTANT_STAR_COUNT", 35);
+        const DISTANT_STAR_MIN_SIZE = cn(P_STAR, "DISTANT_STAR_MIN_SIZE", 1.5);
+        const DISTANT_STAR_MAX_SIZE = cn(P_STAR, "DISTANT_STAR_MAX_SIZE", 5);
+        const TWINKLE_MIN_DUR = cn(P_TW, "TWINKLE_MIN_DUR", 2);
+        const TWINKLE_MAX_DUR = cn(P_TW, "TWINKLE_MAX_DUR", 5);
 
         // 星光相关常量
-        const STARLIGHT_CREATE_INTERVAL = 1000;
-        const STARLIGHT_MIN_SIZE = 2;
-        const STARLIGHT_MAX_SIZE = 10;
-        const STARLIGHT_MIN_SPEED = 0.25;
-        const STARLIGHT_MAX_SPEED = 0.5;
-        const BLINK_MIN_DUR = 2.5;
-        const BLINK_MAX_DUR = 5;
-        const BLINK_MIN_OPACITY = 0.1;
-        const BLINK_MAX_OPACITY = 1.0;
+        const STARLIGHT_CREATE_INTERVAL = cn(P_FLOW, "STARLIGHT_CREATE_INTERVAL", 1000);
+        const STARLIGHT_MIN_SIZE = cn(P_FLOW, "STARLIGHT_MIN_SIZE", 2);
+        const STARLIGHT_MAX_SIZE = cn(P_FLOW, "STARLIGHT_MAX_SIZE", 10);
+        const STARLIGHT_MIN_SPEED = cn(P_FLOW, "STARLIGHT_MIN_SPEED", 0.25);
+        const STARLIGHT_MAX_SPEED = cn(P_FLOW, "STARLIGHT_MAX_SPEED", 0.5);
+        const BLINK_MIN_DUR = cn(P_TW, "BLINK_MIN_DUR", 2.5);
+        const BLINK_MAX_DUR = cn(P_TW, "BLINK_MAX_DUR", 5);
+        const BLINK_MIN_OPACITY = cn(P_TW, "BLINK_MIN_OPACITY", 0.1);
+        const BLINK_MAX_OPACITY = cn(P_TW, "BLINK_MAX_OPACITY", 1.0);
 
         // 交互常量
-        const BUTTON_SAFE_ZONE_EXPAND = 50;
-        const ATTRACT_RANGE = 150;
-        const TRIGGER_NUM = 5;
-        const CONSUME_DURATION = 1000;
-        const PEAK_DURATION = 1500;
-        const RING_DURATION = 1000;
-        const MOUSE_ADSORB_SMOOTHNESS = 0.15;
-        const BUTTON_ADSORB_SPEED = 0.1;
-        const BUTTON_ADSORB_TRIGGER_DIST = 5;
-        const FADE_LIGHT_STEP = 0.05;
-        const FADE_LIGHT_INTERVAL = 40;
+        const BUTTON_SAFE_ZONE_EXPAND = cn(P_RANGE, "BUTTON_SAFE_ZONE_EXPAND", 50);
+        const ATTRACT_RANGE = cn(P_RANGE, "ATTRACT_RANGE", 150);
+        const TRIGGER_NUM = cn(P_CORE, "TRIGGER_NUM", 5);
+        const CONSUME_DURATION = cn(P_HOLD, "CONSUME_DURATION", 1000);
+        const PEAK_DURATION = cn(P_PEAK, "PEAK_DURATION", 1500);
+        const RING_DURATION = cn(P_RING, "RING_DURATION", 1000);
+        const MOUSE_ADSORB_SMOOTHNESS = cn(P_SMOOTH, "MOUSE_ADSORB_SMOOTHNESS", 0.15);
+        const BUTTON_ADSORB_SPEED = cn(P_SMOOTH, "BUTTON_ADSORB_SPEED", 0.1);
+        const BUTTON_ADSORB_TRIGGER_DIST = cn(P_SMOOTH, "BUTTON_ADSORB_TRIGGER_DIST", 5);
+        const FADE_LIGHT_STEP = cn(P_FADE, "FADE_LIGHT_STEP", 0.05);
+        const FADE_LIGHT_INTERVAL = cn(P_FADE, "FADE_LIGHT_INTERVAL", 40);
 
         // 粒子常量
-        const BTN_PARTICLE_COUNT = 10;
-        const BTN_HOVER_PARTICLE_COUNT = 15;
-        const BTN_PARTICLE_MAX_TX = 100;
-        const BTN_PARTICLE_MAX_TY = 100;
-        const FLOAT_PARTICLE_COUNT = 10;
-        const FLOAT_PARTICLE_MAX_TX = 75;
-        const FLOAT_PARTICLE_MAX_TY = 75;
-        const FLOAT_PARTICLE_TY_OFFSET = -25;
+        const BTN_PARTICLE_COUNT = cn(P_BTN, "BTN_PARTICLE_COUNT", 10);
+        const BTN_HOVER_PARTICLE_COUNT = cn(P_BTN, "BTN_HOVER_PARTICLE_COUNT", 15);
+        const BTN_PARTICLE_MAX_TX = cn(P_BTN, "BTN_PARTICLE_MAX_TX", 100);
+        const BTN_PARTICLE_MAX_TY = cn(P_BTN, "BTN_PARTICLE_MAX_TY", 100);
+        const FLOAT_PARTICLE_COUNT = cn(P_FLOAT, "FLOAT_PARTICLE_COUNT", 10);
+        const FLOAT_PARTICLE_MAX_TX = cn(P_FLOAT, "FLOAT_PARTICLE_MAX_TX", 75);
+        const FLOAT_PARTICLE_MAX_TY = cn(P_FLOAT, "FLOAT_PARTICLE_MAX_TY", 75);
+        const FLOAT_PARTICLE_TY_OFFSET = cn(P_FLOAT, "FLOAT_PARTICLE_TY_OFFSET", -25);
         const FLOAT_PARTICLE_REMOVE_DELAY = 2000;
 
         // DOM 元素
@@ -833,9 +881,11 @@
 
         // ----- 初始化入口 -----
         function init() {
+            // 页面标题 / 分享卡片 / 图标也由表格决定
+            if (window.XY && XY.applyDocMeta) XY.applyDocMeta(CFG_SHEET);
             renderStaticContent();
             bindEvents();
-            setupLogo('./0-1虚衍导航.html', '.logo', 'logoImg', '前往万象导览');
+            setupLogo(LOGO_HOME_HREF, '.logo', 'logoImg', '前往万象导览');
             setupA11yFallback();
             applyTableConfig();
             animationFrameId = requestAnimationFrame(animationLoop);

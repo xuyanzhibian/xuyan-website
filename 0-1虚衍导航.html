@@ -538,15 +538,15 @@
 <div class="nav-container">
     <div class="content-wrapper">
         <div class="hero-section">
-            <div class="hero-title">虚衍万象</div>
-            <div class="hero-sub">集于此处，见证万象</div>
+            <div class="hero-title" data-config-sheet="02_万象导航" data-config-name="主标题">虚衍万象</div>
+            <div class="hero-sub" data-config-sheet="02_万象导航" data-config-name="副标题">集于此处，见证万象</div>
         </div>
         <div class="primary-tabs" id="tabsContainer"></div>
         <div class="secondary-panel" id="dynamicPanel">
             <div style="text-align:center; padding: 2rem;">加载万象经纬...</div>
         </div>
     </div>
-    <div class="footer-note">✦ 点击虚衍标志返回主页面 ✦</div>
+    <div class="footer-note" data-config-sheet="02_万象导航" data-config-name="底部注记">✦ 点击虚衍标志返回主页面 ✦</div>
 </div>
 
 <div class="bottom-text-tip" id="globalBottomTip"></div>
@@ -555,13 +555,17 @@
     (function(){
         "use strict";
 
-        // ======================= 1. 可配置部分 =======================
+        // ======================= 1. 可配置部分（值来自《配置总表》02_万象导航）=======================
         const LOGO_CONFIG = {
             imgSrc: "./0虚衍主页/logo-0.webp",
             linkUrl: "./0虚衍主页.html"
         };
-        const DEFAULT_HOVER_TEXT = "尚未编织";
-        const DEFAULT_LONG_TEXT_BG = "https://picsum.photos/id/104/800/600?grayscale";
+        let DEFAULT_HOVER_TEXT = (window.XY && XY.cfgHover)
+            ? XY.cfgHover("02_万象导航", "三级条目缺省悬停文案", "尚未编织") : "尚未编织";
+        let DEFAULT_LONG_TEXT_BG = (window.XY && XY.cfgVal)
+            ? XY.cfgVal("02_万象导航", "长文本默认底图",
+                "https://picsum.photos/id/104/800/600?grayscale")
+            : "https://picsum.photos/id/104/800/600?grayscale";
 
         // ======================= 导航数据结构 =======================
         // 👉 修改点：为每个三级项添加 targetId 字段，映射到 1-1虚衍之书.html 中的节点ID
@@ -694,7 +698,38 @@
             }
         ];
 
-        // ======================= 辅助函数 =======================
+        // ======================= 表格驱动：用《配置总表》覆盖上面的默认结构 =======================
+        // 表里能改的东西：Logo、一级/二级/三级菜单文案、二级底图、三级悬停文案与跳转节点、
+        // 二级长文本正文及底图。表里没写的字段保留上面写死的默认值。
+        (function applyMenuConfig() {
+            if (!window.XY || !XY.cfgVal) return;
+            const S = "02_万象导航";
+
+            LOGO_CONFIG.imgSrc = XY.cfgRes(S, "左上角 Logo", LOGO_CONFIG.imgSrc);
+            LOGO_CONFIG.linkUrl = XY.cfgLink(S, "Logo 跳转目标", LOGO_CONFIG.linkUrl);
+
+            menuStructure.forEach(function (pri) {
+                pri.name = XY.cfgVal(S, pri.name, pri.name);
+                (pri.secondary || []).forEach(function (sec) {
+                    sec.title = XY.cfgVal(S, sec.title, sec.title);
+                    const img = XY.cfgRes(S, sec.title, null);
+                    if (img) sec.image = img;
+                    const body = XY.cfgText(S, sec.title, null);
+                    if (body) sec.longText = body;            // 长文本正文
+                    const bg = XY.cfgHover(S, sec.title, null); // 二级行的「悬停文案」当作长文本底图备用
+                    if (bg && /\.(webp|png|jpe?g|gif|avif|svg)$/i.test(bg)) sec.longTextBgImage = bg;
+                    (sec.tertiary || []).forEach(function (t) {
+                        t.name = XY.cfgVal(S, t.name, t.name);
+                        const h = XY.cfgHover(S, t.name, null);
+                        if (h) t.hoverText = h;
+                        const l = XY.cfgLink(S, t.name, null);
+                        if (l) t.targetId = l;
+                        const timg = XY.cfgRes(S, t.name, null);
+                        if (timg) t.image = timg;
+                    });
+                });
+            });
+        })();
         function escapeHtml(str) {
             if(!str) return '';
             return str.replace(/[&<>]/g, function(m) {
