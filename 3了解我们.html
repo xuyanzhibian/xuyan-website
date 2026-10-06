@@ -578,17 +578,19 @@
 
 <div class="sky-container" id="skyContainer"></div>
 <div class="logo" id="globalLogo">
-    <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp">
+    <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp"
+         data-config-sheet="06_了解我们" data-config-name="左上角 Logo"
+         data-config-col="资源路径" data-config-attr="src">
 </div>
 
 <div class="main-wrapper">
-    <div class="main-title">虚衍之众</div>
-    <div class="sub-title">我们的过去、如今与未来</div>
+    <div class="main-title" data-config-sheet="06_了解我们" data-config-name="主标题">虚衍之众</div>
+    <div class="sub-title" data-config-sheet="06_了解我们" data-config-name="副标题">我们的过去、如今与未来</div>
 
     <div class="tri-stack" id="triStack">
         <div class="cards-switch-container" id="cardsContainer"></div>
     </div>
-    <div class="footer-note">
+    <div class="footer-note" data-config-sheet="06_了解我们" data-config-name="底部操作提示">
         ✦ 长按左右滑动 / 点击虚化部分切换 · 触碰中间按钮体验专属回响 ✦
     </div>
 </div>
@@ -617,11 +619,33 @@
 <script>
     (function(){
         "use strict";
+        // ============================================================
+        //  表格驱动：《配置总表》06_了解我们
+        //  三张卡片的文案 / 跳转目标 / 悬停提示 / 底图，粒子与扭曲参数，均从表格取；
+        //  读不到表格时回落下面写死的内置默认。
+        // ============================================================
+        const CFG_SHEET = "06_了解我们";
         const BUTTONS = [
             { id: "item", name: "虚衍之物", link: "0虚衍主页.html", bgImg: "./3了解我们/虚衍之物.webp", hoverText: "虚衍之物 · 万象之器，基石原型", effect: "particle" },
             { id: "record", name: "诸事纪要", link: "#", bgImg: "./3了解我们/诸事纪要.webp", hoverText: "诸事纪要 · 永恒变量，太微创世", effect: "wave" },
             { id: "ideal", name: "理想计划", link: "#", bgImg: "./3了解我们/理想计划.webp", hoverText: "理想计划 · 虚无抗体，神明分身", effect: "distortion" }
         ];
+        (function readButtonConfig() {
+            if (!window.XY || !XY.cfgVal) return;
+            const NAMES = { item: "卡片按钮 · 虚衍之物", record: "卡片按钮 · 诸事纪要", ideal: "卡片按钮 · 理想计划" };
+            BUTTONS.forEach(function (b) {
+                const key = NAMES[b.id];
+                if (!key) return;
+                const name = XY.cfgVal(CFG_SHEET, key, null);
+                const link = XY.cfgLink(CFG_SHEET, key, null);
+                const hover = XY.cfgHover(CFG_SHEET, key, null);
+                const bg = XY.cfgRes(CFG_SHEET, key, null);
+                if (name) b.name = name;
+                if (link) b.link = link;
+                if (hover) b.hoverText = hover;
+                if (bg && bg !== "—") b.bgImg = bg;
+            });
+        })();
         let centerIdx = 1;
         let switching = false;
         let dragStartX = 0, dragging = false;
@@ -638,10 +662,10 @@
         let particleIntervalId = null;
         let particleAnimationId = null;
         let isParticleActive = false;
-        const PARTICLE_CFG = {
+        const PARTICLE_CFG = Object.assign({
             minSize: 3, maxSize: 11, minSpeed: 0.35, maxSpeed: 2.2,
             minFade: 0.003, maxFade: 0.008, generationInterval: 85, maxParticles: 260
-        };
+        }, (window.XY && XY.cfgParams) ? XY.cfgParams(CFG_SHEET, "粒子参数", {}) : {});
         
         function createParticle() {
             if(!particleContainer) return;
@@ -804,7 +828,10 @@
         let distortionActive = false;
         const filterElem = document.querySelector('#liquidDistortion');
         if(filterElem) displacementMap = filterElem.querySelector('#displacementMap');
-        const DIST_START = 0, DIST_END = 7000, DURATION = 600000;
+        const DIST_P = (window.XY && XY.cfgParams) ? XY.cfgParams(CFG_SHEET, "扭曲距离参数", {}) : {};
+        const DIST_START = (DIST_P.start != null) ? DIST_P.start : 0;
+        const DIST_END = (DIST_P.end != null) ? DIST_P.end : 7000;
+        const DURATION = (DIST_P.duration != null) ? DIST_P.duration : 600000;
         function setDistScale(v) { if(displacementMap) displacementMap.setAttribute('scale', Math.min(DIST_END, Math.max(0, v))); }
         function resetDist() { setDistScale(DIST_START); if(distortionAnimFrame) cancelAnimationFrame(distortionAnimFrame); distortionActive = false; }
         function startDistAnim() {
@@ -1039,8 +1066,11 @@
         window.addEventListener('resize', XY.throttle(onResizeThrottled, 200), { passive: true });
 
         function init() {
+            if (window.XY && XY.applyDocMeta) XY.applyDocMeta(CFG_SHEET);
             genStars();
-            setupLogo();
+            setupLogo((window.XY && XY.cfgLink)
+                ? XY.cfgLink(CFG_SHEET, "左上角 Logo", "./0虚衍主页.html")
+                : "./0虚衍主页.html", '.logo', 'logoImg', '返回主页');
             initWave();
             renderCards(false);
             initSwipe();
