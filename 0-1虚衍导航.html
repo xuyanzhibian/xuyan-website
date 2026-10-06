@@ -730,6 +730,8 @@
                 });
             });
         })();
+
+        // ======================= 辅助函数 =======================
         function escapeHtml(str) {
             if(!str) return '';
             return str.replace(/[&<>]/g, function(m) {
@@ -1109,7 +1111,13 @@
         renderPrimaryTabs();
         initStars();
         updateFullPanel();
-        setupLogo();
+        // 页面标题 / 分享卡片 / 图标由表格决定，Logo 的图与跳转目标也取自表格
+        if (window.XY && XY.applyDocMeta) XY.applyDocMeta("02_万象导航");
+        (function () {
+            var li = document.getElementById('logoImg');
+            if (li && LOGO_CONFIG.imgSrc) li.setAttribute('src', LOGO_CONFIG.imgSrc);
+        })();
+        setupLogo(LOGO_CONFIG.linkUrl, '.logo', 'logoImg', '返回主页');
         console.log("✨ 虚衍万象 · 布局自适应：内容少时整体居中，内容多时面板滚动 ✨");
     })();
 </script>

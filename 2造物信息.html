@@ -465,12 +465,14 @@
 </div>
 
 <div class="logo" id="homeLogo">
-    <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp">
+    <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp"
+         data-config-sheet="05_造物信息" data-config-name="左上角 Logo"
+         data-config-col="资源路径" data-config-attr="src">
 </div>
 
 <div class="main-wrapper">
-    <div class="main-title">造物信息</div>
-    <div class="sub-title">虚实之间 · 万象重构</div>
+    <div class="main-title" data-config-sheet="05_造物信息" data-config-name="主标题">造物信息</div>
+    <div class="sub-title" data-config-sheet="05_造物信息" data-config-name="副标题">虚实之间 · 万象重构</div>
 
     <div class="dual-stack">
         <div class="card-stack" id="cardStack">
@@ -480,7 +482,7 @@
                  data-explanation="数字星海 · 意识棱镜  量子叙事，虚实交织"
                  data-bg="./2造物信息/虚拟幻想.webp">
                 <div class="card-content">
-                    <div class="card-title">虚拟幻想</div>
+                    <div class="card-title" data-config-sheet="05_造物信息" data-config-name="卡片 · 虚拟幻想">虚拟幻想</div>
                 </div>
             </div>
             <!-- 现实具象卡片 (默认激活前置) -->
@@ -489,12 +491,12 @@
                  data-explanation="原型基石 · 能量打印  机械神域，实体星港"
                  data-bg="./2造物信息/现实具象.webp">
                 <div class="card-content">
-                    <div class="card-title">现实具象</div>
+                    <div class="card-title" data-config-sheet="05_造物信息" data-config-name="卡片 · 现实具象">现实具象</div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="bottom-tip">✨ 按住当前卡片向下滑动，或点击下方露出的按钮区域，即可切换虚实 ✨</div>
+    <div class="bottom-tip" data-config-sheet="05_造物信息" data-config-name="底部操作提示">✨ 按住当前卡片向下滑动，或点击下方露出的按钮区域，即可切换虚实 ✨</div>
 </div>
 
 <!-- 背景投影层 -->
@@ -521,6 +523,33 @@
 <script>
     (function(){
         "use strict";
+
+        // ============================================================
+        //  表格驱动：《配置总表》05_造物信息
+        //  两张卡片的文案 / 卡片说明 / 跳转目标 / 底图，以及粒子参数，都从表格取；
+        //  读不到表格时全部回落 HTML 里写死的内置默认。
+        // ============================================================
+        const CFG_SHEET = "05_造物信息";
+        const CARD_CFG = {};
+        (function readCardConfig() {
+            if (!window.XY || !XY.cfgVal) return;
+            [["fantasyCard", "卡片 · 虚拟幻想"], ["realityCard", "卡片 · 现实具象"]].forEach(function (p) {
+                const card = document.getElementById(p[0]);
+                if (!card) return;
+                const label = XY.cfgVal(CFG_SHEET, p[1], null);
+                const link = XY.cfgLink(CFG_SHEET, p[1], null);
+                const expl = XY.cfgHover(CFG_SHEET, p[1], null);
+                const bg = XY.cfgRes(CFG_SHEET, p[1], null);
+                if (link) card.setAttribute("data-link", link);
+                if (expl) card.setAttribute("data-explanation", expl);
+                if (bg) card.setAttribute("data-bg", bg);
+                if (label) {
+                    const t = card.querySelector(".card-title");
+                    if (t) t.textContent = label;
+                }
+                CARD_CFG[p[0]] = { label: label, link: link, expl: expl, bg: bg };
+            });
+        })();
         // ---------- 图片背景注入器 ----------
         const styleSheet = (function(){
             const sheet = document.createElement('style');
@@ -610,10 +639,10 @@
         let particleAnimId = null;
         let particleInterval = null;
         let isParticleEmitterActive = false;
-        const PARTICLE_CONFIG = {
+        const PARTICLE_CONFIG = Object.assign({
             minSize: 3, maxSize: 10, minSpeed: 0.4, maxSpeed: 2.0,
             minFade: 0.0006, maxFade: 0.0045, generationInterval: 130, maxParticles: 340
-        };
+        }, (window.XY && XY.cfgParams) ? XY.cfgParams(CFG_SHEET, "粒子参数", {}) : {});
         function createRealityParticle() {
             if(!particleContainer) return;
             const particle = document.createElement('div');
@@ -853,8 +882,11 @@
         window.addEventListener('resize', XY.throttle(onResizeThrottled, 200), { passive: true });
 
         function init() {
+            if (window.XY && XY.applyDocMeta) XY.applyDocMeta(CFG_SHEET);
             initStars();
-            setupLogo();
+            setupLogo((window.XY && XY.cfgLink)
+                ? XY.cfgLink(CFG_SHEET, "左上角 Logo", "./0虚衍主页.html")
+                : "./0虚衍主页.html", '.logo', 'logoImg', '返回主页');
             activeType = 'reality';
             updateCardAppearance(false);
             updateActiveCardRef();

@@ -423,31 +423,33 @@
     </div>
 
     <div class="home-logo" id="homeLogoBtn" aria-label="返回虚衍主页" title="返回虚衍主页"> <!-- Logo容器：无障碍标签，标题提示 -->
-        <img src="./0虚衍主页/logo-0.webp" alt="虚衍文化科技 · 主页" draggable="false" id="logoImgElement"> <!-- Logo图片：alt文本，禁止拖拽 -->
+        <img src="./0虚衍主页/logo-0.webp" alt="虚衍文化科技 · 主页" draggable="false" id="logoImgElement"
+             data-config-sheet="03_虚衍世界" data-config-name="左上角 Logo"
+             data-config-col="资源路径" data-config-attr="src"> <!-- Logo图片：alt文本，禁止拖拽 -->
     </div>
 
     <div class="hero-section">
-        <h1 class="hero-title">虚衍世界观</h1>
-        <p class="hero-sub">虚衍回响 · 万象归一</p>
+        <h1 class="hero-title" data-config-sheet="03_虚衍世界" data-config-name="主标题">虚衍世界观</h1>
+        <p class="hero-sub" data-config-sheet="03_虚衍世界" data-config-name="副标题">虚衍回响 · 万象归一</p>
     </div>
 
     <div class="button-container">
         <div class="world-button" id="bookOfVoidBtn" data-url="1-1虚衍之书.html" data-default-link="/xuyan-book"> <!-- 虚衍之书按钮：自定义数据属性url和默认链接 -->
             <img class="btn-bg-img" src="./1虚衍世界/1虚衍之书.webp" alt="虚衍之书" style="display: none;"> <!-- 隐藏的背景图片：用于CSS伪元素 -->
-            <span class="button-text">虚衍之书</span>
+            <span class="button-text" data-config-sheet="03_虚衍世界" data-config-name="板块按钮 · 虚衍之书">虚衍之书</span>
         </div>
         <div class="world-button" id="godTearsBtn" data-url="https://example.com/god-tear" data-default-link="/god-tear"> <!-- 神明之泣按钮 -->
             <img class="btn-bg-img" src="./1虚衍世界/2神明之泣.webp" alt="神明之泣" style="display: none;">
-            <span class="button-text">神明之泣</span>
+            <span class="button-text" data-config-sheet="03_虚衍世界" data-config-name="板块按钮 · 神明之泣">神明之泣</span>
         </div>
         <div class="world-button full-width" id="timeSpaceBtn" data-url="https://example.com/temporal-spacetime" data-default-link="/time-space"> <!-- 临世时空按钮，全宽样式 -->
             <img class="btn-bg-img" src="./1虚衍世界/3临世时空.webp" alt="临世时空" style="display: none;">
-            <span class="button-text">临世时空</span>
+            <span class="button-text" data-config-sheet="03_虚衍世界" data-config-name="板块按钮 · 临世时空">临世时空</span>
         </div>
     </div>
 
     <div class="footer-note">
-        ✦ 点击虚衍标志返回主页面 ✦
+        <span data-config-sheet="03_虚衍世界" data-config-name="底部注记">✦ 点击虚衍标志返回主页面 ✦</span>
     </div>
 
     <div class="bg-projection" id="bgProjection"></div> <!-- 背景投影层 -->
@@ -460,6 +462,48 @@
     <script>
         (function(){
             "use strict";
+
+            // ============================================================
+            //  表格驱动：《配置总表》03_虚衍世界
+            //  按钮文案 / 跳转目标 / 底图 / 悬停提示 / 粒子与扭曲参数 都从表格取，
+            //  读不到表格时全部回落下面各处写死的内置默认值。
+            // ============================================================
+            const CFG_SHEET = "03_虚衍世界";
+            const WORLD_CFG = { text: {}, hover: {}, particles: null, distort: null, filter: null };
+            (function readWorldConfig() {
+                if (!window.XY || !XY.cfgVal) return;
+                const MAP = [
+                    { id: "bookOfVoidBtn", name: "板块按钮 · 虚衍之书" },
+                    { id: "godTearsBtn",   name: "板块按钮 · 神明之泣" },
+                    { id: "timeSpaceBtn",  name: "板块按钮 · 临世时空" }
+                ];
+                MAP.forEach(function (m) {
+                    const btn = document.getElementById(m.id);
+                    if (!btn) return;
+                    const label = XY.cfgVal(CFG_SHEET, m.name, null);
+                    const link = XY.cfgLink(CFG_SHEET, m.name, null);
+                    const res = XY.cfgRes(CFG_SHEET, m.name, null);
+                    const hov = XY.cfgHover(CFG_SHEET, m.name, null);
+                    if (link) btn.setAttribute("data-url", link);
+                    if (res) {
+                        const img = btn.querySelector(".btn-bg-img");
+                        if (img) img.setAttribute("src", res);
+                    }
+                    const key = (label || m.name).trim();
+                    if (hov) { WORLD_CFG.hover[m.id] = hov; WORLD_CFG.text[key] = hov; }
+                });
+                WORLD_CFG.particles = XY.cfgParams(CFG_SHEET, "粒子参数", null);
+                WORLD_CFG.distort = XY.cfgParams(CFG_SHEET, "扭曲强度参数", null);
+                WORLD_CFG.filter = XY.cfgParams(CFG_SHEET, "SVG 液体扭曲滤镜", null);
+                if (WORLD_CFG.filter) {
+                    const turb = document.querySelector("#liquidDistortion feTurbulence");
+                    if (turb) {
+                        ["baseFrequency", "numOctaves", "seed"].forEach(function (k) {
+                            if (WORLD_CFG.filter[k] != null) turb.setAttribute(k, WORLD_CFG.filter[k]);
+                        });
+                    }
+                }
+            })();
 
             // 背景星星生成
             function createDistantStars() {
@@ -550,7 +594,9 @@
 
             // 扭曲特效 (临世时空)
             let distortionOverlay = null, displacementMap = null, distortionAnimFrame = null, distortionActive = false, distortionHideTimeout = null;
-            const DISTORTION_START = 0, DISTORTION_END = 6000, DURATION = 600000; // 扭曲起始缩放0，结束缩放6000，动画时长600000毫秒
+            const DISTORTION_START = (WORLD_CFG.distort && WORLD_CFG.distort.start != null) ? WORLD_CFG.distort.start : 0;
+            const DISTORTION_END = (WORLD_CFG.distort && WORLD_CFG.distort.end != null) ? WORLD_CFG.distort.end : 6000;
+            const DURATION = (WORLD_CFG.distort && WORLD_CFG.distort.duration != null) ? WORLD_CFG.distort.duration : 600000; // 扭曲起始缩放0，结束缩放6000，动画时长（毫秒），均来自表格
             const easeOutCubic = t => 1 - Math.pow(1 - t, 5); // 缓动函数：五次方缓出
             function setDistortionScale(v) { if(displacementMap) displacementMap.setAttribute('scale', Math.min(DISTORTION_END, Math.max(0, v))); } // 设置扭曲缩放值
             function resetDistortion() { setDistortionScale(DISTORTION_START); if(distortionAnimFrame) cancelAnimationFrame(distortionAnimFrame); distortionActive = false; } // 重置扭曲
@@ -628,7 +674,9 @@
 
             // 粒子特效 (神明之泣)
             let particleContainer = null, activeParticles = [], particleAnimId2 = null, particleInterval = null, isParticleEmitterActive = false;
-            const PARTICLE_CONFIG = { minSize:5, maxSize:10, minSpeed:0.5, maxSpeed:2.5, minFade:0.0005, maxFade:0.005, generationInterval:150, maxParticles:350 }; // 粒子配置
+            const PARTICLE_CONFIG = Object.assign(
+                { minSize:5, maxSize:10, minSpeed:0.5, maxSpeed:2.5, minFade:0.0005, maxFade:0.005, generationInterval:150, maxParticles:350 },
+                WORLD_CFG.particles || {}); // 粒子配置（表格可覆盖）
             function ensureParticleContainer() {
                 if (!particleContainer) {
                     particleContainer = document.createElement('div');
@@ -726,17 +774,31 @@
             }
 
             // 底部文字提示
-            const textMap = { '虚衍之书': '虚衍之书 | 虚衍万物过去与未来之预衍', '神明之泣': '神明之泣 | 神明与造物无尽结局之总述', '临世时空': '临世时空 | 平行未来所见最圆满之结局' }; // 提示文本映射
+            const textMap = Object.assign(
+                { '虚衍之书': '虚衍之书 | 虚衍万物过去与未来之预衍', '神明之泣': '神明之泣 | 神明与造物无尽结局之总述', '临世时空': '临世时空 | 平行未来所见最圆满之结局' },
+                WORLD_CFG.text); // 提示文本映射（表格「悬停文案」列可覆盖）
             let bottomTip = null, tipTimeout = null;
             function showBottomText(t) { if(bottomTip){ if(tipTimeout) clearTimeout(tipTimeout); bottomTip.innerText = t; bottomTip.style.opacity = '1'; } } // 显示底部提示文字
             function hideBottomText() { if(bottomTip){ if(tipTimeout) clearTimeout(tipTimeout); tipTimeout = setTimeout(()=>{ if(bottomTip) bottomTip.style.opacity='0'; },500); } } // 隐藏底部提示文字
-            function bindBottomText(btn, key){ if(!btn||!textMap[key]) return; const txt=textMap[key]; btn.addEventListener('mouseenter',(e)=>{ e.stopPropagation(); showBottomText(txt); }); btn.addEventListener('mouseleave',(e)=>{ e.stopPropagation(); hideBottomText(); }); btn.addEventListener('touchstart',(e)=>{ e.stopPropagation(); showBottomText(txt); },{passive:true}); btn.addEventListener('touchend',(e)=>{ e.stopPropagation(); hideBottomText(); }); } // 为按钮绑定提示文字事件
-            function initBottomText() { bottomTip = document.getElementById('bottomTextTip'); if(!bottomTip) return; bindBottomText(document.getElementById('bookOfVoidBtn'),'虚衍之书'); bindBottomText(document.getElementById('godTearsBtn'),'神明之泣'); bindBottomText(document.getElementById('timeSpaceBtn'),'临世时空'); } // 初始化底部提示
+            function bindBottomText(btn, txt){ if(!btn||!txt) return; btn.addEventListener('mouseenter',(e)=>{ e.stopPropagation(); showBottomText(txt); }); btn.addEventListener('mouseleave',(e)=>{ e.stopPropagation(); hideBottomText(); }); btn.addEventListener('touchstart',(e)=>{ e.stopPropagation(); showBottomText(txt); },{passive:true}); btn.addEventListener('touchend',(e)=>{ e.stopPropagation(); hideBottomText(); }); } // 为按钮绑定提示文字事件
+            /* 三个按钮的悬停提示：优先取表格「悬停文案」列，缺失时用 textMap 默认 */
+            function initBottomText() {
+                bottomTip = document.getElementById('bottomTextTip');
+                if(!bottomTip) return;
+                [['bookOfVoidBtn', '虚衍之书'], ['godTearsBtn', '神明之泣'], ['timeSpaceBtn', '临世时空']]
+                    .forEach(function (p) {
+                        var btn = document.getElementById(p[0]);
+                        var txt = (WORLD_CFG.hover && WORLD_CFG.hover[p[0]]) || textMap[p[1]];
+                        bindBottomText(btn, txt);
+                    });
+            } // 初始化底部提示
 
             // Logo 跳转主页
             function setupHomeLogo() {
                 const logo = document.getElementById('homeLogoBtn');
-                if(logo) logo.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='./0虚衍主页.html'; }); // 点击Logo跳转主页
+                const href = (window.XY && XY.cfgLink)
+                    ? XY.cfgLink(CFG_SHEET, "左上角 Logo", './0虚衍主页.html') : './0虚衍主页.html';
+                if(logo) logo.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href = href; }); // 点击Logo跳转主页
             }
 
             // ----- 性能：窗口尺寸变化节流处理 -----
@@ -748,6 +810,7 @@
         window.addEventListener('resize', XY.throttle(onResizeThrottled, 200), { passive: true });
 
         function init() {
+                if (window.XY && XY.applyDocMeta) XY.applyDocMeta(CFG_SHEET);
                 bindJumpLinks();
                 setupHomeLogo();
                 bindTimeSpaceDistortion();

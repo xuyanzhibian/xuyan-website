@@ -970,16 +970,18 @@
 
     <div class="sky-container" id="skyContainer"></div>
     <div class="logo" id="globalLogo">
-        <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp" />
+        <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp"
+             data-config-sheet="04_虚衍之书" data-config-name="左上角 Logo"
+             data-config-col="资源路径" data-config-attr="src" />
     </div>
 
     <div class="main-container">
         <div class="hero-section">
-            <div class="hero-title" id="mainTitle">虚衍文本</div>
-            <div class="hero-sub" id="subTitle">万象之书 · 随意编织</div>
+            <div class="hero-title" id="mainTitle" data-config-sheet="04_虚衍之书" data-config-name="主标题">虚衍文本</div>
+            <div class="hero-sub" id="subTitle" data-config-sheet="04_虚衍之书" data-config-name="副标题">万象之书 · 随意编织</div>
         </div>
         <div class="button-arena" id="buttonArena"></div>
-        <div class="footer-note">✦ 点击节点展开/折叠 · 激活节点内容同步显示 · 支持 [img:URL|描述] 与 [video:URL|标题] ✦</div>
+        <div class="footer-note" data-config-sheet="04_虚衍之书" data-config-name="底部注记">✦ 点击节点展开/折叠 · 激活节点内容同步显示 · 支持 [img:URL|描述] 与 [video:URL|标题] ✦</div>
     </div>
 
     <div class="bg-projection" id="bgProjection"></div>
@@ -1926,6 +1928,57 @@
             }];
 
             // ================================================================
+            //  表格驱动：用《配置总表》04_虚衍之书 覆盖上面 38 个节点的内容
+            //  ----------------------------------------------------------------
+            //  配对方式：表里「元素名称」形如「章节节点 · 虚无之域（变量之初 下）」，
+            //  去掉前缀「章节节点 · 」和结尾的括号说明，剩下的就是节点标识。
+            //  ⚠ 所以「元素名称」是索引键，改名会让该节点读不到表格（回落内置内容）。
+            //
+            //  每个节点能从表里改：
+            //    当前内容/值            → 标题、悬停提示（形如 1 级节点「标题」；悬停提示「…」）
+            //    悬停文案               → 悬停提示 / 文章副标题
+            //    点击后显示的文本        → 正文（支持 [b] [i] [img:] [video:] 等标记）
+            //    资源路径               → 节点底图
+            // ================================================================
+            const BOOK_CFG = { nodes: 0 };
+            (function applyBookConfig() {
+                if (!window.XY || !XY.cfgSheet) return;
+                const S = "04_虚衍之书";
+                const rows = XY.cfgSheet(S);
+                if (!rows) return;
+                const byKey = {};
+                rows.forEach(function (r) {
+                    const nm = String(r["元素名称"] || "");
+                    if (nm.indexOf("章节节点") !== 0) return;
+                    const key = nm.replace(/^[^·]*·\s*/, "").replace(/[（(][^）)]*[）)]\s*$/, "").trim();
+                    if (key) byKey[key] = r;
+                });
+                function brackets(t) {
+                    const m = String(t || "").match(/「([^」]*)」/g) || [];
+                    return m.map(function (s) { return s.slice(1, -1); });
+                }
+                function walk(list) {
+                    (list || []).forEach(function (node) {
+                        const r = byKey[node.name];
+                        if (r) {
+                            const g = brackets(r["当前内容/值"]);
+                            const title = (g[0] || "").trim();
+                            const hover = String(r["悬停文案"] || "").trim() || (g[1] || "").trim();
+                            const bg = String(r["资源路径"] || "").trim();
+                            const body = String(r["点击后显示的文本"] || "").trim();
+                            if (title) { node.name = title; node.article.mainTitle = title; }
+                            if (hover) { node.hoverText = hover; node.article.subTitle = hover; }
+                            if (bg && bg !== "—") node.bgImg = bg;
+                            if (body) node.article.content = body;
+                            BOOK_CFG.nodes++;
+                        }
+                        if (node.children) walk(node.children);
+                    });
+                }
+                walk(CONTENT_DATA);
+            })();
+
+            // ================================================================
             //  引擎代码
             // ================================================================
 
@@ -1938,6 +1991,11 @@
             const tipDiv = document.getElementById("bottomTip");
             const heroTitleEl = document.getElementById("mainTitle");
             const heroSubEl = document.getElementById("subTitle");
+            // 未选中任何节点时页面顶部显示的标题 / 副标题（表格可改）
+            const PAGE_TITLE_TEXT = (window.XY && XY.cfgVal)
+                ? XY.cfgVal("04_虚衍之书", "主标题", "虚衍文本") : "虚衍文本";
+            const PAGE_SUB_TEXT = (window.XY && XY.cfgVal)
+                ? XY.cfgVal("04_虚衍之书", "副标题", "万象之书 · 随意编织") : "万象之书 · 随意编织";
             let tipTimer = null;
 
         var showTip = XY.showTip;
@@ -2126,8 +2184,8 @@
                     articleBody.innerHTML = renderContent(rawContent);
                     updateProjection(activeNode.bgImg);
                 } else {
-                    heroTitleEl.innerText = '虚衍文本';
-                    heroSubEl.innerText = '万象之书 · 随意编织';
+                    heroTitleEl.innerText = PAGE_TITLE_TEXT;
+                    heroSubEl.innerText = PAGE_SUB_TEXT;
                     articleBody.innerHTML = `<div class="article-placeholder">✦ 请从左侧选择条目 ✦</div>`;
                     hideProjection();
                 }
@@ -2206,8 +2264,11 @@
         window.addEventListener('resize', XY.throttle(onResizeThrottled, 200), { passive: true });
 
         function init() {
+                if (window.XY && XY.applyDocMeta) XY.applyDocMeta("04_虚衍之书");
                 initStars();
-                setupLogo();
+                setupLogo((window.XY && XY.cfgLink)
+                    ? XY.cfgLink("04_虚衍之书", "左上角 Logo", "./0虚衍主页.html")
+                    : "./0虚衍主页.html", '.logo', 'logoImg', '返回主页');
 
                 activeNodeId = null;
                 expandedNodes = {};
