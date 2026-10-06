@@ -29,20 +29,41 @@
 - 统一 13 列，其中 **`点击后显示的文本`** 一列存放「点击/悬停后页面上出现的文字」
 - 该列支持富文本标记，网页端由 `XY.renderRichText()` 渲染成图片 / 视频 / 音频
 
-### 改表 → 改站（两条路，都只刷新 `assets/site-config.json`）
+### 改表 → 改站（一条命令）
+
+腾讯文档里的表格和网页上的内容是**两个地方**：表格是数据源，
+网页读的是仓库里的 `assets/site-config.json`。所以改完表必须同步 + 发布才会生效。
 
 ```bash
-# A. 在线表格改完（不用下载文件）
-python .虚衍网站内容配置总表.ref/sync_online.py
+# 在线表格改完 → 同步 → 推送到 GitHub（一条命令搞定）
+python .虚衍网站内容配置总表.ref/publish.py
 
-# B. 改的是本地 xlsx
-python .虚衍网站内容配置总表.ref/build.py --export-only
+# 只想同步到本地看看效果、先不发布
+python .虚衍网站内容配置总表.ref/publish.py --sync-only
 
-# ⚠ 不要直接运行 `python build.py`（无参数）——它会按脚本里的模板**重建整张表**，
-#   把你手改的内容覆盖掉。只有新增页面 / 元素、需要重新生成表时才用它。
+# 只想知道改了什么，什么都不写
+python .虚衍网站内容配置总表.ref/publish.py --dry-run
 ```
 
-`sync_online.py` 额外支持 `--dry-run`（只打印不落盘）与 `--file-id <在线表ID>`。
+发布需要 GitHub token，任选一种提供方式（不会写进仓库任何文件）：
+
+1. 存一行到 `%USERPROFILE%\.workbuddy\github-token.txt`
+2. `set GITHUB_TOKEN=ghp_xxx` 后运行
+3. `python publish.py ghp_xxx`
+
+单独的两个步骤（需要时用）：
+
+```bash
+# 改的是本地 xlsx，而不是在线表格
+python .虚衍网站内容配置总表.ref/build.py --export-only
+
+# 推送 + 线上复验
+python .虚衍网站内容配置总表.ref/push_github.py <token>
+python .虚衍网站内容配置总表.ref/verify_online.py
+```
+
+> ⚠️ 不要直接运行 `python build.py`（无参数）——它会按脚本里的模板**重建整张表**，
+> 把你手改的内容覆盖掉。只有新增页面 / 元素、需要重新生成表时才用它。
 
 ### 让某个元素「由表格控制」
 
