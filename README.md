@@ -37,14 +37,12 @@
 
 **① 什么都不用做（已配置好，推荐）**
 
-后台有两件事在自动跑：
-
-| 谁 | 频率 | 干什么 |
-|---|---|---|
-| Windows 计划任务「虚衍网站自动发布」 | 每 5 分钟 | 检查在线表格，有改动就同步并发布 |
-| WorkBuddy 整点自动化 | 每小时 | 刷新腾讯文档票据（票据会过期，不刷会报 `no_token`） |
+Windows 计划任务「虚衍网站自动发布」**每 5 分钟**检查一次在线表格：
+有改动就自动同步并发布，没改动就 4~5 秒安静退出（零 GitHub 请求、不产生空提交）。
 
 **改完表格直接关掉页面就行**，最迟约 5 分钟自动上线。
+
+这条链路**完全在本机独立运行** —— 不需要 WorkBuddy，也不需要任何其它软件。
 
 - 双击 `查看自动发布状态.bat` → 看任务状态 + 最近日志
 - 双击 `关闭自动同步上线.bat` / `开启自动同步上线.bat` → 关掉或重开
@@ -68,20 +66,33 @@ python .虚衍网站内容配置总表.ref/autopublish.py
 python .虚衍网站内容配置总表.ref/install_schedule.py --interval 10   # 改成每 10 分钟
 ```
 
-### 凭证放在哪（两个，都别外发）
+### 网页是怎么读到表格内容的（两条通道）
 
-| 文件 | 内容 | 谁维护 |
+读表默认走 **opendoc 直读**：直接请求腾讯文档网页自身的预加载接口，把表格数据解出来。
+**不需要登录、不需要 WorkBuddy、不需要任何外部程序**，因此本机双击 `.bat` 也能跑。
+
+前提是表格的分享权限为「互联网上获得链接的人可查看」——当前**已设置**。
+这是**只读**分享，别人改不了内容；随时可在腾讯文档的「分享」里改回私密（改回后直读会失效）。
+
+若直读不可用（权限被改回私密、或接口变更），会自动回退到第二条通道
+（通过本机的腾讯文档 skill 读表，仅在 WorkBuddy 内有效），并在输出里写明原因。
+
+随时可自检直读通道是否正常：
+
+```bash
+python .虚衍网站内容配置总表.ref/tdoc_online.py DVHFSYURTdkZxTnNq --selftest
+```
+
+### 凭证放在哪
+
+| 文件 | 内容 | 说明 |
 |---|---|---|
-| `.虚衍网站内容配置总表.ref/.token` | GitHub 推送令牌 | 手动写入，一行 |
-| `.虚衍网站内容配置总表.ref/.tdoc-token.json` | 腾讯文档登录票据 | 由 `refresh_tdoc_token.py` 在 WorkBuddy 内导出，整点自动化自动刷新 |
+| `.虚衍网站内容配置总表.ref/.token` | GitHub 推送令牌 | **已内置**，一行；`publish.py` / `push_github.py` 自动读取 |
 
-> **为什么票据要导出**：腾讯文档的登录票据是 WorkBuddy 宿主**按会话注入**的，
-> 脱离 WorkBuddy 的进程（计划任务、双击 .bat）一律取不到 —— 这正是早期
-> 「双击了但没更新」的根因。导出到 `.tdoc-token.json` 后，本机脚本就能自带票据运行。
-> 票据会过期，过期时日志里会出现 `no_token`，在 WorkBuddy 里跑一次
-> `refresh_tdoc_token.py` 即可恢复（整点自动化已在做）。
+> 读腾讯表格**不再需要任何票据** —— 直读通道是匿名只读的。
+> 历史上用过的 `.tdoc-token.json`（腾讯文档登录票据）现在只作为直读失败时的兜底，平时不用管。
 
-两个文件都不在推送清单里，不会被传到 GitHub，但请当密码看待、不要外发。
+`.token` 不在推送清单里，不会被传到 GitHub，但请当密码看待、不要外发。
 GitHub token 的覆盖顺序：环境变量 `GITHUB_TOKEN` > 命令行参数 > `.token` 文件。
 
 单独的两个步骤（需要时用）：
@@ -181,9 +192,10 @@ XY.loadSiteConfig().then(function (cfg) {
   （同内容，供 fetch 回退与其它程序消费），两者都由表格自动生成
 - 发布链路脚本都在 `.虚衍网站内容配置总表.ref/`：
   `autopublish.py`（无人值守，无变化则跳过）、`install_schedule.py`（计划任务开关）、
-  `refresh_tdoc_token.py`（导出/查看腾讯文档票据）、`publish.py`（手动一键）、
-  `sync_online.py`（在线表 → 配置）、`build.py`（本地表 → 配置 / 重建表）、
-  `push_github.py`（GitHub Git Data API 推送）、`verify_online.py`（线上复验）
+  `tdoc_online.py`（**直读在线表格**，无需登录）、`publish.py`（手动一键）、
+  `sync_online.py`（在线表 → 配置，默认直读、失败回退）、`build.py`（本地表 → 配置 / 重建表）、
+  `push_github.py`（GitHub Git Data API 推送）、`verify_online.py`（线上复验）、
+  `refresh_tdoc_token.py`（导出腾讯文档票据，仅兜底用）
 - 无障碍：`role=button` + `tabindex` + `aria-label`，支持 Enter/Space；`prefers-reduced-motion` 降级
 - 分享卡片：Open Graph + Twitter Card
 - `archive/` 为历史版本存档
