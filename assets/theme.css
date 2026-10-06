@@ -240,3 +240,51 @@ body {
         transform: none;
     }
 }
+
+/* ================================================================
+   富文本排版
+   ------------------------------------------------------------------
+   表格里写 [center]/[left]/[right]/[h1..h3]/[quote]/[hr] 渲染出来的块。
+   行内标记（[b][i][u][s][small][sub][sup]、**粗** *斜* ~~删~~）用浏览器
+   原生样式，这里只管块级排版。
+   ================================================================ */
+.rich-center,
+.rich-left,
+.rich-right {
+    display: block;
+    width: 100%;
+}
+
+.rich-center { text-align: center; }
+.rich-left   { text-align: left; }
+.rich-right  { text-align: right; }
+
+.rich-h1,
+.rich-h2,
+.rich-h3 {
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--xy-accent-soft);
+    text-shadow: 0 0 12px rgba(168, 139, 255, 0.35);
+}
+
+.rich-h1 { font-size: 1.5em;  margin: 1.1em 0 0.55em; }
+.rich-h2 { font-size: 1.28em; margin: 1em 0 0.5em; }
+.rich-h3 { font-size: 1.12em; margin: 0.9em 0 0.45em; }
+
+.rich-quote {
+    margin: 0.9em 0;
+    padding: 0.5em 0.2em 0.5em 1em;
+    border-left: 3px solid var(--xy-accent);
+    color: #cfc4ff;
+    font-style: italic;
+    opacity: 0.92;
+}
+
+.rich-hr {
+    border: 0;
+    height: 1px;
+    width: 70%;
+    margin: 1.4em auto;
+    background: linear-gradient(90deg, transparent, rgba(168, 139, 255, 0.55), transparent);
+}

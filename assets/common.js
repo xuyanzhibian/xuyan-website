@@ -236,18 +236,51 @@
     /* ================================================================
        富文本渲染
        ----------------------------------------------------------------
-       《虚衍网站内容配置总表》「点击后显示的文本」一列可直接写下列标记，
-       页面调用 XY.renderRichText(text) 即可渲染成图片 / 视频 / 音频 / 富文本：
+       《虚衍网站内容配置总表》里凡是「点击后显示的文本」这类会被渲染的列，
+       都可以直接写下面的标记，页面调 XY.renderRichText(text) 即可看到效果。
+       两种写法等价，可以混用；都不写就是普通文字。
 
+       ── 行内格式 ──────────────────────────────────────────────
+         [b]粗[/b]        或 **粗**         加粗
+         [i]斜[/i]        或 *斜*           斜体
+         [u]下划线[/u]                      下划线
+         [s]删除[/s]      或 ~~删除~~       删除线
+         [small]小字[/small]                小一号字
+         [sub]下标[/sub] [sup]上标[/sup]    上下标
+
+       ── 段落与对齐（整段生效，可套住多行）────────────────────
+         [center]居中[/center]              居中
+         [left]靠左[/left]                  靠左
+         [right]靠右[/right]                靠右
+         [h1]大标题[/h1] [h2]中标题[/h2] [h3]小标题[/h3]
+         [quote]引用段落[/quote]
+         [hr]                               一条分隔线
+
+       ── 换行 ────────────────────────────────────────────────
+         单元格里直接按回车换行即可（换行符会变成 <br>）；
+         也可显式写 <br>，空一行写 <br><br>。
+
+       ── 媒体 ────────────────────────────────────────────────
          [img:图片URL|描述]     插入图片（描述作为图注与 alt）
          [video:视频URL|标题]   插入视频（带播放控件）
          [audio:音频URL|标题]   插入音频（带播放控件）
-         [b]粗[/b] [i]斜[/i] [u]下划线[/u] [s]删除线[/s]
-         [center]整段居中[/center]
-         <br><br>               换行分段（原生 HTML，直接写）
 
        地址支持相对路径（./media/xx.mp4）与 http(s) 外链；其余协议会被丢弃。
+       表格里写的 <、>、& 会按文字显示；只放行 br/b/i/u/s/del/sub/sup/p/small 标签。
        ================================================================ */
+
+    /** 表格里可以直接写、且会被当作标签保留的 HTML 标签白名单 */
+    var HTML_ALLOW = /^(br|b|strong|i|em|u|s|del|sub|sup|p|small)$/i;
+
+    /** 把已经转义的 &lt;tag&gt; 还原回来，但只放行白名单里的标签 */
+    function restoreAllowedTags(s) {
+        return s.replace(/&lt;(\/?)([a-zA-Z][a-zA-Z0-9]*)(\s*\/?)&gt;/g,
+            function (m, slash, name, tail) {
+                if (!HTML_ALLOW.test(name)) return m;
+                if (name.toLowerCase() === 'br') return '<br>';
+                return '<' + slash + name.toLowerCase() + '>';
+            });
+    }
 
     /** 转义为 HTML 文本（用于图注等纯文本位置） */
     function escapeHtml(s) {
@@ -286,41 +319,74 @@
     function renderRichText(text) {
         if (!text) return '';
         var html = String(text);
+        var stash = [];
+        function keep(box) { stash.push(box); return '\u0000' + (stash.length - 1) + '\u0000'; }
 
-        /* 1. 图片 [img:URL|描述] */
+        /* 1. 先把媒体标记取出来（里面的 URL 不能被转义和换行规则碰到） */
         html = html.replace(/\[img:([^\|\]]+)(?:\|([^\]]*))?\]/g, function (m, url, alt) {
             var u = safeMediaUrl(url);
             if (!u) return '';
             var cap = escapeHtml((alt || '').trim()) || '虚衍意象';
-            return mediaBox('<img src="' + u + '" alt="' + cap +
-                '" class="media-img" loading="lazy" decoding="async" />', cap);
+            return keep(mediaBox('<img src="' + u + '" alt="' + cap +
+                '" class="media-img" loading="lazy" decoding="async" />', cap));
         });
-
-        /* 2. 视频 [video:URL|标题] */
         html = html.replace(/\[video:([^\|\]]+)(?:\|([^\]]*))?\]/g, function (m, url, title) {
             var u = safeMediaUrl(url);
             if (!u) return '';
             var cap = escapeHtml((title || '').trim()) || '虚衍回响 · 影像';
-            return mediaBox('<video src="' + u +
-                '" controls class="media-video" preload="metadata">您的浏览器不支持视频播放。</video>', cap);
+            return keep(mediaBox('<video src="' + u +
+                '" controls class="media-video" preload="metadata">您的浏览器不支持视频播放。</video>', cap));
         });
-
-        /* 3. 音频 [audio:URL|标题] */
         html = html.replace(/\[audio:([^\|\]]+)(?:\|([^\]]*))?\]/g, function (m, url, title) {
             var u = safeMediaUrl(url);
             if (!u) return '';
             var cap = escapeHtml((title || '').trim()) || '虚衍回响 · 音声';
-            return mediaBox('<audio src="' + u +
-                '" controls class="media-audio" preload="metadata"></audio>', cap);
+            return keep(mediaBox('<audio src="' + u +
+                '" controls class="media-audio" preload="metadata"></audio>', cap));
         });
 
-        /* 4. 行内样式 */
+        /* 2. 转义，再把白名单标签还原（表格里可以直接写 <br> <b> 等） */
+        html = restoreAllowedTags(escapeHtml(html));
+
+        /* 3. 去掉 <br> 两侧多余的换行与缩进
+              —— 表格里常写成 "上一行\n<br><br>\n下一行"，不处理会多出空行 */
+        html = html.replace(/[ \t]*\r?\n[ \t]*(?=<\s*br\s*\/?>)/gi, '');
+        html = html.replace(/(<\s*br\s*\/?>)[ \t]*\r?\n[ \t]*/gi, '$1');
+
+        /* 4. 换行符 → <br>：表格单元格里直接回车换行也能生效 */
+        html = html.replace(/\r\n?|\n/g, '<br>');
+
+        /* 5. Markdown 风格别名（必须成对、不跨行）*/
+        html = html.replace(/~~([^~\n]+?)~~/g, '<s>$1</s>');
+        html = html.replace(/\*\*([^*\n]+?)\*\*/g, '<b>$1</b>');
+        html = html.replace(/\*([^*\n]+?)\*/g, '<i>$1</i>');
+
+        /* 6. 方括号行内标记 */
         html = html.replace(/\[b\]([\s\S]*?)\[\/b\]/gi, '<b>$1</b>');
         html = html.replace(/\[i\]([\s\S]*?)\[\/i\]/gi, '<i>$1</i>');
         html = html.replace(/\[u\]([\s\S]*?)\[\/u\]/gi, '<u>$1</u>');
         html = html.replace(/\[s\]([\s\S]*?)\[\/s\]/gi, '<s>$1</s>');
-        html = html.replace(/\[center\]([\s\S]*?)\[\/center\]/gi,
-            '<div style="text-align:center;width:100%;">$1</div>');
+        html = html.replace(/\[small\]([\s\S]*?)\[\/small\]/gi, '<small>$1</small>');
+        html = html.replace(/\[sub\]([\s\S]*?)\[\/sub\]/gi, '<sub>$1</sub>');
+        html = html.replace(/\[sup\]([\s\S]*?)\[\/sup\]/gi, '<sup>$1</sup>');
+
+        /* 7. 段落、对齐与块级标记 */
+        html = html.replace(/\[(center|left|right)\]([\s\S]*?)\[\/\1\]/gi,
+            function (m, dir, body) {
+                return '<div class="rich-' + dir.toLowerCase() + '">' + body + '</div>';
+            });
+        html = html.replace(/\[(h1|h2|h3)\]([\s\S]*?)\[\/\1\]/gi,
+            function (m, lv, body) {
+                return '<div class="rich-' + lv.toLowerCase() + '">' + body + '</div>';
+            });
+        html = html.replace(/\[quote\]([\s\S]*?)\[\/quote\]/gi,
+            '<blockquote class="rich-quote">$1</blockquote>');
+        html = html.replace(/\[hr\]/gi, '<hr class="rich-hr" />');
+
+        /* 8. 把媒体放回来 */
+        html = html.replace(/\u0000(\d+)\u0000/g, function (m, i) {
+            return stash[+i] || '';
+        });
 
         return html;
     }

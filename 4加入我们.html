@@ -913,13 +913,34 @@
             // ============================================================
             //  表格驱动：《配置总表》07_加入我们
             //  · 「按钮 · X」行        → 按钮文案 / 底图 / 悬停提示 / 正文
-            //  · 「文章 · X · 标题」行  → 文章标题与副标题（值形如「标题 / 副标题」）
+            //  · 「文章 · X · 标题」行  → 文章标题与副标题
+            //      （支持「标题：X」换行「副标题：Y」，也支持「X / Y」）
             //  读不到表格时全部回落上面写死的内置默认。
             //  artKey 是文章的内部键，改按钮文案不会影响文章配对。
             // ============================================================
             const CFG_SHEET = "07_加入我们";
             const ARTICLE_ROW = { "unity": "文章 · 万物一体 · 标题", "equal": "文章 · 共同平等 · 标题", "become": "文章 · 成为我们 · 标题" };
             const BTN_ROW = { "unity": "按钮 · 万物一体", "equal": "按钮 · 共同平等", "become": "按钮 · 成为我们" };
+            // 文章「标题 / 副标题」一行有三种写法，都认：
+            //   ① 标题：X  换行  副标题：Y      ← 表格里目前就是这种
+            //   ② X / Y                        ← 早期的写法
+            //   ③ 直接两行（第一行标题、第二行副标题）
+            // ⚠ 不能用简单的 " / " 切分：表格里是「标题：…\n副标题：…」，
+            //   切不开会把「标题：」前缀一起当成标题显示。
+            function parseTitlePair(raw) {
+                const s = String(raw == null ? "" : raw).trim();
+                if (!s) return ["", ""];
+                const mt = s.match(/^\s*(?:主)?标题\s*[：:]\s*(.*)$/m);
+                const ms = s.match(/^\s*副标题\s*[：:]\s*(.*)$/m);
+                if (mt || ms) return [(mt ? mt[1] : "").trim(), (ms ? ms[1] : "").trim()];
+                if (s.indexOf(" / ") >= 0) {
+                    const p = s.split(" / ");
+                    return [p[0].trim(), (p[1] || "").trim()];
+                }
+                const lines = s.split(/\r?\n/).map(function (x) { return x.trim(); })
+                    .filter(Boolean);
+                return [lines[0] || "", lines[1] || ""];
+            }
             (function readJoinConfig() {
                 if (!window.XY || !XY.cfgVal) return;
                 BUTTONS.forEach(function (b) {
@@ -937,7 +958,7 @@
                     }
                     const trow = ARTICLE_ROW[b.id];
                     if (art && trow) {
-                        const pair = XY.splitPair(XY.cfgVal(CFG_SHEET, trow, ""), " / ");
+                        const pair = parseTitlePair(XY.cfgVal(CFG_SHEET, trow, ""));
                         if (pair[0]) art.mainTitle = pair[0];
                         if (pair[1]) art.subTitle = pair[1];
                     }
