@@ -254,20 +254,22 @@ python .虚衍网站内容配置总表.ref/verify_online.py     # 断言「页�
 **这是有代价的**：腾讯文档的表格接口只能设「整个单元格」的格式，**没法只给
 一句话里的某几个词**上格式。所以句中局部强调仍然要写 `[b]…[/b]` 这类标记。
 
-链路（格式读不到，必须缓存）：
+链路（格式读不到，必须缓存；但缓存会随发布自动刷新）：
 
 ```
-腾讯文档单元格格式 ──sync_styles.py（WorkBuddy 内）──▶ .虚衍网站内容配置总表.ref/.cell-styles.json
-                                                              │ sync_online.py / build.py 合并
-                                                              ▼
-                                        site-config.json 里记录的「样式」/「值样式」字段
+腾讯文档单元格格式 ──sync_styles.py（有票据时）──▶ .虚衍网站内容配置总表.ref/.cell-styles.json
+        ▲                                                    │ sync_online.py / build.py 合并
+        │ publish.py 第 0 步 / autopublish.py 同步前自动调用     ▼
+        └──────────────────────────────────────  site-config.json 里记录的「样式」/「值样式」字段
                                                               │ 页面 XY.cfgStyle() + XY.applyCellStyle()
                                                               ▼
                                                         网页元素的整格格式
 ```
 
 - 两条读表通道（含自动发布用的 opendoc 直读）**都读不到单元格格式**，所以只能缓存。
-- **改了单元格格式要重跑 `python sync_styles.py`**，普通发布不会自动同步格式。
+- **缓存由发布链路自动刷新**：`publish.py` 第 0 步、`autopublish.py` 同步前都会先跑
+  `sync_styles.py`，所以斜体 / 下划线 / 加粗 / 对齐 / 字色会**随普通发布一起更新**，
+  不必再手动跑。只有拿不到登录票据时（例如纯离线命令行）才沿用上一次缓存。
 - 缓存里只会出现「被人工设过格式」的格子，所以默认格式的表格不会给网页加任何样式。
 - 元素想跳过整格格式，加 `data-config-style="off"`。
 
@@ -285,9 +287,10 @@ python .虚衍网站内容配置总表.ref/verify_online.py     # 断言「页�
   `sync_online.py`（在线表 → 配置，默认直读、失败回退）、`build.py`（本地表 → 配置 / 重建表）、
   `push_github.py`（GitHub Git Data API 推送）、`verify_online.py`（线上复验）、
   `refresh_tdoc_token.py`（导出腾讯文档票据，仅兜底用）
-- 表格格式相关（需 WorkBuddy 票据）：`sync_styles.py`（抓单元格格式 → `.cell-styles.json`）、
-  `cell_styles.py`（样式缓存读写，被 `sync_online.py` / `build.py` 复用）、
-  `tdoc_write.py`（写表封装）、`convert_cell_styles.py`（行内标记 → 整格格式的一次性转换）
+- 表格格式相关（需 WorkBuddy 票据）：`sync_styles.py`（抓单元格格式 → `.cell-styles.json`，
+  由 `publish.py` / `autopublish.py` 自动调用）、`cell_styles.py`（样式缓存读写，
+  被 `sync_online.py` / `build.py` 复用）、`tdoc_write.py`（写表封装）、
+  `convert_cell_styles.py`（行内标记 → 整格格式的一次性转换）
 - 验证脚本：`verify_all_pages.py`（7 页表格驱动哨兵值）、`verify_richtext.py`（富文本渲染）、
   `verify_cell_styles.py`（整格格式 + 正文换行）、`verify_config.py`（防首屏闪烁 + 改表生效）、
   `regress.py`（3 视口 × 8 页控制台/裂图/溢出）
