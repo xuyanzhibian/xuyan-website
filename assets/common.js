@@ -400,12 +400,228 @@
     }
 
     /* ================================================================
+       表格驱动 —— 同步取值 API（页面脚本用）
+       ----------------------------------------------------------------
+       <head> 里同步加载的 site-config.js 会在首次绘制前把配置放进
+       window.__XY_CONFIG__，所以下面这些函数**同步返回**，页面可以直接用它
+       初始化自己的常量，既不会闪烁，也不用等 Promise：
+
+         XY.cfgItem(sheet, '主标题')         → 整条记录（对象）或 null
+         XY.cfgVal (sheet, '主标题', '默认')  → 「当前内容/值」
+         XY.cfgText(sheet, '节点名', '默认')  → 「点击后显示的文本」
+         XY.cfgHover(sheet, '节点名', '默认') → 「悬停文案」
+         XY.cfgLink (sheet, '节点名', '默认') → 「跳转目标」
+         XY.cfgRes (sheet, '节点名', '默认')  → 「资源路径」
+         XY.cfgParams(sheet, '粒子参数')      → {minSize:5, ...}（键=值 · 键=值）
+
+       统一约定：单元格为空、为「—」、或整条记录不存在时，一律返回默认值，
+       所以页面永远可以写 XY.cfgVal('01_主页', '主标题', '虚衍文化科技')，
+       表格读不到时自动回落内置文案。
+       表名可省略：XY.cfgVal('主标题', '默认') 会全表查找。
+       ================================================================ */
+
+    var EMPTY_CELLS = { '': 1, '—': 1, '-': 1, '无': 1, 'NaN': 1, 'undefined': 1 };
+
+    /** 取当前已就位的配置（同步；没有则返回 null） */
+    function syncConfig() {
+        if (!siteConfigCache && global.__XY_CONFIG__) siteConfigCache = global.__XY_CONFIG__;
+        return siteConfigCache || null;
+    }
+
+    /** 取某分表的记录数组（同步） */
+    function cfgSheet(sheet) {
+        var c = syncConfig();
+        return (c && c.sheets && c.sheets[sheet]) || null;
+    }
+
+    /** 同步查一条记录：先按分表，找不到再全表兜底 */
+    function cfgItem(sheet, name) {
+        if (name === undefined) { name = sheet; sheet = ''; }
+        if (!name) return null;
+        var it = findConfigItem(syncConfig(), sheet, name);
+        return it || null;
+    }
+
+    /** 取某条记录的某一列，空/占位符/缺失时返回 fallback */
+    function cfgCell(sheet, name, col, fallback) {
+        var it = cfgItem(sheet, name);
+        if (!it) return fallback;
+        var v = it[col];
+        if (v === undefined || v === null) return fallback;
+        v = String(v).trim();
+        if (EMPTY_CELLS[v]) return fallback;
+        return v;
+    }
+
+    var COL_VALUE = '当前内容/值';
+    var COL_TEXT = '点击后显示的文本';
+    var COL_HOVER = '悬停文案';
+    var COL_LINK = '跳转目标';
+    var COL_RES = '资源路径';
+
+    function cfgVal(sheet, name, d) { return cfgCell(sheet, name, COL_VALUE, d); }
+    function cfgText(sheet, name, d) { return cfgCell(sheet, name, COL_TEXT, d); }
+    function cfgHover(sheet, name, d) { return cfgCell(sheet, name, COL_HOVER, d); }
+    function cfgRes(sheet, name, d) { return cfgCell(sheet, name, COL_RES, d); }
+
+    /**
+     * 取跳转目标：优先「跳转目标」列，没有就退回「当前内容/值」
+     * （很多行本身就是一行「跳转链接」，值直接写在「当前内容/值」里）。
+     */
+    function cfgLink(sheet, name, d) {
+        var v = cfgCell(sheet, name, COL_LINK, null);
+        if (v !== null) return v;
+        var it = cfgItem(sheet, name);
+        if (it && String(it['内容类型'] || '').indexOf('链接') >= 0) {
+            return cfgCell(sheet, name, COL_VALUE, d);
+        }
+        return d;
+    }
+
+    /** 数字或原样字符串 */
+    function toNum(v) {
+        var n = parseFloat(v);
+        return isNaN(n) ? v : n;
+    }
+
+    /**
+     * 解析「参数串」为对象。支持两种写法：
+     *   1) KEY=值 · KEY=值 · …          （推荐，键名与代码里的常量名一致）
+     *   2) 值 / 值 / …                  （键名按「代码标识」列里的顺序配对）
+     * @returns {Object} 形如 { TRIGGER_NUM: 5 }
+     */
+    function cfgParams(sheet, name, fallback) {
+        var raw = cfgCell(sheet, name, COL_VALUE, '');
+        var out = {};
+        if (!raw) return fallback || out;
+        if (raw.indexOf('=') >= 0) {
+            raw.split(/[·・]/).forEach(function (seg) {
+                var i = seg.indexOf('=');
+                if (i <= 0) return;
+                var k = seg.slice(0, i).trim();
+                if (k) out[k] = toNum(seg.slice(i + 1).trim());
+            });
+            return out;
+        }
+        var it = cfgItem(sheet, name);
+        if (it) {
+            var keys = String(it['代码标识'] || '').split(/\s*\/\s*/)
+                .map(function (s) { return s.trim(); }).filter(Boolean);
+            var vals = String(raw).split(/\s*\/\s*/)
+                .map(function (s) { return s.trim(); }).filter(Boolean);
+            if (keys.length === vals.length && keys.length) {
+                keys.forEach(function (k, i) { out[k] = toNum(vals[i]); });
+                return out;
+            }
+        }
+        return fallback || out;
+    }
+
+    /** 按分隔符切成数组（默认 ' / '），顺手去空 */
+    function splitList(s, sep) {
+        var t = String(s == null ? '' : s).trim();
+        if (!t || t === '—') return [];
+        return t.split(sep || ' / ').map(function (x) { return x.trim(); }).filter(Boolean);
+    }
+
+    /** 把「主标题 / 副标题」这类双值串拆成两段（默认用 | 分隔） */
+    function splitPair(s, sep) {
+        sep = sep || '|';
+        var t = String(s == null ? '' : s);
+        var i = t.indexOf(sep);
+        if (i < 0) return [t.trim(), ''];
+        return [t.slice(0, i).trim(), t.slice(i + sep.length).trim()];
+    }
+
+    /* ---------- 样式令牌：把《08_全局公共》里的样式令牌注入 :root ---------- */
+
+    /**
+     * 把配置里的「样式令牌」行写成 CSS 变量。
+     * 约定：代码标识列写变量名（/ 分隔），当前内容/值列写对应取值（/ 分隔），
+     *       两边个数相等时才生效，例如：
+     *         代码标识：--xy-accent / --xy-accent-soft
+     *         当前内容/值：#a88bff / #e0d8ff
+     * @returns {number} 实际写入的变量个数
+     */
+    function applyTokens(sheet) {
+        var list = cfgSheet(sheet || '08_全局公共');
+        if (!list) return 0;
+        var root = document.documentElement, hit = 0;
+        for (var i = 0; i < list.length; i++) {
+            var it = list[i];
+            if (String(it['内容类型'] || '') !== '样式令牌') continue;
+            var keys = splitList(it['代码标识']);
+            var vals = splitList(it[COL_VALUE]);
+            if (!keys.length || keys.length !== vals.length) continue;
+            for (var j = 0; j < keys.length; j++) {
+                if (keys[j].indexOf('--') !== 0) continue;
+                try { root.style.setProperty(keys[j], vals[j]); hit++; } catch (e) { /* 忽略非法值 */ }
+            }
+        }
+        return hit;
+    }
+
+    /* ---------- 分享卡片 / 页面标题 / 图标 ---------- */
+
+    function setMeta(sel, attr, val) {
+        if (!val) return;
+        var el = document.head.querySelector(sel);
+        if (el) el.setAttribute(attr, val);
+    }
+
+    /**
+     * 用表格驱动 <title>、og:*、twitter:*、favicon。
+     * @param {string} sheet 分表名，如 '01_主页'
+     * @param {Object} [opt] {titleName, faviconName, logoName, descName}
+     */
+    function applyDocMeta(sheet, opt) {
+        opt = opt || {};
+        var title = cfgVal(sheet, opt.titleName || '浏览器标签标题', null);
+        if (title) {
+            document.title = title;
+            setMeta('meta[property="og:title"]', 'content', title);
+            setMeta('meta[name="twitter:title"]', 'content', title);
+        }
+        var fav = cfgRes(sheet, opt.faviconName || '浏览器图标 Favicon', null)
+            || cfgRes(sheet, opt.logoName || '左上角 Logo', null);
+        if (fav) {
+            var icon = document.getElementById('faviconLink')
+                || document.head.querySelector('link[rel="icon"]');
+            if (icon) icon.setAttribute('href', fav);
+            var apple = document.querySelector('link[rel="apple-touch-icon"]');
+            if (apple) apple.setAttribute('href', fav);
+            setMeta('meta[property="og:image"]', 'content', fav);
+            setMeta('meta[name="twitter:image"]', 'content', fav);
+        }
+        var desc = cfgCell(sheet, opt.descName || '分享卡片描述', COL_TEXT, null);
+        if (desc) {
+            setMeta('meta[name="description"]', 'content', desc);
+            setMeta('meta[property="og:description"]', 'content', desc);
+            setMeta('meta[name="twitter:description"]', 'content', desc);
+        }
+        return true;
+    }
+
+    /** 设置图片 src，加载失败时回落备用图 */
+    function setImg(el, src, fallbackSrc) {
+        if (!el || !src) return;
+        el.setAttribute('src', src);
+        if (fallbackSrc) {
+            el.addEventListener('error', function onErr() {
+                el.removeEventListener('error', onErr);
+                el.setAttribute('src', fallbackSrc);
+            });
+        }
+    }
+
+    /* ================================================================
        表格驱动页面（让元素「由表格控制」）
        ----------------------------------------------------------------
        给任意元素加这几个 data 属性，它就会自动套用《配置总表》里的值：
 
          data-config-name="主按钮 · 默认态"  元素名称（必填，须与表内一致）
          data-config-sheet="01_主页"         分表名（可省略，省略则全表查找）
+         data-config-col="悬停文案"          取哪一列（默认「当前内容/值」）
          data-config-mode="rich"             值按富文本渲染（默认纯文本）
          data-config-attr="href"             把值写到该属性上（默认写文案）
          data-config-active-name="主按钮 · 激活态"
@@ -444,6 +660,8 @@
             hit++;
 
             var value = item['当前内容/值'] || '';
+            var col = el.getAttribute('data-config-col');
+            if (col) value = item[col] || '';
             if (value) {
                 el.setAttribute('data-config-value', value);
                 var attr = el.getAttribute('data-config-attr');
@@ -502,6 +720,12 @@
         clearConfigPending();
     }
 
+    /* 样式令牌（配色/圆角/动画时长）与页面无关，配置一就位就注入 :root，
+       越早越好 —— 放在这里能赶在首次绘制之前，避免颜色闪一下。 */
+    if (global.__XY_CONFIG__) {
+        try { applyTokens(); } catch (e) { /* 忽略 */ }
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', applyConfigEarly);
     } else {
@@ -527,6 +751,22 @@
         findConfigItem: findConfigItem,
         applyConfig: applyConfig,
         autoApplyConfig: autoApplyConfig,
-        clearConfigPending: clearConfigPending
+        clearConfigPending: clearConfigPending,
+        /* 表格驱动 —— 同步取值 */
+        syncConfig: syncConfig,
+        cfgSheet: cfgSheet,
+        cfgItem: cfgItem,
+        cfgCell: cfgCell,
+        cfgVal: cfgVal,
+        cfgText: cfgText,
+        cfgHover: cfgHover,
+        cfgLink: cfgLink,
+        cfgRes: cfgRes,
+        cfgParams: cfgParams,
+        splitList: splitList,
+        splitPair: splitPair,
+        applyTokens: applyTokens,
+        applyDocMeta: applyDocMeta,
+        setImg: setImg
     };
 })(window);
