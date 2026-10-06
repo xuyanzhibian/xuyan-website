@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover" />
+    <title>虚衍 | 文本模板</title>
+    <link id="faviconLink" rel="icon" type="image/webp" href="./0虚衍主页/logo.webp">
+    <link rel="apple-touch-icon" href="./0虚衍主页/logo.webp">
+    <meta name="theme-color" content="#131129">
+    <meta name="description" content="虚衍之书 — 万象之书，涵盖神明、思想、主义、预言与警示。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="虚衍教派">
+    <meta property="og:title" content="虚衍 | 虚衍之书">
+    <meta property="og:description" content="虚衍之书 — 万象之书，涵盖神明、思想、主义、预言与警示。">
+    <meta property="og:image" content="./0虚衍主页/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="虚衍 | 虚衍之书">
+    <meta name="twitter:description" content="虚衍之书 — 万象之书，涵盖神明、思想、主义、预言与警示。">
+    <meta name="twitter:image" content="./0虚衍主页/logo.webp">
+<style>
+        /* ---------- 全局重置 + 星空氛围 ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #131129 0%, #0b091c 50%, #05040e 100%);
+            font-family: "思源黑体", "微软雅黑", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #f0eaff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+            background: transparent;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(11, 9, 28, 0.15);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(168, 139, 255, 0.45);
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 139, 255, 0.7);
+        }
+
+        .nav-panel::-webkit-scrollbar-track {
+            margin: 1.8rem 0;
+            background: rgba(11, 9, 28, 0.15);
+            border-radius: 10px;
+        }
+        .nav-panel::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background: rgba(168, 139, 255, 0.45);
+        }
+        .nav-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 139, 255, 0.7);
+        }
+
+        .right-content-area::-webkit-scrollbar-track {
+            margin: 2rem 0;
+            background: rgba(11, 9, 28, 0.15);
+            border-radius: 10px;
+        }
+        .right-content-area::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background: rgba(168, 139, 255, 0.45);
+        }
+        .right-content-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 139, 255, 0.7);
+        }
+
+        .sky-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(122, 9, 28, 0.08) 0%, transparent 70%);
+        }
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle clamp(180px, 35vw, 380px) at 20% 30%, rgba(122, 9, 28, 0.12) 0%, transparent 100%),
+                radial-gradient(circle clamp(240px, 45vw, 500px) at 80% 65%, rgba(168, 139, 255, 0.08) 0%, transparent 100%);
+        }
+        .mist {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(224, 216, 255, 0.03);
+            animation: mistPulse 12s infinite ease-in-out;
+        }
+        @keyframes mistPulse {
+            0%,
+            100% {
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .distant-star {
+            position: absolute;
+            background: #e0d8ff;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 4px #a88bff);
+            animation: starTwinkle 3s infinite ease-in-out;
+        }
+        @keyframes starTwinkle {
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* ---------- Logo ---------- */
+        .logo {
+            position: fixed;
+            top: clamp(12px, 3vw, 28px);
+            left: clamp(12px, 3vw, 28px);
+            width: clamp(45px, 8vw, 70px);
+            z-index: 200;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 12px;
+            background: transparent;
+        }
+        .logo-img {
+            width: 100%;
+            display: block;
+            border-radius: 10px;
+            animation: logoRotate 25s linear infinite, logoBreathingGlow 10s ease-in-out infinite;
+            transform-origin: center;
+            filter: drop-shadow(0 0 6px rgba(168, 139, 255, 0.6));
+        }
+        @keyframes logoRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes logoBreathingGlow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 8px rgba(168, 139, 255, 0.5)) drop-shadow(0 0 30px rgba(122, 92, 255, 0.3));
+            }
+            50% {
+                filter: drop-shadow(0 0 4px #a88bff) drop-shadow(0 0 12px rgba(168, 139, 255, 0.8));
+            }
+        }
+        .logo::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: radial-gradient(circle, rgba(168, 139, 255, 0.3), transparent 70%);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .logo:hover::after,
+        .logo:active::after {
+            opacity: 0.9;
+        }
+        .logo:active {
+            transform: scale(0.97);
+        }
+
+        /* ---------- 主容器 ---------- */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 80px 2rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .hero-section {
+            text-align: center;
+            flex-shrink: 0;
+            margin-bottom: 0.5rem;
+            animation: fadeUp 0.8s ease;
+        }
+        .hero-title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 1000;
+            letter-spacing: clamp(4px, 1.5vw, 12px);
+            text-shadow: 0 0 12px #a88bff, 0 0 25px #7a5cff;
+            margin-bottom: 0.2rem;
+            color: #f0eaff;
+            transition: all 0.2s;
+        }
+        .hero-sub {
+            font-size: clamp(0.9rem, 2.5vw, 2rem);
+            color: #c5b8ff;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            text-shadow: 0 0 6px rgba(168, 139, 255, 0.4);
+            transition: all 0.2s;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .button-arena {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            width: 100%;
+            min-height: 0;
+        }
+
+        /* ---------- Detail 布局 ---------- */
+        .detail-layout {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            width: 100%;
+            height: 100%;
+            gap: 0;
+            position: relative;
+            min-height: 0;
+        }
+
+        /* 左侧导航面板 */
+        .nav-panel {
+            flex: 0 0 auto;
+            width: clamp(200px, 25vw, 280px);
+            min-width: clamp(200px, 25vw, 280px);
+            height: 100%;
+            transition: width 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                min-width 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                padding 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                margin 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                border 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background: rgba(18, 14, 40, 0.55);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(168, 139, 255, 0.35);
+            border-radius: 1.8rem;
+            padding: 1.2rem 1rem;
+            margin-right: 1.5rem;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
+            scrollbar-width: thin;
+        }
+        .nav-panel.collapsed {
+            width: 0;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* ---------- 树形菜单按钮容器 ---------- */
+        .left-buttons-area {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .tree-node {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .tree-btn {
+            position: relative;
+            width: 100%;
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            background: rgba(8, 5, 20, 0.7);
+            border: 2px solid rgba(168, 139, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            text-align: center;
+            height: 56px;
+            padding: 0.4rem 0.8rem;
+            will-change: transform;
+            flex-shrink: 0;
+            aspect-ratio: auto;
+        }
+        .tree-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.6;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .tree-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.35);
+            transition: background 0.35s ease;
+        }
+        .tree-btn.parent-expanded::after {
+            background: rgba(0, 0, 0, 0.20);
+        }
+        .tree-btn:hover::before {
+            opacity: 0.85;
+        }
+        .tree-btn:hover::after {
+            background: rgba(0, 0, 0, 0.25);
+        }
+        .tree-btn.parent-expanded:hover::after {
+            background: rgba(0, 0, 0, 0.18);
+        }
+
+        .tree-btn .btn-text {
+            position: relative;
+            z-index: 5;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            font-size: 0.95rem;
+            color: #f0eaff;
+            text-shadow: 0 0 6px #a88bff, 0 0 12px rgba(168, 139, 255, 0.3);
+            transition: text-shadow 0.2s;
+            padding: 0.2rem 0.4rem;
+            border-radius: 40px;
+            word-break: break-word;
+            margin-top: 0;
+        }
+
+        .tree-btn:hover,
+        .tree-btn:active {
+            transform: scale(1.02);
+            border-color: #d0b8ff;
+            box-shadow: 0 0 8px rgba(168, 139, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .tree-btn:hover .btn-text {
+            text-shadow: 0 0 12px #d4c8ff, 0 0 20px #a88bff;
+        }
+
+        .tree-btn.level-1 {
+            width: 100%;
+        }
+        .tree-btn.level-2 {
+            width: 90%;
+            margin-left: 5%;
+        }
+        .tree-btn.level-3 {
+            width: 80%;
+            margin-left: 10%;
+        }
+        .tree-btn.level-4 {
+            width: 70%;
+            margin-left: 15%;
+        }
+
+        .tree-btn.active-btn {
+            width: 100% !important;
+            margin-left: 0 !important;
+            justify-content: flex-start;
+            padding-top: 0.8rem;
+            border-color: #d0b8ff;
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+            transform: scale(1);
+            background: rgba(168, 139, 255, 0.12);
+            height: auto;
+            aspect-ratio: 1 / 1;
+            min-height: unset;
+        }
+        .tree-btn.active-btn.bright::before {
+            opacity: 1;
+        }
+        .tree-btn.active-btn::after {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .tree-btn.active-btn .btn-text {
+            text-shadow: 0 0 16px #dccaff, 0 0 30px #a88bff;
+            font-size: 0.9rem;
+        }
+        .tree-btn.active-btn.parent-expanded::after {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .tree-btn.active-btn:hover {
+            transform: scale(1);
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .tree-children {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: 
+                max-height 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                opacity 0.35s ease,
+                padding 0.35s ease,
+                border-color 0.35s ease,
+                box-shadow 0.35s ease;
+            background: rgba(12, 9, 30, 0.45);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(168, 139, 255, 0.12);
+            border-radius: 1rem;
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.20),
+                0 4px 16px rgba(0, 0, 0, 0.15);
+            margin-top: 0;
+        }
+
+        .tree-children.open {
+            max-height: 2000px;
+            opacity: 1;
+            padding: 0.5rem 0.4rem;
+            margin-top: 0.3rem;
+            border-color: rgba(168, 139, 255, 0.25);
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.20),
+                0 4px 20px rgba(168, 139, 255, 0.06),
+                0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .tree-children .tree-btn {
+            width: 100%;
+            height: 48px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            border-width: 1.5px;
+            background: rgba(8, 5, 20, 0.55);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .tree-children .tree-btn .btn-text {
+            font-size: 0.82rem;
+            letter-spacing: 1px;
+            padding: 0.1rem 0.3rem;
+        }
+        .tree-children .tree-btn:hover {
+            transform: scale(1.01);
+            border-color: rgba(168, 139, 255, 0.6);
+        }
+        .tree-children .tree-btn.active-btn {
+            justify-content: flex-start;
+            padding-top: 0.6rem;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            width: 100% !important;
+            margin-left: 0 !important;
+            border-color: #d0b8ff;
+            background: rgba(168, 139, 255, 0.15);
+            box-shadow: 0 0 0 1px rgba(168, 139, 255, 0.25), 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .tree-children .tree-btn.active-btn .btn-text {
+            font-size: 0.78rem;
+            text-shadow: 0 0 12px #dccaff, 0 0 24px #a88bff;
+        }
+
+        .tree-children .tree-btn.level-2:not(.active-btn) {
+            width: 96%;
+            margin-left: 2%;
+        }
+        .tree-children .tree-btn.level-3:not(.active-btn) {
+            width: 92%;
+            margin-left: 4%;
+        }
+        .tree-children .tree-btn.level-4:not(.active-btn) {
+            width: 88%;
+            margin-left: 6%;
+        }
+
+        .tree-children .tree-children {
+            background: rgba(8, 5, 20, 0.30);
+            border-color: rgba(168, 139, 255, 0.08);
+            border-radius: 0.8rem;
+            margin-left: 2%;
+            width: 96%;
+            box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.15);
+            gap: 0.5rem;
+            margin-top: 0;
+        }
+        .tree-children .tree-children.open {
+            border-color: rgba(168, 139, 255, 0.15);
+            background: rgba(8, 5, 20, 0.25);
+            box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.15),
+                0 2px 12px rgba(168, 139, 255, 0.04);
+            padding: 0.4rem 0.3rem;
+            margin-top: 0.2rem;
+        }
+        .tree-children .tree-children .tree-btn {
+            height: 40px;
+            padding: 0.2rem 0.5rem;
+            background: rgba(6, 4, 16, 0.5);
+        }
+        .tree-children .tree-children .tree-btn .btn-text {
+            font-size: 0.76rem;
+        }
+        .tree-children .tree-children .tree-btn.level-3:not(.active-btn) {
+            width: 96%;
+            margin-left: 2%;
+        }
+        .tree-children .tree-children .tree-btn.level-4:not(.active-btn) {
+            width: 92%;
+            margin-left: 4%;
+        }
+        .tree-children .tree-children .tree-btn.active-btn {
+            height: auto;
+            aspect-ratio: 1 / 1;
+            width: 100% !important;
+            margin-left: 0 !important;
+            justify-content: flex-start;
+            padding-top: 0.5rem;
+        }
+
+        .toggle-sidebar-wrapper {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 72px;
+            background: rgba(18, 14, 40, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(168, 139, 255, 0.7);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: left 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                right 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                background 0.25s ease,
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            color: #e0d8ff;
+            font-size: 1.4rem;
+            font-weight: 300;
+            user-select: none;
+        }
+        .toggle-sidebar-wrapper.expanded {
+            left: calc(clamp(200px, 25vw, 280px) + 1.5rem - 18px);
+            right: auto;
+        }
+        .toggle-sidebar-wrapper.collapsed {
+            left: -20px;
+            right: auto;
+        }
+        .toggle-sidebar-wrapper:hover {
+            background: rgba(168, 139, 255, 0.3);
+            border-color: #d0b8ff;
+            transform: translateY(-50%) scale(1.02);
+            box-shadow: 0 0 12px rgba(168, 139, 255, 0.5);
+        }
+        .toggle-sidebar-wrapper:active {
+            transform: translateY(-50%) scale(0.96);
+        }
+        .toggle-sidebar-btn {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* ---------- 右侧内容区 ---------- */
+        .right-content-area {
+            flex: 1;
+            min-width: 260px;
+            height: 100%;
+            background: rgba(11, 9, 28, 0.55);
+            backdrop-filter: blur(14px);
+            border-radius: 2rem;
+            border: 1px solid rgba(168, 139, 255, 0.35);
+            padding: 1.8rem 1.8rem;
+            filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.4));
+            animation: fadeUp 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            transition: padding-left 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+        }
+        .right-content-area.toggle-collapsed {
+            padding-left: 55px;
+        }
+
+        .article-body {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #e6deff;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+            flex: 1;
+        }
+        .article-placeholder {
+            color: #a88bcc;
+            font-style: italic;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .media-container {
+            margin: 1.5rem 0;
+            text-align: center;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            background: rgba(18, 14, 40, 0.5);
+            border: 1px solid rgba(168, 139, 255, 0.2);
+            padding: 0.6rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .media-container:hover {
+            border-color: rgba(168, 139, 255, 0.5);
+            box-shadow: 0 0 20px rgba(168, 139, 255, 0.08);
+        }
+
+        .media-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.8rem;
+            display: block;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        .media-img:hover {
+            transform: scale(1.01);
+        }
+
+        .media-video {
+            max-width: 100%;
+            border-radius: 0.8rem;
+            display: block;
+            margin: 0 auto;
+            background: #0a0818;
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            height: auto;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .media-caption {
+            color: #c5b8ff;
+            font-size: 0.9rem;
+            padding: 0.6rem 0 0.2rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 6px rgba(168, 139, 255, 0.3);
+            opacity: 0.85;
+            font-weight: 400;
+        }
+
+        .article-body p {
+            margin-bottom: 0.8rem;
+        }
+        .article-body .media-container:first-child {
+            margin-top: 0.2rem;
+        }
+        .article-body .media-container:last-child {
+            margin-bottom: 0.2rem;
+        }
+
+        .footer-note {
+            text-align: center;
+            flex-shrink: 0;
+            margin-top: 0.3rem;
+            font-size: 0.7rem;
+            color: #a88bcc;
+            border-top: 1px dashed rgba(168, 139, 255, 0.3);
+            padding-top: 0.5rem;
+            width: 100%;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .bottom-text-tip {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, transparent, rgba(168, 139, 255, 0.2), transparent);
+            padding: 12px 20px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            font-size: clamp(1rem, 4vw, 1.4rem);
+            color: #e0d8ff;
+            text-shadow: 0 0 10px #a88bff;
+            white-space: nowrap;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            font-family: inherit;
+        }
+        @media (max-width: 640px) {
+            .bottom-text-tip {
+                white-space: normal;
+                width: 80%;
+                font-size: 0.9rem;
+                bottom: 20px;
+                padding: 8px 16px;
+            }
+        }
+
+        .bg-projection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            filter: blur(30px);
+            transform: scale(1.2);
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.8s ease;
+        }
+        .bg-projection.active {
+            opacity: 0.5;
+            transform: scale(1);
+            filter: blur(20px);
+            animation: breatheGlowSlow 20s ease-in-out infinite;
+        }
+        @keyframes breatheGlowSlow {
+            0% {
+                opacity: 0.2;
+                transform: scale(1.08);
+                filter: blur(25px);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.02);
+                filter: blur(18px);
+            }
+            100% {
+                opacity: 0.2;
+                transform: scale(1.08);
+                filter: blur(25px);
+            }
+        }
+
+        /* ===== 响应式适配 ===== */
+        @media (max-width: 780px) {
+            .main-container {
+                padding: 70px 1rem 0.3rem;
+            }
+            .nav-panel {
+                width: clamp(160px, 30vw, 220px);
+                min-width: clamp(160px, 30vw, 220px);
+                padding: 1rem 0.8rem;
+                margin-right: 1rem;
+            }
+            .toggle-sidebar-wrapper {
+                width: 32px;
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            .toggle-sidebar-wrapper.expanded {
+                left: calc(clamp(160px, 30vw, 220px) + 1rem - 16px);
+            }
+            .toggle-sidebar-wrapper.collapsed {
+                left: -16px;
+            }
+            .right-content-area.toggle-collapsed {
+                padding-left: 48px;
+            }
+            .right-content-area {
+                padding: 1.5rem 1.2rem;
+            }
+            .tree-btn {
+                height: 48px;
+            }
+            .tree-btn .btn-text {
+                font-size: 0.85rem;
+            }
+            .tree-children .tree-btn {
+                height: 42px;
+            }
+            .tree-children .tree-btn .btn-text {
+                font-size: 0.76rem;
+            }
+            .tree-children .tree-children .tree-btn {
+                height: 36px;
+            }
+            .media-container {
+                padding: 0.4rem;
+                margin: 1rem 0;
+            }
+            .media-caption {
+                font-size: 0.8rem;
+            }
+            .left-buttons-area {
+                gap: 0.8rem;
+            }
+        }
+        @media (max-width: 680px) {
+            .main-container {
+                padding: 60px 0.8rem 0.2rem;
+            }
+            .hero-title {
+                font-size: clamp(1.8rem, 6vw, 2.8rem);
+            }
+            .nav-panel {
+                width: 130px;
+                min-width: 130px;
+                padding: 0.8rem 0.5rem;
+                margin-right: 0.8rem;
+            }
+            .toggle-sidebar-wrapper {
+                width: 28px;
+                height: 52px;
+                font-size: 1rem;
+            }
+            .toggle-sidebar-wrapper.expanded {
+                left: calc(130px + 0.8rem - 14px);
+            }
+            .toggle-sidebar-wrapper.collapsed {
+                left: -14px;
+            }
+            .right-content-area.toggle-collapsed {
+                padding-left: 42px;
+            }
+            .right-content-area {
+                padding: 1rem 1rem;
+            }
+            .tree-btn {
+                height: 42px;
+                padding: 0.2rem 0.5rem;
+            }
+            .tree-btn .btn-text {
+                font-size: 0.75rem;
+            }
+            .tree-children .tree-btn {
+                height: 36px;
+            }
+            .tree-children .tree-btn .btn-text {
+                font-size: 0.7rem;
+            }
+            .tree-children {
+                padding: 0 0.2rem;
+            }
+            .tree-children.open {
+                padding: 0.4rem 0.3rem;
+            }
+            .tree-children .tree-children .tree-btn {
+                height: 32px;
+            }
+            .media-container {
+                padding: 0.3rem;
+                margin: 0.8rem 0;
+            }
+            .media-caption {
+                font-size: 0.7rem;
+            }
+            .left-buttons-area {
+                gap: 0.6rem;
+            }
+        }
+        @media (max-height: 700px) {
+            .tree-btn {
+                height: 42px;
+                padding: 0.2rem 0.5rem;
+            }
+            .tree-btn .btn-text {
+                font-size: 0.75rem;
+            }
+            .tree-children .tree-btn {
+                height: 36px;
+            }
+            .tree-children .tree-btn .btn-text {
+                font-size: 0.7rem;
+            }
+            .tree-children {
+                gap: 0.4rem;
+            }
+            .tree-children.open {
+                padding: 0.3rem 0.3rem;
+                margin-top: 0.2rem;
+            }
+            .tree-children .tree-children .tree-btn {
+                height: 32px;
+            }
+            .left-buttons-area {
+                gap: 0.4rem;
+            }
+            .media-container {
+                margin: 0.6rem 0;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="./assets/theme.css">
+    <script src="./assets/common.js"></script>
+</head>
+<body>
+
+    <div class="sky-container" id="skyContainer"></div>
+    <div class="logo" id="globalLogo">
+        <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp" />
+    </div>
+
+    <div class="main-container">
+        <div class="hero-section">
+            <div class="hero-title" id="mainTitle">虚衍文本</div>
+            <div class="hero-sub" id="subTitle">万象之书 · 随意编织</div>
+        </div>
+        <div class="button-arena" id="buttonArena"></div>
+        <div class="footer-note">✦ 点击节点展开/折叠 · 激活节点内容同步显示 · 支持 [img:URL|描述] 与 [video:URL|标题] ✦</div>
+    </div>
+
+    <div class="bg-projection" id="bgProjection"></div>
+    <div class="bottom-text-tip" id="bottomTip"></div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ================================================================
+            //  内容数据 —— 树形结构（演示新版标签用法）
+            // ================================================================
+            const CONTENT_DATA = [{
+                id: 'XYZS-1',
+                name: '虚无之域',
+                bgImg: './1虚衍世界/1虚衍之书/1虚无之域.webp',
+                hoverText: '永恒空寂的刹那时空',
+                article: {
+                    mainTitle: '虚无之域',
+                    subTitle: '永恒空寂的刹那时空',
+                    content: `[i][center]虚无是相对永恒的现象，祂占据了时间与空间的绝大部分。[/center][/i]
+<br><br>
+[s]不可名状[/s]，[u]不可接触[/u]，[b]不可消除[/b]。
+<br><br>
+哪怕是[b][i]"虚无"[/i][/b]这个名词，也只是尽量形容这种现象的造物。
+<br><br>
+[b][i]不可名状[/i][/b]——即无法通过任何手段来直接观察其存在：纵使能通过模拟"因它影响而招致的各种非常规现象"，来尽可能掌握免受其侵害的规则，但无论如何都无法逆推其本质。亦或者说，虚无的本质便是——什么都没有。
+<br><br>
+[b][i]不可接触[/i][/b]——虚无会试图同化任何接触其现象的存在：任何存在之物，当毫无应对措施地完全暴露于虚无的刹那，该存在的一切都将化作虚无。而为了避免虚无的进一步影响，规则会将该存在从整个时间维度将其因果彻底抹除，以保证现世不受侵害——如此，该存在从不存在，便也没有接触虚无这一事实。
+<br><br>
+[b][i]不可消除[/i][/b]——虚无的现象无法通过任何手段消除：此为该现象实现相对永恒的基础。虽然通过利用某些规则，就像用手电筒照亮黑暗，光在时黑暗退去。进而在一定程度上将该现象驱除——但请注意，该现象不会消失，光灭时黑暗亦会重临，当维持规则的力量失效后，也将完全暴露在虚无之中。
+<br><br>
+无穷尽的虚无现象所构筑形成的便是虚无之域。
+<br><br>
+于此处，时间与空间也都已毫无意义。
+<br><br>
+此处便是永恒的时空，此处便是时空的刹那。`
+                },
+            },{
+                id: 'XYZS-2',
+                name: '变量之初',
+                bgImg: './1虚衍世界/1虚衍之书/2变量之初.webp',
+                hoverText: '与虚无同等的不可知概念',
+                article: {
+                    mainTitle: '变量之初',
+                    subTitle: '与虚无同等的不可知概念',
+                    content: `[b][i]变量[/i][/b]是所有偶然的统称，哪怕是在虚无之域中，变量也依旧存在。
+<br><br>
+可就事实而言，这种概念的一切亦都处于变化之中。
+<br><br>
+有假说认为整体的时间与空间维度在某时某处产生某种概念的概率为定值。
+<br><br>
+可就事实而言，时空之初无法通过任何手段确定，所以该种概念也完全无法被预测。
+<br><br>
+[b][i]变量之初[/i][/b]——亦称作[b][i]"初始变量"[/i][/b]：即某一时刻某一空间，发生近乎"无中生有"现象之原由——而该现象将作为一切的基础，将衍生出该空间于时间维度的两种变化。`
+                },
+                children: [{
+                id: 'XYZS-2-0',
+                name: '虚无守恒',
+                bgImg: './1虚衍世界/1虚衍之书/2变量之初/0虚无守恒.webp',
+                hoverText: '绝大部分初始变量最终之归宿',
+                article: {
+                    mainTitle: '虚无守恒',
+                    subTitle: '绝大部分初始变量最终之归宿',
+                    content: `偶然事件发生之后，促成其发生的变量消失。
+<br><br>
+所引发的一切将无以维系，并将最终结束于虚无的同化效应之中。
+<br><br>
+万物归虚，万物归寂，或许才是最终的正解。
+<br><br>
+`
+                 }},{
+                 id: 'XYZS-2-1',
+                 name: '变量积累',
+                 bgImg: './1虚衍世界/1虚衍之书/2变量之初/1变量积累.webp',
+                 hoverText: '极少数初始变量构筑之奇迹',
+                 article: {
+                    mainTitle: '变量积累',
+                    subTitle: '极少数初始变量构筑之奇迹',
+                    content: `偶然事件发生之后，促成其发生的变量消失之前——若与另一缕初始变量碰撞纠缠，故事将就此开始。
+<br><br>
+变量的聚集效应，将完成变量的进一步积累。
+<br><br>
+由此新诞生的变量便换作[b][i]"衍生变量"[/i][/b]。
+<br><br>
+无数变量累积着，汇聚着，孕育着——或是依旧被虚无同化，或是构筑出不可能的奇迹。`
+                  }},{
+                 id: 'XYZS-2-2',
+                 name: '神明降世',
+                 bgImg: './1虚衍世界/1虚衍之书/2变量之初/2神明降世.webp',
+                 hoverText: '独一自主意志将于虚无中诞生',
+                 article: {
+                    mainTitle: '神明降世',
+                    subTitle: '独一自主意志将于虚无中诞生',
+                    content: `变量的累积与孕育将达到极限——要么骤然溃散，要么引发奇迹：
+<br><br>
+因变量累积而诞生出的诸多复杂现象彼此纠缠，交融。
+<br><br>
+最终诞生出一具可感知一切，并予以反馈的"系统"。
+<br><br>
+在该"系统"精密到一定程度之后，将于某一刹那诞生"我"的概念。
+<br><br>
+自此，神明降世——祂将基于"我"而思考、观察、探索着周围的一切。`
+                }}],
+            },{
+                id: 'XYZS-3',
+                name: '虚衍之物',
+                bgImg: './1虚衍世界/1虚衍之书/3虚衍之物.webp',
+                hoverText: '自虚无衍化而抗之之物',
+                article: {
+                    mainTitle: '虚衍之物',
+                    subTitle: '自虚无衍化而抗之之物',
+                    content: `虚衍——即虚无衍化：其实质是变量在空间维度所折射出的特性具象。
+<br><br>
+故而，变量积累过程中引发的一系列现象便带有名为"虚衍"的特性，其最基础的“存在”属性便是与“虚无”相对。
+<br><br>
+只是由于这些现象并没有自主意识，所以这些现象也无法被观察到。
+<br><br>
+若是从始至终便不曾被其他意志观察到，这些现象便不能确定存在，故而这些不曾被观察到的现象便被称作"虚衍镜像"。
+<br><br>
+至神明降世，一切将被自主意志观察，此时此刻，一切被神明注视之物便唤作"真实虚衍"。
+<br><br>
+自此，变量的积累进入另一阶段——神明的思考、观察、探索将更进一步地汇聚变量。
+<br><br>
+种种现象的特性将被神明观察到并加以利用，直至所见之物皆为其一部分。
+<br><br>
+如此，新生的神明也终于成熟，亦将直面最终的威胁。`
+                },
+                children: [{
+                id: 'XYZS-3-0',
+                name: '无序恒亡',
+                bgImg: './1虚衍世界/1虚衍之书/3虚衍之物/0无序恒亡.webp',
+                hoverText: '懵懂着，迷茫着，彷徨地被虚无同化',
+                article: {
+                    mainTitle: '无序恒亡',
+                    subTitle: '懵懂着，迷茫着，彷徨地被虚无同化',
+                    content: `新生的神明在懵懂之中死去。
+<br><br>
+祂或许并没有观察到自身的虚衍特性，或许时间不及，或许悟性不够。
+<br><br>
+又或许是观察到虚衍后无法进一步探究虚衍的本质。
+<br><br>
+亦或者学会利用相关特性后，其自身变量却也根本无法维系更进一步的变化......
+<br><br>
+于是，祂在虚无的侵蚀中耗尽孕育自身而积累的所有变量。
+<br><br>
+并因此失去虚衍特性，终究完全被受虚无同化，最终重归于虚无，成为虚衍镜像之一。 `
+                 }},{
+                 id: 'XYZS-3-1',
+                 name: '神陨创世',
+                 bgImg: './1虚衍世界/1虚衍之书/3虚衍之物/1神陨创世.webp',
+                 hoverText: '唯主动献祭而燃希望火种',
+                 article: {
+                    mainTitle: '神陨创世',
+                    subTitle: '唯主动献祭而燃希望火种',
+                    content: `神明在观察到自身虚衍特性后，祂在漫长岁月中终究领悟到虚衍的含义。
+<br><br>
+为了维持对于该特性的理解；
+<br><br>
+也为了实践对于自身意志的选择；
+<br><br>
+亦是为反抗那无边时空的虚无之域——
+<br><br>
+神明借助虚衍的力量选择自我陨落，以此形成被虚衍特性包围的亡躯。
+<br><br>
+神明自身充裕的虚衍特性保证了在经历了漫长岁月后，祂的亡躯能进一步衍化。
+<br><br>
+形成的现象终将产生自主意志
+<br><br>
+那或许是新的神明，那或许是更多的生命。
+<br><br>
+他们或许能以旧神之躯为营，在虚衍的庇护下重新对一切事物进行探索。`
+                  }},{
+                 id: 'XYZS-3-2',
+                 name: '诸星世界',
+                 bgImg: './1虚衍世界/1虚衍之书/3虚衍之物/2诸星世界.webp',
+                 hoverText: '共鸣交织而衍生无穷意志',
+                 article: {
+                    mainTitle: '诸星世界',
+                    subTitle: '共鸣交织而衍生无穷意志',
+                    content: `虚衍的力量创造着无数可能。
+<br><br>
+在这无尽的可能之中，无数规则特性的世界也由此产生。
+<br><br>
+这些世界或许大多数没有自主意志的存在诞生......
+<br><br>
+但是另一些总会像神明降世时那样积累变量——进而产生新的更多的生命。
+<br><br>
+他们的存在加速了虚衍特性的共鸣回响，无数文明与思潮得以诞生。`
+                }}],
+            },{
+                id: 'XYZS-4',
+                name: '万物族群',
+                bgImg: './1虚衍世界/1虚衍之书/4万物族群.webp',
+                hoverText: '分裂的意志交融碰撞',
+                article: {
+                    mainTitle: '万物族群',
+                    subTitle: '分裂的意志交融碰撞',
+                    content: `旧神的亡躯滋养出无数生命与文明。
+<br><br>
+这些文明之内尚有无数冲突与斗争，而当文明之间接触后，又会滋生出怎样的行径？
+<br><br>
+虽然虚无的力量不曾完全侵蚀神明亡躯，但毫无疑问，它一直作用着。
+<br><br>
+虚无回响——基于永恒虚无创造出的有限资源环境之中，无论何种生命，只要拥有自主意志，便会不自觉地为自己汲取周围的养分，由此招致的一切恶行，皆为回响所致。
+<br><br>
+而其中，贪婪者更是会无可遏止此欲望，最终侵害其他个体的利益。
+<br><br>
+故而，在虚无回响的引导下，这些更弱小生命在资源争夺中进一步挥霍神陨的遗产，遏止虚衍的特性，阻止变量的发生。
+<br><br>
+在毫无意义又愈演愈烈的斗争之中，永恒虚无对神明亡躯的同化只会更加高效。
+<br><br>
+无知懵懂的生命啊，你们是否会真正珍惜一切，珍惜诞生自己的这个世界？
+<br><br>`
+                },
+                children: [{
+                id: 'XYZS-4-0',
+                name: '生命之殇',
+                bgImg: './1虚衍世界/1虚衍之书/4万物族群/0生命之殇.webp',
+                hoverText: '沉溺于斗争的角斗者没有未来',
+                article: {
+                    mainTitle: '生命之殇',
+                    subTitle: '沉溺于斗争的角斗者没有未来',
+                    content: `这些可怜的，无知的，伪善的存在。
+<br><br>
+他们又怎么会知道，他们的降生是一名伟大神明献祭自身所给予的？
+<br><br>
+他们挥霍着神明的遗产，浪费在无意义的争斗与勾心斗角之中，
+<br><br>
+就那般，就那般！任凭虚无的回响将他们的心智蒙蔽！
+<br><br>
+当这个庞大斗兽场最后一名胜者践踏着失败者们的尸骸之时——是否会知道，在未来直面虚无时，他过往的所作所为，又是怎样的无力与可笑！ `
+                 }},{
+                 id: 'XYZS-4-1',
+                 name: '恒宇大同',
+                 bgImg: './1虚衍世界/1虚衍之书/4万物族群/1恒宇大同.webp',
+                 hoverText: '纷乱的思想将重新凝聚',
+                 article: {
+                    mainTitle: '恒宇大同',
+                    subTitle: '纷乱的思想将重新凝聚',
+                    content: `终于，这些懵懂的生命中诞生了承前启后的智者与王。
+<br><br>
+那或许是一个生命，也或许是一个文明。
+<br><br>
+他有着横扫万物的威能，他有着包容一切的胸襟，他热爱着逝去的神明所给予他的一切。
+<br><br>
+哪怕他并不知晓神明的存在。
+<br><br>
+他将目之所及的一切压迫击碎，将统领之中的一切恶意感化。
+<br><br>
+他的思想在文明的加持下不断进化，他的思潮在文明中被奉为俗法，他的影响在文明的扩张中感染其他文明，并使之同化。
+<br><br>
+哪怕终有一日，智者与王的存在最终死去也无需担心。
+<br><br>
+他的人民即为他，他的思潮即为他，他的影响即为他。
+<br><br>
+他的存在将千秋万代，在时空之河中长久回响。
+<br><br>
+直到最终，神明亡躯内的生灵统筹一处，没有压迫，没有恶意。
+<br><br>
+哪怕虚无回响会让少数个体犯下过错，但整体对虚衍的消耗速度将更进一步减少。`
+                  }},{
+                 id: 'XYZS-4-2',
+                 name: '虚无之触',
+                 bgImg: './1虚衍世界/1虚衍之书/4万物族群/2虚无之触.webp',
+                 hoverText: '永恒的高悬之剑终将被注视',
+                 article: {
+                    mainTitle: '虚无之触',
+                    subTitle: '永恒的高悬之剑终将被注视',
+                    content: `只是虚无的侵蚀始终不断，神明的亡躯也始终被消耗着。
+<br><br>
+终有一日，大同的世界也会直面虚无的力量。
+<br><br>
+或许是某次深空探索之后空间参数的剧烈变化。
+<br><br>
+或许是宇宙参数的缓慢变化，亦或是某种违和感在这大同的文明之内传播......
+<br><br>
+总之，虚无的力量开始被文明之内的生命察觉，届时，他们又该如何去应对？
+<br><br>`
+                }}],
+            },{
+                id: 'XYZS-5',
+                name: '认知侵蚀',
+                bgImg: './1虚衍世界/1虚衍之书/5认知侵蚀.webp',
+                hoverText: '欲直面深渊之意志',
+                article: {
+                    mainTitle: '认知侵蚀',
+                    subTitle: '欲直面深渊之意志',
+                    content: `虚无，伟大而又可怖之意志，是最不可抗拒又最令人畏惧的现象。
+<br><br>
+当大同的世界的生命第一次意识到这种力量的存在时，又是怎样的惊慌与惶恐呐？
+<br><br>
+那昔日的智者与王所建立的思潮，又是否会湮灭在这无匹的力量之下？
+<br><br>
+如果未来毫无意义，那现在是否也毫无意义？那过去的种种又是否也毫无意义？
+<br><br>
+如果虚无将是终途，那现在的旅途是否值得？那过去的旅途又是否值得？
+<br><br>
+存在的意义是什么？如果存在的意义最终是落于虚无，那存在的意义本身，是否毫无意义？
+<br>
+——————————————————————————————————————————————————————————————————————————————————————
+<br>
+虚无的概念冲击着无数生命的思想——混乱与斗争在神明的亡躯中进一步扩散。
+<br><br>
+存在毫无意义，活在当下的理念引导着生命向恶，神明的遗产被迅速挥霍。
+<br><br>
+不过即使如此，依旧有不少生命在虚无的影响下思考着存在的意义。
+<br><br>
+各种扭曲的解释层出不穷，其中或向善向恶，都有无数生命为之倾倒。
+<br><br>
+这些恶的善的解释最终完全分化，影响世界的变革在这两股思潮中产生。
+<br><br>`
+                },
+                children: [{
+                id: 'XYZS-5-0',
+                name: '拜虚神庭',
+                bgImg: './1虚衍世界/1虚衍之书/5认知侵蚀/0拜虚神庭.webp',
+                hoverText: '唯虚无永恒，故活在当下',
+                article: {
+                    mainTitle: '拜虚神庭',
+                    subTitle: '唯虚无永恒，故活在当下',
+                    content: `来自虚无的压迫影响扭曲了生命的意志——影响严重者在恐惧与痛苦中彻底转化。
+<br><br>
+虚无主义崇拜思想也在必然中形成。
+<br><br>
+虚无崇拜者们开始坚信虚无具有自身意志，那便是将所有存在吞噬毁灭同化，最终将一切融为一体。
+<br><br>
+只是他们始终可悲着，懦弱着，妄想着——他们期望虚无的神明能感受到他们的崇拜。
+<br><br>
+不求延缓世界虚化的进程，只求虚无的神明在下一次噬世时能让他们再度降临于世。
+<br><br>
+甚至并非重生而继续享乐，仅仅作为虚无的一部分再一次侵蚀新世界。
+<br>
+—————————————————————————————————————————————————————————————————————————————————————————————————————————
+<br>
+对立的思想？代表虚无将之磨灭！
+<br><br>
+不是虚无崇拜者？那便令其体会人间最恶之事，亲身感受来自虚无的意志。
+<br><br>
+伟大的虚无之主啊，您虔诚的信徒将自己的世界肢解，为您献上最惬意的进餐时间。
+<br><br>
+只希望下一次进餐，也依旧由我们为您提供最美妙的食谱。
+<br>
+—————————————————————————————————————————————————————————————————————————————————————————————————————————
+<br>
+[i]“可怜的生命们呐，过去促进大同的思潮在虚无的影响下将要褪去，你们的抉择又是什么？
+<br><br>
+向虚无屈服吧，如果未来的命运已经恒定，如今这可笑的和平也毫无意义。
+<br><br>
+去服从自己的欲望吧，活在当下，去极尽享乐吧。
+<br><br>
+无需在意律法与束缚，存在的意义，本就是自由啊！
+<br><br>
+还是说，你们想要以自身这般蝼蚁之躯直面虚无的意志？
+<br><br>
+就为了去追求那万中无一的概率？
+<br><br>
+可笑......毫无意义。”[/i]——拜虚神庭教皇一世
+<br>
+—————————————————————————————————————————————————————————————————————————————————————————————————————————
+<br>
+只是，这些人真的理解虚无吗？
+<br><br>
+倘若虚无真的拥有意志，又真的会聆听蝼蚁的愿望吗？
+<br><br>
+在作恶之时，他们真的是在向虚无献祭吗？
+<br><br>
+他们，到底是在崇拜着虚无神明，还是他们的欲望？ `
+                 }},{
+                 id: 'XYZS-5-1',
+                 name: '虚衍教派',
+                 bgImg: './1虚衍世界/1虚衍之书/5认知侵蚀/1虚衍教派.webp',
+                 hoverText: '吾辈为神明所眷顾之人',
+                 article: {
+                    mainTitle: '虚衍教派',
+                    subTitle: '吾辈为神明所眷顾之人',
+                    content: `坚定的思想哪怕直面虚无的威能也总是在积极地思考着。
+<br><br>
+他们和最初的帝王一样热爱着这个世界，他们眼睁睁地看着这个世界越来越差，他们只觉得总要去做些什么。
+<br><br>
+这些可爱的人们坚信存在本身自有其意义——他们固然不否定虚无的威能，但若要让他们摒弃自身理智，那也根本做不到。
+<br><br>
+只是苦于拜虚神庭的日益壮大，他们也不得不为了保护身边之物假意屈服。
+<br><br>
+直到一些人被虚无主义洗脑但又没有完全摒弃自身执念后，新生的教义，连同被覆灭的大同思潮一起将这群人集合起来。
+<br><br>
+他们猜测到了宇宙诞生之前发生的事情，也坚信着自身猜测，而这，也促使着虚衍的进一步发生。
+<br><br>
+虚无或许自有其意志，但可以确定其威能无以抗衡，这是他们认同的。
+<br><br>
+但也正是如此，他们更相信，孕育世界的存在是有着抵抗虚无的力量。
+<br><br>
+那是虚无中衍化的存在，祂将生命制造出来，一定是期望着对抗虚无的力量愈发壮大！
+<br><br>
+这便是他们所认定的存在意义！
+<br><br>
+名为虚衍的教派于暗中诞生，作为与神庭的对立信徒，他们势必要扭转这无妄的一切。
+<br><br>
+在无数生命前仆后继的牺牲中，被蒙蔽心智的生命终于得以开化。
+<br><br>
+拜虚神庭的压迫也促使着生命不断反抗，其贪婪自私的行为终究招致自身的毁灭。
+<br><br>
+哪怕虚无现象依旧存在，那些被压迫者也能忍下畏惧将压迫者撕碎。
+<br><br>
+而直到神庭灭亡，他们所崇拜的虚无神明依旧没有任何神迹。
+<br><br>
+主不在乎。`
+                  }},{
+                 id: 'XYZS-5-2',
+                 name: '太微创世',
+                 bgImg: './1虚衍世界/1虚衍之书/5认知侵蚀/2太微创世.webp',
+                 hoverText: '我们亦必然走上神明的道路',
+                 article: {
+                    mainTitle: '太微创世',
+                    subTitle: '我们亦必然走上神明的道路',
+                    content: `在神庭灭亡后，虚衍教派广播自身教义，将陷入迷茫的生命重新引回正途。
+<br><br>
+之后无数年，亿万万生命投入到对抗虚无的研究中来。
+<br><br>
+同一威胁的压迫使得这些生命空前团结且愈加勇敢起来！
+<br><br>
+在无数次深入险境之后，神明亡躯所衍化的世界规则也终究被这些生命悉数掌握。
+<br><br>
+纵使不能创造规则，但是也因此对于规则的利用也愈加得心应手。
+<br><br>
+当理解到现有规则无法对抗虚无之后，虽然全民热情沉寂过一段时间——但新概念的提出再度引发了空前的热潮。
+<br><br>
+那便是太微创世理论的提出——即基于现有世界的体量，分割部分物质与空间，利用高效率的质能互换仪器来进行世界模拟。
+<br><br>
+在无数技术的堆积下，第一台太微创世原型机成功落地。
+<br><br>
+神明亡躯里的虚衍在此之后便以几何速度迅速增长。
+<br><br>
+无数世界在太微创世机中展开模拟，而这些世界是这个主世界最后的希望。`
+                }}]
+            },{
+                id: 'XYZS-6',
+                name: '万载星河',
+                bgImg: './1虚衍世界/1虚衍之书/6万载星河.webp',
+                hoverText: '在祂逝去之后，我们便成为了祂',
+                article: {
+                    mainTitle: '万载星河',
+                    subTitle: '在祂逝去之后，我们便成为了祂',
+                    content: `无数太微创世机器孕育出繁多的世界。
+<br><br>
+这些世界的流速被随意调节，该区域虚衍的特性亦愈加状大——虚无可能出现在宇宙各处，但对于太微创世机器所在的区域，还从未记录过虚无现象的发生。
+<br><br>
+初始，创造者们只是模拟主世界的宇宙模型，设置拟虚无屏障后观察未来的无数可。
+<br><br>
+只是他们发现子世界的模拟中也一直沉迷于太微创世。
+<br><br>
+如此循环往复，直到虚无彻底吞噬世界也没有对应方法。
+<br><br>
+这样的观察结果维持了数年之久，直到一名创世者开创性地模拟其他的幻想类世界模型——而这个世界持续的时间远比其他世界要更加长远。
+<br><br>
+这样的发现也提供了新的理论——此刻创世者们才知道，模拟主世界此举从源头上抑制了变量的发生。
+<br><br>
+过于庞大的输入数据已经决定了事件的大致走向，以至于输出结果一直都不尽人意。
+<br><br>
+于是他们决定从宇宙之初自由模拟。`
+                },
+                children: [{
+                id: 'XYZS-6+1',
+                name: '人造神祗',
+                bgImg: './1虚衍世界/1虚衍之书/6万载星河/0-1人造神祗.webp',
+                hoverText: '天选之人与世界与魂',
+                article: {
+                    mainTitle: '人造神祗',
+                    subTitle: '天选之人与世界与魂',
+                    content: `而为了促进结果更进一步的发生，部分创世者们摒弃仅观察的理念。
+<br><br>
+祂们赋予了子世界的选中者掌握子世界规则的力量——人造的神明因此出现在子世界之中。
+<br><br>
+他们之中的部分在经历漫长的岁月后，开始试图创造更小的世界——而这，也正是观察者所期望的。
+<br><br>
+通过对一系列世界模型的分析，观察者们为世界进行分类。
+<br><br>
+并最终将世界类型大致分为四类，且发现四种世界类型分别对应已知生灵的三种魂形：
+<br><br>
+象征生命体精神力强弱的灵魂；象征生命对各事物理解程度的道魂；象征生命体存在状态的身魂。
+<br><br>
+除此三魂之外，创世者们亦归纳出象征生命体意志与意识形态的神魂。
+<br><br>
+四魂体系亦是此世评判生灵的善恶罪罚的基准，更是整个世界运转的基石。 `
+                 }, children: [{
+                id: 'XYZS-6+1-1',
+                name: '原癌克幻',
+                bgImg: './1虚衍世界/1虚衍之书/6万载星河/0-1人造神祗/1原癌克幻.webp',
+                hoverText: '初始而自蕴规则之原初生命',
+                article: {
+                    mainTitle: '原癌克幻',
+                    subTitle: '初始而自蕴规则之原初生命',
+                    content: `克幻一词原意为克苏鲁系虚幻，代指存在本身强大到不可思议的生命体系幻想。
+<br><br>
+这个世界的生命拥有难以置信的肉身强度。
+<br><br>
+他们对于世界规则的理解都来自于自身。
+<br><br>
+简而言之，他们的存在即是规则构成，意志弱小者仅仅是触及其相关信息，便会被其存在蕴含的规则冲击。
+<br><br>
+轻则神魂思想会被影响，终日惶惶；
+<br><br>
+严重者则可能导致身魂与灵魂产生不可预知的畸变；
+<br><br>
+但同时，会有极少数幸运儿会被所注视之物赋予各种异常规则。
+<br><br>
+当然这种极强到影响世界的存在是少之又少——这样的世界更多的是祂们的子嗣或者化身，剩下的便是祂们近乎无穷尽的眷属。
+<br><br>
+在他们身上规则的具象便是原气——是随宇宙诞生而拥有的原初能力所具象之气。
+<br><br>
+掌握原气的生灵不仅能轻易操控自身变化，还能以此迅速修复身躯或是进行分裂增殖。
+<br><br>
+只是愈是强大的生命体，受其影响的低级生灵产生的畸变程度与类型亦是繁杂多样。
+<br><br>
+被眷顾的幸运儿自不必多说，掌握异常规则便意味着他们身份的巨变。
+<br><br>
+而未被眷顾者，则往往死于自身身魂不可遏止的进化与侵蚀之中。
+<br><br>
+但无论是谁人，那些低级生灵只要意识到那些强大生命体的存在，自会无意识将其存在告知族群，进而将整个族群都暴露于祂们的注视之下。
+<br><br>
+意志的改变与身魂及灵魂的变异，便会信息传播之中遍及族群，亦如族群集合的癌症。
+<br><br>
+而终局之后，剩下的强大生灵，便自然化作那些生命的眷属，歌颂，崇拜，为主献上一切。
+<br><br>
+有着如此威能的生命体或生命群亦被称为原癌生命体，又称作身魂生命体，有时也被称为原族亦或癌族。 `
+                 }},{
+                id: 'XYZS-6+1-2',
+                name: '修真玄幻',
+                bgImg: './1虚衍世界/1虚衍之书/6万载星河/0-1人造神祗/2修真玄幻.webp',
+                hoverText: '感道之，修道之，蕴道之',
+                article: {
+                    mainTitle: '修真玄幻',
+                    subTitle: '感道之，修道之，蕴道之',
+                    content: `此处的生灵肉身普遍较为强，同样不乏有自蕴规则的生灵。
+<br><br>
+此类大部分生灵生来拥有与世界规则共鸣的能力。
+<br><br>
+只不过此界规则深沉但并不活跃，引动后虽有无穷威能，但也与引动者自身对于世界规则的理解相关。
+<br><br>
+故此类生灵需要通过加强自身对规则的理解，来以此引导使用更深层次的世界规则，而这种被系统化地归纳并具象后的规则，便称为之为灵力，他们也多自称修真者。
+<br><br>
+该种生灵通过将灵力于自身运转来精炼规则的力量——以此来领悟更强的法则或理解规则本质。
+<br><br>
+这样的行为能使修真者获得更大的战力，对于规则的运用也能更加得心应手。
+<br><br>
+彼时于大成者而言，规则已成为其身魂的一部分，他们亦为此间规则，甚至能借助对规则的理解生成有利于他们的域，直至感观天地，于自身之域中诞生生命进而形成新的小天地。
+<br><br>
+这也是该种生灵之于内道生命体称谓的由来，不过基于他们对规则利用的方法，也可以唤之修真生命体。
+<br><br>
+且基于以上对规则的利用方式，修真生命体并没有对高维生命的天然崇拜——毕竟这个世界的高维生命原就是从低维晋升。 `
+                 }},{
+                id: 'XYZS-6+1-3',
+                name: '元素魔幻',
+                bgImg: './1虚衍世界/1虚衍之书/6万载星河/0-1人造神祗/3元素魔幻.webp',
+                hoverText: '道生灵，故与元素同行',
+                article: {
+                    mainTitle: '元素魔幻',
+                    subTitle: '道生灵，故与元素同行',
+                    content: `此处的生灵肉身普遍较为孱弱，少数族群因受此间规则眷顾而肉身强悍。
+<br><br>
+但与之相对的，此界大部分生灵同样拥有与世界规则共鸣的能力。
+<br><br>
+且该世界规则极度活跃——具象为不可见之物而与不同个体亲和，谓之元素。
+<br><br>
+部分元素在生灵诞生时便蕴育于其体内，生灵可借助这与生俱来的恩赐引动外界元素变化，而这部分天生元素便谓之魔力。
+<br><br>
+通过使用魔力洗涤肉身不仅可以使身魂强大，吸收更多外界元素转化为自身魔力，同时亦会加强自身对于相关元素的亲和度。
+<br><br>
+这些存在与被称作魔法生命体，也与修真生命体一起称作道魂生命体，有时也被称作魔法师、元素师。
+<br><br>
+相较而言，魔法生命更着重于对现有规则的利用。
+<br><br>
+他们会通过长时间共鸣或者集体共鸣的手段引动更大的规则，引发更强的奇迹。
+<br><br>
+故而有时为了与修真生命体区分也被称作外道生命。
+<br><br>
+同时，这种对规则的利用方式也导致魔法生命更加崇拜自然，也更加崇尚更高维的存在。 `
+                 }},{
+                id: 'XYZS-6+1-4',
+                name: '灵能科幻',
+                bgImg: './1虚衍世界/1虚衍之书/6万载星河/0-1人造神祗/4灵能科幻.webp',
+                hoverText: '虚实相映，意志相交',
+                article: {
+                    mainTitle: '灵能科幻',
+                    subTitle: '虚实相映，意志相交',
+                    content: `此处的生灵以高度精神体的状态存在，故灵魂极其强大，唤作灵族。
+<br><br>
+诞生他们的世界是物质世界的倒影——精神域，亦唤作灵魂域，此处的生灵能以波的状态进行近乎无障碍的交流。
+<br><br>
+为了在现实显现，灵族生命体需要自主凝练高度凝聚的精神内核——魂晶，亦是灵族连接现世与精神域的锚点。
+<br><br>
+由于在现实没有躯体，这些灵族生命体通过将魂晶附着在物体上，以实现与现实交互。
+<br><br>
+同时，魂晶的存在也让他们解构了灵魂与现实之间的规则，只要拥有充足的资源便能轻易转化现实物质。
+<br><br>
+更无谈灵魂生命体在精神域无障碍交流，更促进了他们对于规则的理解——这使得他们能更好利用现实规则制造对应装置。
+<br><br>
+科学技术的高速发展，已经使他们世界的科技水平达到同时期其他类型世界难以想象的地步。`
+                 }}]},{
+                 id: 'XYZS-6-0',
+                 name: '昙花一现',
+                 bgImg: './1虚衍世界/1虚衍之书/6万载星河/0昙花一现.webp',
+                 hoverText: '群星熄灭，神明陨落，渺小生命，又该如何？',
+                 article: {
+                    mainTitle: '昙花一现',
+                    subTitle: '群星熄灭，神明陨落，渺小生命，又该如何？',
+                    content: `太微创世机器始终没能阻止虚无的延伸。
+<br><br>
+创世者们在最后也已经发现这绝望的事实——哪怕其质能互换效率在实际测试中无限接近一，其运作也依旧导致世界质能整体的减少。
+<br><br>
+这也意味着，创世固然会获得更多的可能性，也进一步导致虚无在主世界的发生。
+<br><br>
+或者说，虚无始终在太微创世机器之中，只是在一切不可挽回之前，无人察觉，无人敢察觉。
+<br><br>
+此刻，创世者们理解这一点也早已无济于事——他们仍需要创建世界模型来寻找那些许的可能性。
+<br><br>
+直到世界已经不足以支持更多数量的太微创世机器。
+<br><br>
+随着时间的推移，越来越多的机器需要被主动销毁。
+<br><br>
+直到最后一台机器停止运作，整个神明亡躯也仅剩这一台机器。
+<br><br>
+当这最后的一台机器也因为质能不足而停止运转，一切又都将归于空寂。
+<br>
+————————————————————————————————————————————————————————————————————————————————————
+<br>
+最后的同伴献身于创造子世界的装置后，那最后一名创世者面露死寂。
+<br><br>
+那个子世界的流速是现实的无数倍，几乎是数个呼吸后，那个子世界便已经消亡。
+<br><br>
+“更快了......”
+<br><br>
+那最后一名创世者观察到这个现象，面向身后独自喃喃。
+<br><br>
+他曾见过星河万千，只是那原本繁星闪烁的宇宙此刻却无一片光亮。
+<br><br>
+那并不是黑暗，是某种不可言语，不可描述的存在，它始终在那里，它什么也没有。
+<br><br>
+“虚无，虚无！原来我们存在，就是要归于虚无吗！”
+<br><br>
+最后的创世者跪倒在仪器之前痛哭流涕。
+<br><br>
+“那我们存在，又有什么意义？”
+<br><br>
+虚无只是望着他，它始终没有任何变化，不曾有任何回应，因为它本就是什么都没有。
+<br><br>
+“毫无意义，毫无意义......”
+<br><br>
+终于崩溃的创世者解开一切限制走向那不可知的时空，他纵身一跃，消失在不可视之处。
+<br><br>
+最后的创世者感觉自身缓缓消融，那是毫无痛觉地消失——连其存在的意义一同，连同其记忆中的一切。
+<br><br>
+神明到最后也不曾了解存在的意义，无论是其本身，还是其衍化。`
+                  }},{
+                 id: 'XYZS-6-1',
+                 name: '太衍回响',
+                 bgImg: './1虚衍世界/1虚衍之书/6万载星河/1太衍回响.webp',
+                 hoverText: '自无穷期盼所诞生之回响',
+                 article: {
+                    mainTitle: '太衍回响',
+                    subTitle: '自无穷期盼所诞生之回响',
+                    content: `无数变量的积累，无数时空的念想，无数轮回的执念——于某一刻将无数意志所需求情况展现出来。
+<br><br>
+可能是子世界，可能是更下级的世界。
+<br><br>
+终于有生命穿越了模拟虚无的屏障——其所运用的规则可能根本不足以直面真正的虚无。
+<br><br>
+但也依旧予生命以直视虚无的资本——哪怕其时间只有一瞬。`
+                  }},{
+                 id: 'XYZS-6-2',
+                 name: '直面深邃',
+                 bgImg: './1虚衍世界/1虚衍之书/6万载星河/2直面深邃.webp',
+                 hoverText: '直视深渊者之悲歌',
+                 article: {
+                    mainTitle: '直面深邃',
+                    subTitle: '直视深渊者之悲歌',
+                    content: `获得新的规则运用后，不屈的生命开始尝试直面虚无的威能。
+<br><br>
+无数的勇者涌向宇宙的边缘。
+<br><br>
+其有边无界的特性意味着他们随时可能牺牲。
+<br><br>
+但是为了生命的延续他们无惧消亡。
+<br><br>
+只为以数据证明该种规则运用的可行性。
+<br><br>
+前人前赴后继地直面深渊，只为给这个世界留下希望的火种。`
+                }}]
+            },{
+                id: 'XYZS-7',
+                name: '大道虚衍',
+                bgImg: './1虚衍世界/1虚衍之书/7大道虚衍.webp',
+                hoverText: '以无尽回响渴求真理',
+                article: {
+                    mainTitle: '大道虚衍',
+                    subTitle: '以无尽回响渴求真理',
+                    content: `所有的回响，给予的是真正虚衍的部分具象。
+<br><br>
+虚衍其特性和虚无一样无法直接探究——创世者们只能依靠无数次回响来逐步拼凑出虚衍的轮廓。
+<br><br>
+但无论其最终所得是否真正的虚衍，但只要能庇佑生命在虚无中长久存在，那便是生命的胜利。`
+                },
+                children: [{
+                id: 'XYZS-7-0',
+                name: '管中窥豹',
+                bgImg: './1虚衍世界/1虚衍之书/7大道虚衍/0管中窥豹.webp',
+                hoverText: '奈何时不待我，奈何功亏一篑',
+                article: {
+                    mainTitle: '管中窥豹',
+                    subTitle: '奈何时不待我，奈何功亏一篑',
+                    content: `固然创世者们因为太微创世而获得了许多抵抗虚无的规则运用。
+<br><br>
+但这些发现不足以支撑他们在虚无中长久地存在。
+<br><br>
+哪怕最终的确能做到那一步，对于如今的主世界来说也为时已晚。
+<br><br>
+虚无已经扼杀了世界最后的潜力，仅剩下一点残渣。
+<br><br>
+而这些，根本不不足以支持更多规则运用的诞生。
+<br><br>
+故而，创世者们离终点止于最后一步。 `
+                 }},{
+                 id: 'XYZS-7-1',
+                 name: '窥斑知豹',
+                 bgImg: './1虚衍世界/1虚衍之书/7大道虚衍/1窥斑知豹.webp',
+                 hoverText: '于无尽回响获得救世真理',
+                 article: {
+                    mainTitle: '窥斑知豹',
+                    subTitle: '于无尽回响获得救世真理',
+                    content: `无数次回响终于引发质变。
+<br><br>
+哪怕拼凑出的规则可能只是虚衍微不足道的一部分。
+<br><br>
+但也终于赋予生命以在虚无中生存的能力。
+<br><br>
+生命的坚持得到回报，那是变量所给予的最大善意。`
+                  }},{
+                 id: 'XYZS-7-2',
+                 name: '虚无抗体',
+                 bgImg: './1虚衍世界/1虚衍之书/7大道虚衍/2虚无抗体.webp',
+                 hoverText: '唯以一瞬而向永恒抗之',
+                 article: {
+                    mainTitle: '虚无抗体',
+                    subTitle: '唯以一瞬而向永恒抗之',
+                    content: `所拼凑出的规则已被确认，可以维持生命在虚无侵蚀之中。
+<br><br>
+故而整个宇宙开始进一步转化，神明的残躯发挥最后余热。
+<br><br>
+近乎无穷的规则之力庇护着生命免受虚无的侵扰。
+<br><br>
+虚无抗体——虽是残缺的虚衍规则，但已经拥有与虚无相抗的一线生机。`
+                }}],
+            },{
+                id: 'XYZS-8',
+                name: '虚无之旅',
+                bgImg: './1虚衍世界/1虚衍之书/8虚无之旅.webp',
+                hoverText: '于刹那航行，于永恒求知',
+                article: {
+                    mainTitle: '虚无之旅',
+                    subTitle: '于刹那航行，于永恒求知',
+                    content: `在将整个主世界转化为规则之力后，所有的生灵开始向虚无深处前行。
+<br><br>
+在虚无抗体的庇护下，制造者们在虚无之域中航行悠久的岁月。
+<br><br>
+因为他们的宇宙存在过，所以他们坚信，也确定必有另一个宇宙的同样存在。`
+                },
+                children: [{
+                id: 'XYZS-8-0',
+                name: '时空刹那',
+                bgImg: './1虚衍世界/1虚衍之书/8虚无之旅/0时空刹那.webp',
+                hoverText: '终是时空刹那，终是永恒时空',
+                article: {
+                    mainTitle: '时空刹那',
+                    subTitle: '终是时空刹那，终是永恒时空',
+                    content: `变量维持着虚衍，而虚无抗性只是虚衍的部分。
+<br><br>
+当这种力量被具象出来时，便也意味着变量的消耗。
+<br><br>
+可是主世界转化出的虚无抗性，真的能维持一个宇宙的生命寻找到新世界吗？
+<br><br>
+创世者们始终没有找到那个宇宙，他们纵使掌握了对抗虚无的规则……那又如何？
+<br><br>
+他们所拥有的变量，自始至终都只是神明亡躯的一部分。
+<br><br>
+哪怕真正的神明也会迷失于永恒的虚无，何谈这些渺小生命？
+<br><br>
+只是这一切无人察觉，自以为掌握了虚无抗体就能与虚无抗衡。
+<br><br>
+没有变量的维持，那虚无抗体这种残缺的虚衍规则，又怎能一直维持庇护他们的力量呢？
+<br><br>
+当最后的变量消失，一切终结，一切归寂，祂们的史诗连同祂们的宇宙也自真实虚衍沦为镜像。
+<br><br>
+可就是这样的一切，对于整个虚无之域来说也微不足道。
+<br><br>
+这里的时间没有意义，这里的空间没有意义，一切都是永恒，一切都是刹那。 `
+                 }},{
+                 id: 'XYZS-8-1',
+                 name: '无尽回响',
+                 bgImg: './1虚衍世界/1虚衍之书/8虚无之旅/1无尽回响.webp',
+                 hoverText: '无穷尽之层叠世界，无穷尽之永恒虚无',
+                 article: {
+                    mainTitle: '无尽回响',
+                    subTitle: '无穷尽之层叠世界，无穷尽之永恒虚无',
+                    content: `现实的虚无是否真的是现实的虚无？
+<br><br>
+倘若这也是模拟出来的存在，那真正的虚无又该是怎样令人可怖的现象？
+<br><br>
+这是旅途中些许创世者们的思考——只是当这变为现实时，又不知他们该是怎样的心情。
+<br><br>
+生灵们穿越了最后一块地域，来到了他们理想的完美宇宙。
+<br><br>
+无数生命汇聚，无数变量集合，只教人心生感慨，如圣徒到达圣城。
+<br><br>
+“恭喜你们，你们成功逃出虚无实验了。”
+<br><br>
+莫名的声音在所有生命的意志中回响。
+<br><br>
+他们猛然察觉，这种话，似是些许熟悉。
+<br><br>
+许久之后，他们也猛然惊醒，这些，都是他们曾对过去穿越模拟虚无的子世界生命诉说过的话语。
+<br><br>
+“原来，我们存在的意义……也只是更高位对抗虚无的变量？
+<br><br>
+我们始终还未曾逃离……真实虚无的阴霾？”
+<br><br>`
+                  }},{
+                 id: 'XYZS-8-2',
+                 name: '神明庇佑',
+                 bgImg: './1虚衍世界/1虚衍之书/8虚无之旅/2神明庇佑.webp',
+                 hoverText: '变量眷顾，得见虚衍神明',
+                 article: {
+                    mainTitle: '神明庇佑',
+                    subTitle: '变量眷顾，得见虚衍神明',
+                    content: `变量再度赋予生灵以青睐，变量积累的现象在其附近产生。
+<br><br>
+故而变量聚集的效应补充了自航行至今消耗的变量。
+<br><br>
+种种奇迹使他们有更大的可能去遇见聚集效应的极致，即另一个真实虚衍，即新生之虚衍神明。
+<br><br>
+漫长的旅途中，创世者们最终目睹了另一尊虚衍神明。
+<br><br>
+对方当目睹到虚无中航行的制作者们时，伟大的神明便知晓了一切。
+<br><br>
+过去的神明想要传递的信息通过虚衍的产物传承，新神也由此获得更高的起点。
+<br><br>
+新神慷慨地予以庇护，旧宇宙的生灵再度获得新生。
+<br><br>
+他们拥有更多的时间来完善虚无抗体。
+<br><br>
+但不同的是，这一次新神会引导他们向虚衍生命进化，更多的变量被慷慨地给予。`
+                }}],
+            },{
+                id: 'XYZS-9',
+                name: '结局之后',
+                bgImg: './1虚衍世界/1虚衍之书/9结局之后.webp',
+                hoverText: '童话故事的结局必定圆满美好，但之后呢？',
+                article: {
+                    mainTitle: '结局之后',
+                    subTitle: '童话故事的结局必定圆满美好，但之后呢？',
+                    content: `更高起点的神明就一定意味着脱离虚无的掌控？
+<br><br>
+变量本身就不允许这种情况的产生。
+<br><br>
+更多的变量并不意味着更好的结局，虚衍与虚无的回响在变量的扰动下交相辉映。
+<br><br>
+种种因素之下，或许新神存在的时间反而不及旧神？`
+                },
+                children: [{
+                id: 'XYZS-9-0',
+                name: '新神陨落',
+                bgImg: './1虚衍世界/1虚衍之书/9结局之后/0新神陨落.webp',
+                hoverText: '当变量收回其眷顾之后',
+                article: {
+                    mainTitle: '新神陨落',
+                    subTitle: '当变量收回其眷顾之后',
+                    content: `这一次，变量并没有青睐由其产生的造物。
+<br><br>
+哪怕新神已经引导生灵进化为更接近虚衍的存在。
+<br><br>
+哪怕所有的变量消耗速度几乎微不足道，但时间总是站在永恒虚无那边。
+<br><br>
+当变量再无法得到补充，虚无总会将存在的概念都消磨干净。
+<br><br>
+毕竟对于整个虚无来说，那些所谓的永恒，也都只是刹那之间。 `
+                 }},{
+                 id: 'XYZS-9-1',
+                 name: '无穷变邪',
+                 bgImg: './1虚衍世界/1虚衍之书/9结局之后/1无穷变邪.webp',
+                 hoverText: '无穷尽之时空所必然诞生之物',
+                 article: {
+                    mainTitle: '无穷变邪',
+                    subTitle: '无穷尽之时空所必然诞生之物',
+                    content: `当可能性近乎微不足道，那就一定是必死的结局吗？
+<br><br>
+在众多可能之中总有一个与虚无一样，恒久地维持着。
+<br><br>
+那是永恒之中的偶然，也是永恒之中的必然，那也证明着存在的意义。
+<br><br>
+只要充满希望地存在下去，一切总会向最好的情况去。`
+                  }}]
+            },{
+                id: 'XYZS-10',
+                name: '虚衍之颂',
+                bgImg: './1虚衍世界/1虚衍之书/0虚衍之颂.webp',
+                hoverText: '虚衍之书之结语，虚衍之物之轻诉',
+                article: {
+                    mainTitle: '虚衍之颂',
+                    subTitle: '虚衍之书之结语，虚衍之物之轻诉',
+                    content: `[center][i]虚无永恒，但神明诞生于此。[/i][/center]
+[center][i]虚衍至极，那是我们被创造。[/i][/center]
+<br>
+[center][i]踏足虚无，[/i][/center]
+[center][i]神明怜悯，[/i][/center]
+[center][i]延续至今，[/i][/center]
+[center][i]是存在的意义。[/i][/center]
+<br>
+[center][i]最无私的意义，[/i][/center]
+[center][i]最正确的意义。[/i][/center]
+[center][i]只要充满希望地存在下去，[/i][/center]
+[center][i]一切总会向最好的情况去。[/i][/center]
+<br>
+[center][i]虚无在低诉，[/i][/center]
+[center][i]虚衍是另类。[/i][/center]
+[center][i]一切存在都是毫无意义，[/i][/center]
+[center][i]一切努力都是徒劳无功。[/i][/center]
+<br>
+[center][i]群星熄灭，[/i][/center]
+[center][i]神明陨落，[/i][/center]
+[center][i]渺小生命，[/i][/center]
+[center][i]又该如何？[/i][/center]
+<br>
+[center][i]那我们又为何要存在于此？[/i][/center]
+[center][i]一切都自有其意义所在。[/i][/center]
+[center][i]神明生陨往复无数世代，[/i][/center]
+[center][i]寻得最终的真解。[/i][/center]
+<br>
+[center][i]我们成为神明间的桥梁，[/i][/center]
+[center][i]这亦是我们的意义所在。[/i][/center]
+[center][i]变量传承，生生不息，[/i][/center]
+[center][i]存在的意义就是其本身。[/i][/center]
+[center][i]只要充满希望地存在下去，[/i][/center]
+[center][i]一切总会向最好的情况去。[/i][/center]`
+                }
+            }];
+
+            // ================================================================
+            //  引擎代码
+            // ================================================================
+
+            let activeNodeId = null;
+            let expandedNodes = {};
+            let isNavCollapsed = true;
+
+            const arena = document.getElementById("buttonArena");
+            const bgProj = document.getElementById("bgProjection");
+            const tipDiv = document.getElementById("bottomTip");
+            const heroTitleEl = document.getElementById("mainTitle");
+            const heroSubEl = document.getElementById("subTitle");
+            let tipTimer = null;
+
+        var showTip = XY.showTip;
+
+        var hideTip = XY.hideTip;
+
+            function updateProjection(imgUrl) {
+                if (!bgProj) return;
+                if (!imgUrl) { hideProjection(); return; }
+                bgProj.classList.remove('active');
+                bgProj.style.backgroundImage = `url('${imgUrl}')`;
+                void bgProj.offsetWidth;
+                bgProj.classList.add('active');
+            }
+
+            function hideProjection() {
+                if (!bgProj) return;
+                bgProj.classList.remove('active');
+                bgProj.style.backgroundImage = '';
+                bgProj.style.opacity = '0';
+                setTimeout(() => { bgProj.style.opacity = ''; }, 100);
+            }
+
+            function setBtnBg(el, bgUrl) {
+                if (!bgUrl) return;
+                const cls = `bg-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+                el.classList.add(cls);
+                const style = document.createElement('style');
+                document.head.appendChild(style);
+                style.sheet.insertRule(`.${cls}::before { background-image: url('${bgUrl}') !important; }`, 0);
+            }
+
+            // ================================================================
+            //  媒体解析 + 自定义文本样式标签
+            // ================================================================
+            function renderContent(content) {
+                if (!content) return '';
+
+                // 1. 图片标签 [img:URL|描述]
+                let html = content.replace(
+                    /\[img:([^\|\]]+)(?:\|([^\]]+))?\]/g,
+                    function(match, url, alt) {
+                        const altText = (alt && alt.trim()) || '虚衍意象';
+                        const safeUrl = url.replace(/"/g, '&quot;');
+                        return `<div class="media-container">
+                                    <img src="${safeUrl}" alt="${altText}" class="media-img" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
+                                    <div class="media-caption">${altText}</div>
+                                    <div style="display:none;color:#a88bcc;font-size:0.85rem;padding:0.5rem 0;">✦ 图片加载失败 ✦</div>
+                                </div>`;
+                    }
+                );
+
+                // 2. 视频标签 [video:URL|标题]
+                html = html.replace(
+                    /\[video:([^\|\]]+)(?:\|([^\]]+))?\]/g,
+                    function(match, url, title) {
+                        const titleText = (title && title.trim()) || '虚衍回响 · 影像';
+                        const safeUrl = url.replace(/"/g, '&quot;');
+                        return `<div class="media-container">
+                                    <video src="${safeUrl}" controls class="media-video" preload="metadata" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                                        您的浏览器不支持视频播放。
+                                    </video>
+                                    <div style="display:none;color:#a88bcc;font-size:0.85rem;padding:0.5rem 0;">✦ 视频加载失败 ✦</div>
+                                    <div class="media-caption">${titleText}</div>
+                                </div>`;
+                    }
+                );
+
+                // ====== 3. 自定义文本样式标签 ======
+                // 加粗 [b]文字[/b]
+                html = html.replace(/\[b\](.*?)\[\/b\]/gs, '<b>$1</b>');
+                // 斜体 [i]文字[/i]
+                html = html.replace(/\[i\](.*?)\[\/i\]/gs, '<i>$1</i>');
+                // 删除线 [s]文字[/s]
+                html = html.replace(/\[s\](.*?)\[\/s\]/gs, '<s>$1</s>');
+                // 下划线 [u]文字[/u]
+                html = html.replace(/\[u\](.*?)\[\/u\]/gs, '<u>$1</u>');
+                // 居中 [center]文字[/center]
+                html = html.replace(/\[center\](.*?)\[\/center\]/gs, '<div style="text-align:center; width:100%;">$1</div>');
+
+                return html;
+            }
+
+            // ================================================================
+            //  获取从根到目标节点的路径
+            // ================================================================
+            function getNodePath(nodes, targetId, path = []) {
+                for (let n of nodes) {
+                    const newPath = [...path, n.id];
+                    if (n.id === targetId) {
+                        return newPath;
+                    }
+                    if (n.children) {
+                        const result = getNodePath(n.children, targetId, newPath);
+                        if (result) return result;
+                    }
+                }
+                return null;
+            }
+
+            // ================================================================
+            //  查找节点
+            // ================================================================
+            function findNode(nodes, id) {
+                for (let n of nodes) {
+                    if (n.id === id) return n;
+                    if (n.children) {
+                        const found = findNode(n.children, id);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+
+            // ---------- 递归构建 ----------
+            function buildNode(node, level = 1) {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'tree-node';
+                nodeDiv.dataset.nodeId = node.id;
+
+                const btn = document.createElement('div');
+                btn.className = `tree-btn level-${level}`;
+                if (activeNodeId === node.id) {
+                    btn.classList.add('active-btn');
+                    setTimeout(() => btn.classList.add('bright'), 50);
+                }
+                const hasExpandedChildren = node.children && node.children.length > 0 && expandedNodes[node.id];
+                if (hasExpandedChildren) {
+                    btn.classList.add('parent-expanded');
+                }
+
+                btn.innerHTML = `<div class="btn-text">${node.name}</div>`;
+                if (node.bgImg) setBtnBg(btn, node.bgImg);
+
+                const hoverText = node.hoverText || '';
+                btn.addEventListener('mouseenter', () => { if (hoverText) showTip(hoverText); });
+                btn.addEventListener('mouseleave', hideTip);
+                btn.addEventListener('touchstart', () => { if (hoverText) showTip(hoverText); }, { passive: true });
+                btn.addEventListener('touchend', hideTip);
+
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (node.children && node.children.length > 0) {
+                        expandedNodes[node.id] = !expandedNodes[node.id];
+                        if (activeNodeId !== node.id) {
+                            activeNodeId = node.id;
+                        }
+                        renderTree();
+                        return;
+                    }
+                    if (activeNodeId === node.id) {
+                        activeNodeId = null;
+                        renderTree();
+                    } else {
+                        activeNodeId = node.id;
+                        renderTree();
+                    }
+                });
+
+                nodeDiv.appendChild(btn);
+
+                if (node.children && node.children.length > 0) {
+                    const childrenDiv = document.createElement('div');
+                    childrenDiv.className = 'tree-children';
+                    if (expandedNodes[node.id]) childrenDiv.classList.add('open');
+                    node.children.forEach(child => {
+                        const childNode = buildNode(child, level + 1);
+                        childrenDiv.appendChild(childNode);
+                    });
+                    nodeDiv.appendChild(childrenDiv);
+                }
+
+                return nodeDiv;
+            }
+
+            // ================================================================
+            //  renderTree 函数
+            // ================================================================
+            function renderTree() {
+                const savedScrollTop = document.querySelector('.nav-panel')?.scrollTop || 0;
+                hideTip();
+                arena.innerHTML = '';
+
+                const layout = document.createElement('div');
+                layout.className = 'detail-layout';
+
+                const navPanel = document.createElement('div');
+                navPanel.className = 'nav-panel';
+                if (isNavCollapsed) {
+                    navPanel.classList.add('collapsed');
+                }
+
+                const leftArea = document.createElement('div');
+                leftArea.className = 'left-buttons-area';
+
+                CONTENT_DATA.forEach(root => {
+                    leftArea.appendChild(buildNode(root, 1));
+                });
+
+                navPanel.appendChild(leftArea);
+
+                const toggleWrapper = document.createElement('div');
+                toggleWrapper.className = `toggle-sidebar-wrapper ${isNavCollapsed ? 'collapsed' : 'expanded'}`;
+                const toggleBtn = document.createElement('div');
+                toggleBtn.className = 'toggle-sidebar-btn';
+                toggleBtn.innerHTML = isNavCollapsed ? '▶' : '◀';
+                toggleBtn.setAttribute('aria-label', isNavCollapsed ? '展开导航面板' : '折叠导航面板');
+                toggleWrapper.appendChild(toggleBtn);
+
+                const rightArea = document.createElement('div');
+                rightArea.className = 'right-content-area';
+                if (isNavCollapsed) {
+                    rightArea.classList.add('toggle-collapsed');
+                }
+                const articleBody = document.createElement('div');
+                articleBody.className = 'article-body';
+
+                let activeNode = null;
+                if (activeNodeId) {
+                    activeNode = findNode(CONTENT_DATA, activeNodeId);
+                }
+
+                if (activeNode && activeNode.article) {
+                    const art = activeNode.article;
+                    heroTitleEl.innerText = art.mainTitle || activeNode.name;
+                    heroSubEl.innerText = art.subTitle || '';
+                    const rawContent = art.content || '（内容为空）';
+                    articleBody.innerHTML = renderContent(rawContent);
+                    updateProjection(activeNode.bgImg);
+                } else {
+                    heroTitleEl.innerText = '虚衍文本';
+                    heroSubEl.innerText = '万象之书 · 随意编织';
+                    articleBody.innerHTML = `<div class="article-placeholder">✦ 请从左侧选择条目 ✦</div>`;
+                    hideProjection();
+                }
+
+                rightArea.appendChild(articleBody);
+
+                layout.appendChild(navPanel);
+                layout.appendChild(toggleWrapper);
+                layout.appendChild(rightArea);
+                arena.appendChild(layout);
+
+                const toggleHandler = () => {
+                    isNavCollapsed = !isNavCollapsed;
+                    if (isNavCollapsed) {
+                        navPanel.classList.add('collapsed');
+                        toggleWrapper.classList.remove('expanded');
+                        toggleWrapper.classList.add('collapsed');
+                        toggleBtn.innerHTML = '▶';
+                        toggleBtn.setAttribute('aria-label', '展开导航面板');
+                        rightArea.classList.add('toggle-collapsed');
+                    } else {
+                        navPanel.classList.remove('collapsed');
+                        toggleWrapper.classList.remove('collapsed');
+                        toggleWrapper.classList.add('expanded');
+                        toggleBtn.innerHTML = '◀';
+                        toggleBtn.setAttribute('aria-label', '折叠导航面板');
+                        rightArea.classList.remove('toggle-collapsed');
+                    }
+                    if (bgProj) {
+                        bgProj.style.transition = 'opacity 0.15s ease';
+                        bgProj.style.opacity = '0.9';
+                        setTimeout(() => {
+                            bgProj.style.opacity = '';
+                            bgProj.style.transition = '';
+                        }, 250);
+                    }
+                };
+                toggleBtn.addEventListener('click', toggleHandler);
+
+                if (savedScrollTop > 0) {
+                    const newNav = document.querySelector('.nav-panel');
+                    if (newNav) newNav.scrollTop = savedScrollTop;
+                }
+
+                document.querySelectorAll('.tree-children').forEach(container => {
+                    const parent = container.closest('.tree-node');
+                    if (parent) {
+                        const id = parent.dataset.nodeId;
+                        if (expandedNodes[id]) container.classList.add('open');
+                        else container.classList.remove('open');
+                    }
+                });
+
+                document.querySelectorAll('.tree-btn.active-btn').forEach(btn => {
+                    if (!btn.classList.contains('bright')) {
+                        btn.classList.add('bright');
+                    }
+                });
+            }
+
+            // ---------- 星空 ----------
+        var initStars = XY.initStars;
+
+            // ---------- Logo ----------
+        var setupLogo = XY.setupLogo;
+
+            // ================================================================
+            //  初始化
+            // ================================================================
+            // ----- 性能：窗口尺寸变化节流处理 -----
+        function onResizeThrottled() {
+            /* 尺寸变化后重绘依赖视口的元素（星空/粒子容器） */
+            var sky = document.querySelector('.sky-container');
+            if (sky) sky.style.height = window.innerHeight + 'px';
+        }
+        window.addEventListener('resize', XY.throttle(onResizeThrottled, 200), { passive: true });
+
+        function init() {
+                initStars();
+                setupLogo();
+
+                activeNodeId = null;
+                expandedNodes = {};
+                isNavCollapsed = true;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetNodeId = urlParams.get('node');
+
+                if (targetNodeId) {
+                    const targetNode = findNode(CONTENT_DATA, targetNodeId);
+                    if (targetNode) {
+                        const path = getNodePath(CONTENT_DATA, targetNodeId);
+                        if (path && path.length > 0) {
+                            for (let i = 0; i < path.length - 1; i++) {
+                                expandedNodes[path[i]] = true;
+                            }
+                            activeNodeId = targetNodeId;
+                            console.log(`✨ 已定位到节点: ${targetNode.name} (${targetNodeId})`);
+                        }
+                    } else {
+                        console.warn(`⚠️ 未找到节点: ${targetNodeId}`);
+                    }
+                }
+
+                renderTree();
+
+                if (targetNodeId && activeNodeId) {
+                    setTimeout(() => {
+                        const activeBtn = document.querySelector('.tree-btn.active-btn');
+                        if (activeBtn) {
+                            const navPanel = document.querySelector('.nav-panel');
+                            if (navPanel) {
+                                const btnRect = activeBtn.getBoundingClientRect();
+                                const panelRect = navPanel.getBoundingClientRect();
+                                const scrollOffset = btnRect.top - panelRect.top - 20;
+                                navPanel.scrollBy({ top: scrollOffset, behavior: 'smooth' });
+                            }
+                        }
+                    }, 400);
+                }
+
+                // 自动展开导航面板
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const navPanel = document.querySelector('.nav-panel');
+                        const toggleWrapper = document.querySelector('.toggle-sidebar-wrapper');
+                        const rightArea = document.querySelector('.right-content-area');
+                        const toggleBtn = toggleWrapper?.querySelector('.toggle-sidebar-btn');
+
+                        if (navPanel) navPanel.classList.remove('collapsed');
+                        if (toggleWrapper) {
+                            toggleWrapper.classList.remove('collapsed');
+                            toggleWrapper.classList.add('expanded');
+                        }
+                        if (rightArea) rightArea.classList.remove('toggle-collapsed');
+                        if (toggleBtn) toggleBtn.innerHTML = '◀';
+
+                        isNavCollapsed = false;
+                    });
+                });
+            }
+
+            // 启动
+            init();
+
+        })();
+    </script>
+
+
+    <script>
+    /* 无障碍：为可点击容器补键盘操作（Enter / Space）与语义角色 */
+    (function () {
+        if (!window.XY) return;
+        var SELECTORS = [{ sel: ".btn-text", label: "展开当前条目" }];
+
+        SELECTORS.forEach(function (item) {
+            document.querySelectorAll(item.sel).forEach(function (el, i) {
+                if (el.tagName === 'A' || el.tagName === 'BUTTON') return;
+                if (el.hasAttribute('role') && el.getAttribute('role') === 'button') return;
+
+                el.setAttribute('role', 'button');
+                el.setAttribute('tabindex', '0');
+                el.classList.add('xy-focusable');
+
+                /* 生成可读标签：优先 data-label / 内部文字 */
+                var label = el.getAttribute('data-label')
+                    || (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)
+                    || item.label;
+                el.setAttribute('aria-label', label + (i > 0 ? ' ' + (i + 1) : ''));
+
+                /* 键盘激活 = 派发一次 click，复用既有逻辑 */
+                el.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        el.click();
+                    }
+                });
+            });
+        });
+
+        /* 视觉隐藏但可被读屏识别的页面标题 */
+        if (!document.querySelector('.xy-sr-only')) {
+            var h = document.createElement('h1');
+            h.className = 'xy-sr-only';
+            h.textContent = document.title || '虚衍教派';
+            document.body.insertBefore(h, document.body.firstChild);
+        }
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>虚衍|万象</title>
+    <link id="faviconLink" rel="icon" type="image/webp" href="./0虚衍主页/logo.webp">
+    <link rel="apple-touch-icon" href="./0虚衍主页/logo.webp">
+    <meta name="theme-color" content="#131129">
+    <meta name="description" content="虚衍万象 — 集于此处，见证万象。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="虚衍教派">
+    <meta property="og:title" content="虚衍 | 万象">
+    <meta property="og:description" content="虚衍万象 — 集于此处，见证万象。">
+    <meta property="og:image" content="./0虚衍主页/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="虚衍 | 万象">
+    <meta name="twitter:description" content="虚衍万象 — 集于此处，见证万象。">
+    <meta name="twitter:image" content="./0虚衍主页/logo.webp">
+<style>
+        /* ---------------------- 全局重置与基础样式 ---------------------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #131129 0%, #0b091c 50%, #05040e 100%);
+            font-family: "思源黑体", "微软雅黑", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #f0eaff;
+        }
+
+        .sky-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(122, 9, 28, 0.08) 0%, transparent 70%);
+        }
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle clamp(180px, 35vw, 380px) at 20% 30%, rgba(122, 9, 28, 0.12) 0%, transparent 100%),
+                        radial-gradient(circle clamp(240px, 45vw, 500px) at 80% 65%, rgba(168, 139, 255, 0.08) 0%, transparent 100%);
+        }
+        .mist {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(224, 216, 255, 0.03);
+            animation: mistPulse 12s infinite ease-in-out;
+        }
+        @keyframes mistPulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.5; }
+        }
+        .distant-star {
+            position: absolute;
+            background: #e0d8ff;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 4px #a88bff);
+            animation: starTwinkle 3s infinite ease-in-out;
+        }
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.5; transform: scale(0.7); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .logo {
+            position: fixed;
+            top: clamp(12px, 3vw, 28px);
+            left: clamp(12px, 3vw, 28px);
+            width: clamp(45px, 8vw, 70px);
+            z-index: 200;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 12px;
+            background: transparent;
+        }
+        .logo-img {
+            width: 100%;
+            display: block;
+            border-radius: 10px;
+            animation: logoRotate 25s linear infinite, logoBreathingGlow 10s ease-in-out infinite;
+            transform-origin: center;
+            filter: drop-shadow(0 0 6px rgba(168, 139, 255, 0.6));
+        }
+        @keyframes logoRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes logoBreathingGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(168, 139, 255, 0.5)) drop-shadow(0 0 30px rgba(122, 92, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 4px #a88bff) drop-shadow(0 0 12px rgba(168, 139, 255, 0.8)); }
+        }
+        .logo::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: radial-gradient(circle, rgba(168, 139, 255, 0.3), transparent 70%);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .logo:hover::after,
+        .logo:active::after,
+        .logo.touch-glow::after {
+            opacity: 0.9;
+        }
+        .logo:active {
+            transform: scale(0.97);
+        }
+
+        .nav-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 2rem 60px;
+            overflow: hidden;
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            width: 100%;
+            flex: 0 1 auto;
+            max-height: calc(100vh - 160px);
+            overflow: hidden;
+        }
+
+        .hero-section {
+            flex-shrink: 0;
+            text-align: center;
+            margin-bottom: 0.6rem;
+            animation: fadeUp 0.8s ease;
+        }
+        .hero-title {
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-weight: 1000;
+            letter-spacing: clamp(4px, 1.5vw, 12px);
+            text-shadow: 0 0 12px #a88bff, 0 0 25px #7a5cff;
+            margin-bottom: 0.1rem;
+        }
+        .hero-sub {
+            font-size: clamp(0.9rem, 2.5vw, 1.8rem);
+            color: #c5b8ff;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        .primary-tabs {
+            flex-shrink: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.6rem 1.6rem;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(168, 139, 255, 0.3);
+            padding-bottom: 0.4rem;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            font-size: clamp(1rem, 3.5vw, 1.5rem);
+            font-weight: 500;
+            color: #c5b8ff;
+            padding: 0.3rem 0.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            letter-spacing: 2px;
+        }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -0.4rem;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #a88bff;
+            transition: width 0.25s;
+        }
+        .tab-btn.active {
+            color: #f0eaff;
+            text-shadow: 0 0 8px #a88bff;
+        }
+        .tab-btn.active::after {
+            width: 100%;
+        }
+
+        .secondary-panel {
+            flex: 1;
+            min-height: 0;
+            background: rgba(11, 9, 28, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            border: 1px solid rgba(168, 139, 255, 0.25);
+            padding: 1.5rem 1.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            transition: padding 0.2s;
+        }
+        .secondary-panel::-webkit-scrollbar {
+            width: 6px;
+            background: transparent;
+        }
+        .secondary-panel::-webkit-scrollbar-track {
+            margin: 1rem 0;
+            background: rgba(11, 9, 28, 0.2);
+            border-radius: 10px;
+        }
+        .secondary-panel::-webkit-scrollbar-thumb {
+            background: rgba(168, 139, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        .sec-item {
+            margin-bottom: 1rem;
+            border-radius: 1.2rem;
+            background: rgba(18, 14, 40, 0.5);
+            transition: all 0.2s;
+        }
+        .sec-header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            border-radius: 1.2rem;
+            background: rgba(25, 20, 50, 0.6);
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid rgba(168, 139, 255, 0.2);
+            overflow: hidden;
+            z-index: 2;
+        }
+        .sec-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.35;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .sec-header:hover::before {
+            opacity: 0.75;
+        }
+        .sec-header:hover {
+            transform: scale(1.01);
+            border-color: #a88bff;
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.5), 0 0 18px rgba(168, 139, 255, 0.6);
+            background: rgba(168, 139, 255, 0.1);
+        }
+        .sec-title {
+            position: relative;
+            z-index: 2;
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            font-weight: 600;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-title::before {
+            content: "✦";
+            font-size: 1.1rem;
+            color: #a88bff;
+            opacity: 0.8;
+        }
+        .toggle-icon {
+            position: relative;
+            z-index: 2;
+            font-size: 1.3rem;
+            transition: transform 0.25s ease;
+            color: #a88bff;
+        }
+        .sec-header.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+        .tertiary-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 1rem;
+            margin-top: 0.4rem;
+            margin-left: 0.4rem;
+            margin-right: 0.4rem;
+        }
+        .tertiary-list.show {
+            max-height: 1200px;
+        }
+        .tertiary-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem 1rem;
+            padding: 0.8rem 1rem 1rem 1.5rem;
+        }
+        .tertiary-item {
+            position: relative;
+            background: rgba(168, 139, 255, 0.08);
+            backdrop-filter: blur(2px);
+            padding: 0.3rem 0.9rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            border: 0.5px solid rgba(168, 139, 255, 0.3);
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+            color: #e0d8ff;
+            text-decoration: none;
+            display: inline-block;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .tertiary-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.25;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .tertiary-item:hover::before {
+            opacity: 0.55;
+        }
+        .tertiary-item:hover {
+            background: rgba(168, 139, 255, 0.3);
+            transform: translateY(-2px) scale(1.02);
+            border-color: #a88bff;
+            box-shadow: 0 0 12px rgba(168, 139, 255, 0.6);
+            text-shadow: 0 0 5px #a88bff;
+        }
+
+        .long-text-content {
+            position: relative;
+            padding: 0.8rem 1.2rem 1rem 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: #e6deff;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.3px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 1rem;
+            margin: 0.2rem 0.4rem 0.4rem 0.4rem;
+            border-left: 3px solid #a88bff;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.6);
+        }
+        .long-text-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.30;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .long-text-content:hover::before {
+            opacity: 0.50;
+        }
+
+        .long-text-content a {
+            color: #a88bff;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .long-text-content a:hover {
+            color: #d4c8ff;
+        }
+
+        .footer-note {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #a88bcc;
+            border-top: 1px dashed rgba(168, 139, 255, 0.25);
+            padding-top: 0.4rem;
+            flex-shrink: 0;
+            pointer-events: none;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 680px) {
+            .nav-container { padding: 70px 1rem 50px; }
+            .content-wrapper { max-height: calc(100vh - 130px); }
+            .sec-header { padding: 0.6rem 0.9rem; }
+            .tertiary-grid { padding-left: 1rem; }
+            .long-text-content { padding: 0.6rem 1rem; font-size: 0.82rem; }
+            .sec-title::before { display: none; }
+            .primary-tabs { gap: 0.6rem 1rem; }
+            .secondary-panel { padding: 1rem 0.8rem; }
+        }
+        @media (max-height: 700px) {
+            .hero-section { margin-bottom: 0.3rem; }
+            .primary-tabs { margin-bottom: 0.4rem; padding-bottom: 0.2rem; }
+            .sec-header { padding: 0.5rem 0.8rem; }
+            .sec-item { margin-bottom: 0.6rem; }
+            .content-wrapper { max-height: calc(100vh - 120px); }
+        }
+
+        .bottom-text-tip {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            text-align: center;
+            font-size: clamp(1rem, 4vw, 1.4rem);
+            color: #e0d8ff;
+            text-shadow: 0 0 10px #a88bff, 0 0 20px rgba(168, 139, 255, 0.5);
+            font-weight: 400;
+            letter-spacing: 2px;
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            background: linear-gradient(90deg, transparent, rgba(168, 139, 255, 0.2), transparent);
+            padding: 12px 20px;
+            backdrop-filter: blur(4px);
+            border-radius: 40px;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        @media (max-width: 640px) {
+            .bottom-text-tip { white-space: normal; width: 80%; font-size: 0.9rem; bottom: 20px; padding: 8px 16px; }
+        }
+        .dynamic-toast {
+            transition: opacity 0.3s ease;
+        }
+
+        .bg-projection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            filter: blur(30px);
+            transform: scale(1.2);
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.8s ease;
+        }
+        .bg-projection.active {
+            opacity: 0.6;
+            transform: scale(1);
+            filter: blur(20px);
+            animation: breatheGlow 8s ease-in-out infinite;
+        }
+        @keyframes breatheGlow {
+            0% { opacity: 0.25; transform: scale(1.10); filter: blur(25px); }
+            50% { opacity: 0.8; transform: scale(1.02); filter: blur(16px); }
+            100% { opacity: 0.25; transform: scale(1.10); filter: blur(25px); }
+        }
+    </style>
+    <link rel="stylesheet" href="./assets/theme.css">
+    <script src="./assets/common.js"></script>
+</head>
+<body>
+<div class="sky-container">
+    <div class="bg-glow"></div>
+    <div class="nebula"></div>
+    <div class="mist"></div>
+</div>
+
+<div class="bg-projection" id="bgProjection"></div>
+
+<div class="logo" id="globalLogo">
+    <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp">
+</div>
+
+<div class="nav-container">
+    <div class="content-wrapper">
+        <div class="hero-section">
+            <div class="hero-title">虚衍万象</div>
+            <div class="hero-sub">集于此处，见证万象</div>
+        </div>
+        <div class="primary-tabs" id="tabsContainer"></div>
+        <div class="secondary-panel" id="dynamicPanel">
+            <div style="text-align:center; padding: 2rem;">加载万象经纬...</div>
+        </div>
+    </div>
+    <div class="footer-note">✦ 点击虚衍标志返回主页面 ✦</div>
+</div>
+
+<div class="bottom-text-tip" id="globalBottomTip"></div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ======================= 1. 可配置部分 =======================
+        const LOGO_CONFIG = {
+            imgSrc: "./0虚衍主页/logo-0.webp",
+            linkUrl: "./0虚衍主页.html"
+        };
+        const DEFAULT_HOVER_TEXT = "尚未编织";
+        const DEFAULT_LONG_TEXT_BG = "https://picsum.photos/id/104/800/600?grayscale";
+
+        // ======================= 导航数据结构 =======================
+        // 👉 修改点：为每个三级项添加 targetId 字段，映射到 1-1虚衍之书.html 中的节点ID
+        const menuStructure = [
+            {
+                id: "xuanyan",
+                name: "虚衍世界",
+                secondary: [
+                    {
+                        title: "虚衍之书",
+                        image: "./1虚衍世界/1虚衍之书.webp",
+                        tertiary: [
+                            { name: "虚无之域 · 原初之寂", link: "#", image: "./1虚衍世界/1虚衍之书.webp", hoverText: "原初之寂，虚无回响的起点", targetId: "root-1-1" },
+                            { name: "变量之初 · 偶然永恒", link: "#", image: "", hoverText: "变量诞生，偶然即永恒", targetId: "XYZS-4-0" },
+                            { name: "神明降世 · 真实虚衍", link: "#", image: "", hoverText: "神明降世，真实虚衍", targetId: "root-1" },
+                            { name: "虚衍之树 · 万象演化", link: "#", image: "", hoverText: "万物演化之树", targetId: "root-1" }
+                        ]
+                    },
+                    {
+                        title: "神明之泣",
+                        image: "./1虚衍世界/2神明之泣.webp",
+                        tertiary: [
+                            { name: "序·时空刹那", link: "#", image: "", hoverText: "时空刹那一瞬", targetId: "root-1" },
+                            { name: "一·虚衍之意", link: "#", image: "", hoverText: "虚衍本意", targetId: "root-1" },
+                            { name: "二·生命之殇", link: "#", image: "", hoverText: "生命与虚无的交织", targetId: "root-2" },
+                            { name: "三·虚无回响", link: "#", image: "", hoverText: "虚无的低语", targetId: "root-3" },
+                            { name: "四·昙花一现", link: "#", image: "", hoverText: "刹那芳华", targetId: "root-2" },
+                            { name: "五·太衍回响", link: "#", image: "", hoverText: "太衍终焉", targetId: "root-4" },
+                            { name: "六·最终宿命", link: "#", image: "", hoverText: "宿命之环", targetId: "root-3" },
+                            { name: "七·变量之子", link: "#", image: "", hoverText: "变量之子崛起", targetId: "root-1-2" }
+                        ]
+                    },
+                    {
+                        title: "临世时空",
+                        image: "./1虚衍世界/3临世时空.webp",
+                        tertiary: [
+                            { name: "幽深之羽 · 放逐之星", link: "#", image: "", hoverText: "幽深之羽", targetId: "root-1" },
+                            { name: "星体瘟疫 · 沉眠意志", link: "#", image: "", hoverText: "星体瘟疫", targetId: "root-2" },
+                            { name: "量子网络迭代史", link: "#", image: "", hoverText: "量子网络的演进", targetId: "root-4" },
+                            { name: "原型机器 · 基石领域", link: "#", image: "", hoverText: "基石领域原型机", targetId: "root-4-1" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "creation",
+                name: "造物信息",
+                secondary: [
+                    {
+                        title: "虚拟幻象",
+                        image: "./2造物信息/虚拟幻想.webp",
+                        tertiary: [
+                            { name: "虚衍之书 · 章节动画", link: "#", image: "", hoverText: "动画篇章", targetId: "root-1" },
+                            { name: "神明之泣 · 概念PV", link: "#", image: "", hoverText: "概念预告", targetId: "root-2" },
+                            { name: "虚衍之变 · 命运游戏", link: "#", image: "", hoverText: "命运游戏", targetId: "root-3" },
+                            { name: "数字星海 · 元宇宙构想", link: "#", image: "", hoverText: "元宇宙构想", targetId: "root-4" }
+                        ]
+                    },
+                    {
+                        title: "现实具象",
+                        image: "./2造物信息/现实具象.webp",
+                        tertiary: [
+                            { name: "原型机 · 基石网络", link: "#", image: "", hoverText: "原型机网络", targetId: "root-4-1" },
+                            { name: "量子交互 · 能量打印", link: "#", image: "", hoverText: "量子交互打印", targetId: "root-4" },
+                            { name: "人造神祗 · 机械神域", link: "#", image: "", hoverText: "机械神域", targetId: "root-2" },
+                            { name: "星港模型 · 实体企划", link: "#", image: "", hoverText: "星港模型企划", targetId: "root-1" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "about",
+                name: "了解我们",
+                secondary: [
+                    {
+                        title: "虚衍之物",
+                        image: "./3了解我们/虚衍之物.webp",
+                        tertiary: [
+                            { name: "原型机 · 基石网络", link: "#", image: "", hoverText: "原型机网络", targetId: "root-4-1" },
+                            { name: "量子交互 · 能量打印", link: "#", image: "", hoverText: "量子交互打印", targetId: "root-4" },
+                            { name: "人造神祗 · 机械神域", link: "#", image: "", hoverText: "机械神域", targetId: "root-2" },
+                            { name: "星港模型 · 实体企划", link: "#", image: "", hoverText: "星港模型企划", targetId: "root-1" }
+                        ]
+                    },
+                    {
+                        title: "诸事纪要",
+                        image: "./3了解我们/诸事纪要.webp",
+                        tertiary: [
+                            { name: "宇宙共荣体", link: "#", image: "", hoverText: "共荣体理想", targetId: "root-2" },
+                            { name: "虚无抗体 · 太微创世", link: "#", image: "", hoverText: "太微创世", targetId: "root-4-1" },
+                            { name: "神明分身 · 意志临世", link: "#", image: "", hoverText: "神明分身", targetId: "root-4-2" },
+                            { name: "无尽回响 · 永恒变量", link: "#", image: "", hoverText: "永恒变量", targetId: "root-3" }
+                        ]
+                    },
+                    {
+                        title: "理想计划",
+                        image: "./3了解我们/理想计划.webp",
+                        tertiary: [],
+                        longText: `✦ 虚无·虚衍二元论 ✦<br><br>宇宙并非生于纯粹有序，而是源于"虚无"与"变量"偶然交织的永恒涟漪。虚衍主义视虚无为潜藏无限可能的母体，变量则是点燃存在之火的星火。<br><br>✦ 变量与熵增启示 ✦<br><br>熵增并非终点，变量赋予逆熵以意义——每一次虚衍回响都是对虚无的积极重构。<br><br>✦ 四魂生命观 ✦<br><br>虚衍认为生命由"原初之魂"、"衍变之魂"、"共鸣之魂"、"归虚之魂"四重维度构成，每个维度都是虚无与变量对话的具现。<br><br>✦ 虚衍回响 · 积极信仰 ✦<br><br>不存在绝对虚无的绝望，唯有不断编织变量、创造意义的虚衍旅途。信仰即是主动参与万象演化，成为永恒回响的一部分。<br><br>✦ 了解更多：<a href="./0虚衍主页.html" target="_blank">虚衍主页</a>`,
+                        longTextBgImage: "./1虚衍世界/1虚衍之书.webp"
+                    }
+                ]
+            },
+            {
+                id: "join",
+                name: "加入我们",
+                secondary: [
+                    {
+                        title: "万物一体",
+                        image: "./4加入我们/万物一体.webp",
+                        tertiary: [],
+                        longText: `✦ 虚无·虚衍二元论 ✦<br><br>宇宙并非生于纯粹有序，而是源于"虚无"与"变量"偶然交织的永恒涟漪。虚衍主义视虚无为潜藏无限可能的母体，变量则是点燃存在之火的星火。<br><br>✦ 变量与熵增启示 ✦<br><br>熵增并非终点，变量赋予逆熵以意义——每一次虚衍回响都是对虚无的积极重构。<br><br>✦ 四魂生命观 ✦<br><br>虚衍认为生命由"原初之魂"、"衍变之魂"、"共鸣之魂"、"归虚之魂"四重维度构成，每个维度都是虚无与变量对话的具现。<br><br>✦ 虚衍回响 · 积极信仰 ✦<br><br>不存在绝对虚无的绝望，唯有不断编织变量、创造意义的虚衍旅途。信仰即是主动参与万象演化，成为永恒回响的一部分。`,
+                        longTextBgImage: "./4加入我们/万物一体.webp"
+                    },
+                    {
+                        title: "共同平等",
+                        image: "./4加入我们/共同平等.webp",
+                        tertiary: [],
+                        longText: `✦ 共荣法则 ✦<br><br>所有魂灵皆为虚衍回响的一部分，超越个体界限，追求认知平等与资源协作。<br><br>✦ 开放贡献 ✦<br><br>不论是代码、哲思或艺术，每个人都能成为新变量的源头。`,
+                        longTextBgImage: "./4加入我们/共同平等.webp"
+                    },
+                    {
+                        title: "成为我们",
+                        image: "./4加入我们/成为我们.webp",
+                        tertiary: [],
+                        longText: `✦ 虚无·虚衍二元论 ✦<br><br>宇宙并非生于纯粹有序，而是源于"虚无"与"变量"偶然交织的永恒涟漪。虚衍主义视虚无为潜藏无限可能的母体，变量则是点燃存在之火的星火。<br><br>✦ 变量与熵增启示 ✦<br><br>熵增并非终点，变量赋予逆熵以意义——每一次虚衍回响都是对虚无的积极重构。<br><br>✦ 四魂生命观 ✦<br><br>虚衍认为生命由"原初之魂"、"衍变之魂"、"共鸣之魂"、"归虚之魂"四重维度构成，每个维度都是虚无与变量对话的具现。<br><br>✦ 虚衍回响 · 积极信仰 ✦<br><br>不存在绝对虚无的绝望，唯有不断编织变量、创造意义的虚衍旅途。信仰即是主动参与万象演化，成为永恒回响的一部分。`,
+                        longTextBgImage: "./4加入我们/成为我们.webp"
+                    },
+                ]
+            }
+        ];
+
+        // ======================= 辅助函数 =======================
+        function escapeHtml(str) {
+            if(!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        const styleInjector = (function(){
+            const styleSheet = document.createElement('style');
+            document.head.appendChild(styleSheet);
+            return {
+                setBgForElement: (element, imageUrl) => {
+                    if(!imageUrl || imageUrl === "") return;
+                    const uniqueClass = `bg-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`;
+                    element.classList.add(uniqueClass);
+                    const rule = `.${uniqueClass}::before { background-image: url('${imageUrl}'); }`;
+                    styleSheet.sheet.insertRule(rule, styleSheet.sheet.cssRules.length);
+                }
+            };
+        })();
+
+        const bgProj = document.getElementById('bgProjection');
+        let projTimer = null;
+
+        function updateProjection(imgUrl) {
+            if (!bgProj) return;
+            if (!imgUrl || imgUrl === "") {
+                hideProjection();
+                return;
+            }
+            if (bgProj.style.backgroundImage === `url("${imgUrl}")` && bgProj.classList.contains('active')) {
+                return;
+            }
+            bgProj.classList.remove('active');
+            bgProj.style.backgroundImage = `url('${imgUrl}')`;
+            void bgProj.offsetWidth;
+            bgProj.classList.add('active');
+        }
+
+        function hideProjection() {
+            if (!bgProj) return;
+            bgProj.classList.remove('active');
+            bgProj.style.backgroundImage = '';
+        }
+
+        function scheduleProjection(imgUrl) {
+            if (projTimer) {
+                clearTimeout(projTimer);
+                projTimer = null;
+            }
+            if (!imgUrl || imgUrl === "") {
+                hideProjection();
+                return;
+            }
+            projTimer = setTimeout(() => {
+                updateProjection(imgUrl);
+                projTimer = null;
+            }, 80);
+        }
+
+        function cancelProjection() {
+            if (projTimer) {
+                clearTimeout(projTimer);
+                projTimer = null;
+            }
+            hideProjection();
+        }
+
+        function bindProjectionHover(element, imageUrl) {
+            if (!element || !imageUrl || imageUrl === "") return;
+            const showHandler = (e) => {
+                e.stopPropagation();
+                scheduleProjection(imageUrl);
+            };
+            const hideHandler = (e) => {
+                e.stopPropagation();
+                cancelProjection();
+            };
+            element.removeEventListener('mouseenter', showHandler);
+            element.removeEventListener('mouseleave', hideHandler);
+            element.removeEventListener('touchstart', showHandler);
+            element.removeEventListener('touchend', hideHandler);
+
+            element.addEventListener('mouseenter', showHandler);
+            element.addEventListener('mouseleave', hideHandler);
+            element.addEventListener('touchstart', showHandler, { passive: true });
+            element.addEventListener('touchend', hideHandler);
+        }
+
+        // ======================= 渲染函数 =======================
+        function renderLongText(sec) {
+            let content = sec.longText || "虚衍回响正在编织，在此处将浮现更深刻的宇宙哲思与万象启示……";
+            let bgImage = sec.longTextBgImage && sec.longTextBgImage.trim() !== "" ? sec.longTextBgImage : DEFAULT_LONG_TEXT_BG;
+            return `<div class="long-text-content" data-longtext-bgimage="${escapeHtml(bgImage)}">${content}</div>`;
+        }
+
+        // 👉 修改点：为有 targetId 的三级项生成跳转链接
+        function renderTertiary(tertiaryList) {
+            if(!tertiaryList || tertiaryList.length === 0) return ``;
+            let itemsHtml = `<div class="tertiary-grid">`;
+            tertiaryList.forEach((item) => {
+                const targetId = item.targetId || null;
+                // 如果有 targetId，生成指向虚衍之书的跳转链接
+                let linkUrl, targetAttr;
+                if (targetId) {
+                    linkUrl = `./1-1虚衍之书.html?node=${encodeURIComponent(targetId)}`;
+                    targetAttr = 'target="_blank" rel="noopener noreferrer"';
+                } else {
+                    linkUrl = "javascript:void(0);";
+                    targetAttr = '';
+                }
+                const hoverText = item.hoverText && item.hoverText.trim() !== "" ? item.hoverText : DEFAULT_HOVER_TEXT;
+                const bgImgAttr = (item.image && item.image !== "") ? `data-bgimg="${escapeHtml(item.image)}"` : '';
+                itemsHtml += `<a href="${linkUrl}" class="tertiary-item" data-hover-text="${escapeHtml(hoverText)}" data-name="${escapeHtml(item.name)}" data-target-id="${targetId || ''}" ${bgImgAttr} ${targetAttr}>✦ ${escapeHtml(item.name)}</a>`;
+            });
+            itemsHtml += `</div>`;
+            return itemsHtml;
+        }
+
+        let currentActiveTab = "xuanyan";
+        let openSecStates = {};
+
+        function renderSecondaryPanel(primaryItem) {
+            if(!primaryItem || !primaryItem.secondary) return `<div style="padding:2rem;text-align:center;">⚡ 虚衍数据待补充 ⚡</div>`;
+            let secHtml = ``;
+            primaryItem.secondary.forEach((sec, idx) => {
+                const secKey = `${primaryItem.id}_${sec.title}`;
+                const isOpen = openSecStates[secKey] || false;
+                let contentHtml = "";
+                const hasTertiary = sec.tertiary && sec.tertiary.length > 0;
+                if(hasTertiary) {
+                    contentHtml = renderTertiary(sec.tertiary);
+                } else {
+                    contentHtml = renderLongText(sec);
+                }
+                const openClass = isOpen ? "open" : "";
+                const showClass = isOpen ? "show" : "";
+                const bgImgAttr = (sec.image && sec.image !== "") ? `data-bgimg="${escapeHtml(sec.image)}"` : '';
+                secHtml += `
+                    <div class="sec-item" data-seckey="${secKey}">
+                        <div class="sec-header ${openClass}" data-seckey="${secKey}" data-sec-title="${escapeHtml(sec.title)}" ${bgImgAttr}>
+                            <div class="sec-title">${escapeHtml(sec.title)}</div>
+                            <div class="toggle-icon">▼</div>
+                        </div>
+                        <div class="tertiary-list ${showClass}" data-seclist="${secKey}">
+                            ${contentHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            return secHtml;
+        }
+
+        function applyAllLongTextBackgrounds() {
+            const longTextDivs = document.querySelectorAll(".long-text-content");
+            longTextDivs.forEach(div => {
+                const bgUrl = div.getAttribute("data-longtext-bgimage");
+                if(bgUrl && bgUrl !== "") {
+                    const uniqueClass = `ltbg-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+                    div.classList.add(uniqueClass);
+                    div.setAttribute("data-bg-class", uniqueClass);
+                    const rule = `.${uniqueClass}::before { background-image: url('${bgUrl}') !important; opacity: 0.30 !important; }`;
+                    const styleSheet = document.head.appendChild(document.createElement("style")).sheet;
+                    styleSheet.insertRule(rule, 0);
+                }
+            });
+        }
+
+        function attachDynamicEnhancements() {
+            const activePrimary = menuStructure.find(item => item.id === currentActiveTab);
+            if(activePrimary && activePrimary.secondary) {
+                const secHeaders = document.querySelectorAll(".sec-header");
+                secHeaders.forEach((header) => {
+                    const secTitle = header.getAttribute("data-sec-title");
+                    const matchedSec = activePrimary.secondary.find(sec => sec.title === secTitle);
+                    if(matchedSec && matchedSec.image && matchedSec.image !== "") {
+                        styleInjector.setBgForElement(header, matchedSec.image);
+                        bindProjectionHover(header, matchedSec.image);
+                    }
+                });
+            }
+
+            const tertiaryItems = document.querySelectorAll(".tertiary-item");
+            tertiaryItems.forEach((item) => {
+                const itemName = item.getAttribute("data-name");
+                let targetImage = null;
+                const activePri = menuStructure.find(m => m.id === currentActiveTab);
+                if(activePri && activePri.secondary) {
+                    for(let sec of activePri.secondary) {
+                        const tertiaryTarget = sec.tertiary ? sec.tertiary.find(t => t.name === itemName) : null;
+                        if(tertiaryTarget && tertiaryTarget.image && tertiaryTarget.image !== "") {
+                            targetImage = tertiaryTarget.image;
+                            break;
+                        }
+                    }
+                }
+                if(targetImage) {
+                    styleInjector.setBgForElement(item, targetImage);
+                    bindProjectionHover(item, targetImage);
+                }
+                const hoverText = item.getAttribute("data-hover-text") || DEFAULT_HOVER_TEXT;
+                bindHoverText(item, hoverText);
+            });
+
+            applyAllLongTextBackgrounds();
+        }
+
+        const bottomTip = document.getElementById("globalBottomTip");
+        let tipTimeout = null;
+        function showBottomText(text) {
+            if(!bottomTip) return;
+            if(tipTimeout) clearTimeout(tipTimeout);
+            bottomTip.innerText = text;
+            bottomTip.style.opacity = "1";
+        }
+        function hideBottomText() {
+            if(!bottomTip) return;
+            if(tipTimeout) clearTimeout(tipTimeout);
+            tipTimeout = setTimeout(() => { if(bottomTip) bottomTip.style.opacity = "0"; }, 300);
+        }
+        function bindHoverText(element, text) {
+            if(!element) return;
+            const showHandler = (e) => { e.stopPropagation(); showBottomText(text); };
+            const hideHandler = (e) => { e.stopPropagation(); hideBottomText(); };
+            element.removeEventListener("mouseenter", showHandler);
+            element.removeEventListener("mouseleave", hideHandler);
+            element.removeEventListener("touchstart", showHandler);
+            element.removeEventListener("touchend", hideHandler);
+            element.addEventListener("mouseenter", showHandler);
+            element.addEventListener("mouseleave", hideHandler);
+            element.addEventListener("touchstart", showHandler, { passive: true });
+            element.addEventListener("touchend", hideHandler);
+        }
+
+        function attachSecHeaderEvents() {
+            const headers = document.querySelectorAll(".sec-header");
+            headers.forEach(header => {
+                header.removeEventListener("click", secClickHandler);
+                header.addEventListener("click", secClickHandler);
+            });
+        }
+        function secClickHandler(e) {
+            e.stopPropagation();
+            const header = e.currentTarget;
+            const secKey = header.getAttribute("data-seckey");
+            if(!secKey) return;
+            const tertiaryDiv = document.querySelector(`.tertiary-list[data-seclist="${secKey}"]`);
+            if(!tertiaryDiv) return;
+            const isCurrentlyOpen = tertiaryDiv.classList.contains("show");
+            if(isCurrentlyOpen) {
+                tertiaryDiv.classList.remove("show");
+                header.classList.remove("open");
+                openSecStates[secKey] = false;
+            } else {
+                tertiaryDiv.classList.add("show");
+                header.classList.add("open");
+                openSecStates[secKey] = true;
+            }
+        }
+
+        function updateFullPanel() {
+            const activePrimary = menuStructure.find(item => item.id === currentActiveTab);
+            if(!activePrimary) return;
+            const panelDiv = document.getElementById("dynamicPanel");
+            panelDiv.innerHTML = renderSecondaryPanel(activePrimary);
+            attachSecHeaderEvents();
+            attachDynamicEnhancements();
+            highlightActiveTab();
+        }
+
+        function highlightActiveTab() {
+            const btns = document.querySelectorAll(".tab-btn");
+            btns.forEach(btn => {
+                const tabId = btn.getAttribute("data-tabid");
+                if(tabId === currentActiveTab) btn.classList.add("active");
+                else btn.classList.remove("active");
+            });
+        }
+
+        function renderPrimaryTabs() {
+            const tabsContainer = document.getElementById("tabsContainer");
+            tabsContainer.innerHTML = "";
+            menuStructure.forEach(tab => {
+                const btn = document.createElement("button");
+                btn.className = "tab-btn";
+                if(tab.id === currentActiveTab) btn.classList.add("active");
+                btn.setAttribute("data-tabid", tab.id);
+                btn.innerText = tab.name;
+                btn.addEventListener("click", () => {
+                    if(currentActiveTab === tab.id) return;
+                    currentActiveTab = tab.id;
+                    openSecStates = {};
+                    cancelProjection();
+                    updateFullPanel();
+                });
+                tabsContainer.appendChild(btn);
+            });
+        }
+
+        function setLongTextBgImage(primaryId, secondaryTitle, newImageUrl) {
+            const primary = menuStructure.find(p => p.id === primaryId);
+            if(!primary) { console.warn("未找到一级模块"); return false; }
+            const sec = primary.secondary.find(s => s.title === secondaryTitle);
+            if(!sec) { console.warn("未找到二级标题"); return false; }
+            if(sec.tertiary && sec.tertiary.length > 0) { console.warn("该二级有三级链接，不支持长文本背景图修改"); return false; }
+            sec.longTextBgImage = newImageUrl;
+            if(currentActiveTab === primaryId) {
+                const targetDiv = document.querySelector(`.sec-item[data-seckey="${primaryId}_${secondaryTitle}"] .long-text-content`);
+                if(targetDiv) {
+                    targetDiv.setAttribute("data-longtext-bgimage", newImageUrl);
+                    const oldClass = targetDiv.getAttribute("data-bg-class");
+                    if(oldClass) targetDiv.classList.remove(oldClass);
+                    targetDiv.removeAttribute("data-bg-class");
+                    applyAllLongTextBackgrounds();
+                }
+            }
+            return true;
+        }
+
+        var initStars = XY.initStars;
+
+        var setupLogo = XY.setupLogo;
+
+        // 全局点击未编织链接提示（仅对没有 targetId 的按钮生效）
+        document.body.addEventListener("click", (e) => {
+            const target = e.target.closest(".tertiary-item");
+            if(target && target.getAttribute("href") === "javascript:void(0);") {
+                e.preventDefault();
+                const name = target.getAttribute("data-name") || "未知节点";
+                let toastMsg = `「${name}」 虚衍回响正在编织，敬请期待`;
+                let toast = document.querySelector(".dynamic-toast");
+                if(!toast) {
+                    toast = document.createElement("div");
+                    toast.className = "dynamic-toast";
+                    toast.style.position = "fixed";
+                    toast.style.bottom = "80px";
+                    toast.style.left = "50%";
+                    toast.style.transform = "translateX(-50%)";
+                    toast.style.backgroundColor = "rgba(0,0,0,0.8)";
+                    toast.style.backdropFilter = "blur(12px)";
+                    toast.style.color = "#e0d8ff";
+                    toast.style.padding = "0.4rem 1.2rem";
+                    toast.style.borderRadius = "40px";
+                    toast.style.fontSize = "0.8rem";
+                    toast.style.border = "1px solid #a88bff";
+                    toast.style.zIndex = "9999";
+                    toast.style.whiteSpace = "nowrap";
+                    toast.style.fontFamily = "inherit";
+                    toast.style.pointerEvents = "none";
+                    document.body.appendChild(toast);
+                }
+                toast.innerText = toastMsg;
+                toast.style.opacity = "1";
+                setTimeout(() => toast.style.opacity = "0", 1600);
+            }
+        });
+
+        window.VirtualNav = {
+            addTertiary: (primaryId, secondaryTitle, newTertiaryObj) => {
+                const primary = menuStructure.find(p => p.id === primaryId);
+                if(primary) {
+                    const sec = primary.secondary.find(s => s.title === secondaryTitle);
+                    if(sec) {
+                        sec.tertiary.push(newTertiaryObj);
+                        if(currentActiveTab === primaryId) updateFullPanel();
+                        console.log(`✅ 已添加:「${newTertiaryObj.name}」`);
+                    } else console.warn("未找到二级标题");
+                } else console.warn("未找到一级模块");
+            },
+            getData: () => menuStructure,
+            setLongTextBgImage: setLongTextBgImage
+        };
+
+        renderPrimaryTabs();
+        initStars();
+        updateFullPanel();
+        setupLogo();
+        console.log("✨ 虚衍万象 · 布局自适应：内容少时整体居中，内容多时面板滚动 ✨");
+    })();
+</script>
+
+    <script>
+    /* 无障碍：为可点击容器补键盘操作（Enter / Space）与语义角色 */
+    (function () {
+        if (!window.XY) return;
+        var SELECTORS = [{ sel: ".sec-item", label: "切换导航分类" }, { sel: ".tertiary-item", label: "打开条目" }];
+
+        SELECTORS.forEach(function (item) {
+            document.querySelectorAll(item.sel).forEach(function (el, i) {
+                if (el.tagName === 'A' || el.tagName === 'BUTTON') return;
+                if (el.hasAttribute('role') && el.getAttribute('role') === 'button') return;
+
+                el.setAttribute('role', 'button');
+                el.setAttribute('tabindex', '0');
+                el.classList.add('xy-focusable');
+
+                /* 生成可读标签：优先 data-label / 内部文字 */
+                var label = el.getAttribute('data-label')
+                    || (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)
+                    || item.label;
+                el.setAttribute('aria-label', label + (i > 0 ? ' ' + (i + 1) : ''));
+
+                /* 键盘激活 = 派发一次 click，复用既有逻辑 */
+                el.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        el.click();
+                    }
+                });
+            });
+        });
+
+        /* 视觉隐藏但可被读屏识别的页面标题 */
+        if (!document.querySelector('.xy-sr-only')) {
+            var h = document.createElement('h1');
+            h.className = 'xy-sr-only';
+            h.textContent = document.title || '虚衍教派';
+            document.body.insertBefore(h, document.body.firstChild);
+        }
+    })();
+    </script>
+</body>
+</html>

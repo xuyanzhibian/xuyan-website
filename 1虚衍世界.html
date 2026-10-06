@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN"> <!-- 语言：中文（简体） -->
+<head>
+    <meta charset="UTF-8"> <!-- 字符集：UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover"> <!-- 视口配置：宽度=设备宽度，初始缩放=1，允许用户缩放，覆盖适配 -->
+    <title>虚衍|世界</title>
+    <link id="faviconLink" rel="icon" type="image/webp" href="./0虚衍主页/logo.webp">
+    <link rel="apple-touch-icon" href="./0虚衍主页/logo.webp">
+    <meta name="theme-color" content="#131129">
+    <meta name="description" content="虚衍世界观 — 虚衍之书、神明之泣、临世时空。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="虚衍教派">
+    <meta property="og:title" content="虚衍 | 世界">
+    <meta property="og:description" content="虚衍世界观 — 虚衍之书、神明之泣、临世时空。">
+    <meta property="og:image" content="./0虚衍主页/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="虚衍 | 世界">
+    <meta name="twitter:description" content="虚衍世界观 — 虚衍之书、神明之泣、临世时空。">
+    <meta name="twitter:image" content="./0虚衍主页/logo.webp">
+<!-- 网站图标：类型PNG，路径为./0虚衍主页/logo.webp -->
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon"> <!-- 快捷方式图标：ICO格式，路径为根目录favicon.ico -->
+    <style>
+        /* ---------- 全局样式重置 + 响应式基准 ---------- */
+        * {
+            margin: 0; /* 外边距：0 */
+            padding: 0; /* 内边距：0 */
+            box-sizing: border-box; /* 盒模型：边框盒模型 */
+            user-select: none; /* 用户选择：禁止选中文本 */
+            -webkit-tap-highlight-color: transparent; /* 移动端点击高亮：透明 */
+        }
+
+        body {
+            width: 100vw; /* 宽度：100视口宽度 */
+            min-height: 100vh; /* 最小高度：100视口高度 */
+            overflow-x: hidden; /* 水平溢出：隐藏 */
+            overflow-y: hidden; /* 垂直溢出：隐藏 */
+            background: radial-gradient(circle at center, #131129 0%, #0b091c 50%, #05040e 100%); /* 背景：径向渐变，中心色#131129、中间色#0b091c、边缘色#05040e */
+            font-family: "思源黑体", "微软雅黑", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif; /* 字体族：思源黑体、微软雅黑等系统字体 */
+            display: flex; /* 显示模式：弹性盒 */
+            flex-direction: column; /* 弹性方向：纵向排列 */
+            align-items: center; /* 交叉轴对齐：居中 */
+            justify-content: center; /* 主轴对齐：居中 */
+            position: relative; /* 定位方式：相对定位 */
+            cursor: default; /* 鼠标指针：默认 */
+            touch-action: manipulation; /* 触摸动作：允许平移/缩放，禁止双击缩放 */
+        }
+
+        .sky-container {
+            position: fixed; /* 定位方式：固定定位 */
+            width: 100vw; /* 宽度：100视口宽度 */
+            height: 100vh; /* 高度：100视口高度 */
+            top: 0; /* 顶部距离：0 */
+            left: 0; /* 左侧距离：0 */
+            pointer-events: none; /* 指针事件：穿透 */
+            z-index: 0; /* 堆叠层级：0 */
+        }
+
+        .bg-glow {
+            position: absolute; /* 定位方式：绝对定位 */
+            width: 100%; /* 宽度：100%父容器 */
+            height: 100%; /* 高度：100%父容器 */
+            background: radial-gradient(circle at center, rgba(122, 9, 28, 0.05) 0%, transparent 70%); /* 背景：径向渐变光晕，中心色半透明暗红，末端透明 */
+        }
+
+        .nebula {
+            position: absolute; /* 定位方式：绝对定位 */
+            width: 100%; /* 宽度：100%父容器 */
+            height: 100%; /* 高度：100%父容器 */
+            background: 
+                radial-gradient(circle clamp(180px, 35vw, 380px) at 20% 30%, rgba(122, 9, 28, 0.08) 0%, transparent 100%), /* 星云1：动态大小，位置20% 30%，暗红色半透明 */
+                radial-gradient(circle clamp(240px, 45vw, 500px) at 70% 60%, rgba(168, 139, 255, 0.06) 0%, transparent 100%); /* 星云2：动态大小，位置70% 60%，紫蓝色半透明 */
+        }
+
+        .mist {
+            position: absolute; /* 定位方式：绝对定位 */
+            width: 100%; /* 宽度：100%父容器 */
+            height: 100%; /* 高度：100%父容器 */
+            background: rgba(224, 216, 255, 0.05); /* 背景：淡紫色，不透明度0.05 */
+            animation: mistPulse 10s infinite ease-in-out; /* 动画：迷雾脉冲10秒无限缓动 */
+        }
+        @keyframes mistPulse {
+            0%, 100% { opacity: 0.2; } /* 0%和100%：不透明度0.2 */
+            50% { opacity: 0.5; } /* 50%：不透明度0.5 */
+        }
+
+        .distant-star {
+            position: absolute; /* 定位方式：绝对定位 */
+            background: #e0d8ff; /* 背景：淡紫色 */
+            border-radius: 50%; /* 圆角：50%圆形 */
+            filter: drop-shadow(0 0 5px #a88bff); /* 滤镜：投影，紫蓝色光晕 */
+            animation: starTwinkle var(--twinkle-duration) infinite ease-in-out; /* 动画：星星闪烁，时长变量，无限缓动 */
+        }
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.8; transform: scale(0.5); } /* 0%和100%：不透明度0.8，缩放0.5 */
+            50% { opacity: 1; transform: scale(1.5); } /* 50%：不透明度1，缩放1.5 */
+        }
+
+        /* Logo样式 (完全对齐主页) */
+        .home-logo {
+            position: fixed; /* 定位方式：固定定位 */
+            top: clamp(12px, 3vw, 28px); /* 顶部距离：clamp动态，最小12px、3vw、最大28px */
+            left: clamp(12px, 3vw, 28px); /* 左侧距离：clamp动态，最小12px、3vw、最大28px */
+            width: clamp(45px, 8vw, 70px); /* 宽度：clamp动态，最小45px、8vw、最大70px */
+            height: auto; /* 高度：自动 */
+            z-index: 100; /* 堆叠层级：100 */
+            cursor: pointer; /* 鼠标指针：手型 */
+            border-radius: 12px; /* 圆角：12像素 */
+            background: transparent; /* 背景：透明 */
+        }
+        .home-logo img {
+            width: 100%; /* 宽度：100%父容器 */
+            height: auto; /* 高度：自动 */
+            display: block; /* 显示模式：块级 */
+            border-radius: 10px; /* 圆角：10像素 */
+            animation: logoRotate 25s linear infinite, logoBreathingGlow 10s ease-in-out infinite; /* 动画：旋转25秒线性无限，呼吸光晕10秒缓动无限 */
+            transform-origin: center; /* 变换原点：中心 */
+            filter: drop-shadow(0 0 6px rgba(168, 139, 255, 0.6)); /* 滤镜：投影，紫蓝色半透明 */
+        }
+        @keyframes logoRotate {
+            0% { transform: rotate(0deg); } /* 0%：旋转0度 */
+            100% { transform: rotate(360deg); } /* 100%：旋转360度 */
+        }
+        @keyframes logoBreathingGlow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(168, 139, 255, 0.5)) drop-shadow(0 0 50px rgba(122, 92, 255, 0.3)); } /* 0%和100%：两层投影，较淡 */
+            50% { filter: drop-shadow(0 0 5px #a88bff) drop-shadow(0 0 10px rgba(168, 139, 255, 0.8)); } /* 50%：投影增强 */
+        }
+
+        /* ========== 标题区域 (完全对齐导航页，并确保在投影层之上) ========== */
+        .hero-section {
+            text-align: center; /* 文本对齐：居中 */
+            margin-bottom: 2.5rem; /* 下边距：2.5rem */
+            animation: fadeUp 0.8s ease; /* 动画：淡入向上0.8秒缓动 */
+            position: relative; /* 定位方式：相对定位 */
+            z-index: 2; /* 堆叠层级：2（高于投影层的z-index:1） */
+        }
+        .hero-title {
+            font-size: clamp(3rem, 6vw, 5rem); /* 字体大小：clamp动态，最小3rem，6vw，最大5rem */
+            font-weight: 1000; /* 字重：1000（加粗） */
+            letter-spacing: clamp(4px, 1.5vw, 12px); /* 字间距：clamp动态，最小4px，1.5vw，最大12px */
+            text-shadow: 0 0 12px #a88bff, 0 0 25px #7a5cff; /* 文字阴影：紫蓝色和深紫蓝色光晕 */
+            margin-bottom: 0.5rem; /* 下边距：0.5rem */
+            color: #f0eaff; /* 字体颜色：淡紫色 */
+            line-height: 1.2; /* 行高：1.2 */
+            white-space: nowrap; /* 空白处理：不换行 */
+        }
+        .hero-sub {
+            font-size: clamp(1rem, 3vw, 2.5rem); /* 字体大小：clamp动态，最小1rem，3vw，最大2.5rem */
+            color: #c5b8ff; /* 字体颜色：淡紫色 */
+            letter-spacing: 1px; /* 字间距：1像素 */
+            opacity: 0.9; /* 不透明度：0.9 */
+            font-weight: 400; /* 字重：400正常 */
+            text-shadow: 0 0 6px rgba(168, 139, 255, 0.4); /* 文字阴影：紫蓝色半透明 */
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); } /* 开始：不透明度0，向下偏移20px */
+            to { opacity: 1; transform: translateY(0); } /* 结束：不透明度1，无偏移 */
+        }
+        @media (max-width: 640px) {
+            .hero-title { white-space: normal; word-break: break-word; letter-spacing: clamp(2px, 2vw, 15px); } /* 媒体查询：允许换行，断词，字间距clamp动态 */
+        }
+
+        /* 按钮容器与卡片样式 (保持不变) */
+        .button-container {
+            display: grid; /* 显示模式：网格布局 */
+            grid-template-columns: repeat(2, minmax(150px, 280px)); /* 网格列：重复2列，最小150最大280像素 */
+            gap: 2rem; /* 间隙：2rem */
+            justify-content: center; /* 内容对齐：居中 */
+            margin-bottom: 1.8rem; /* 下边距：1.8rem */
+            z-index: 2; /* 堆叠层级：2 */
+            position: relative; /* 定位方式：相对定位 */
+            width: 100%; /* 宽度：100%父容器 */
+            max-width: 680px; /* 最大宽度：680像素 */
+            padding: 0 1rem; /* 内边距：左右1rem */
+        }
+        .button-container .full-width {
+            grid-column: 1 / -1; /* 网格列：从第一列到最后一列（占满整行） */
+        }
+        .world-button {
+            position: relative; /* 定位方式：相对定位 */
+            width: 100%; /* 宽度：100%父容器 */
+            border-radius: 24px; /* 圆角：24像素 */
+            display: flex; /* 显示模式：弹性盒 */
+            flex-direction: column; /* 弹性方向：纵向 */
+            align-items: center; /* 交叉轴对齐：居中 */
+            justify-content: center; /* 主轴对齐：居中 */
+            cursor: pointer; /* 鼠标指针：手型 */
+            transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.3s ease, border-color 0.2s; /* 过渡：变换、阴影、边框颜色 */
+            overflow: hidden; /* 溢出：隐藏 */
+            background-color: rgba(8, 5, 20, 0.5); /* 背景颜色：深紫色半透明 */
+            border: 2px solid rgba(168, 139, 255, 0.6); /* 边框：2像素实线，紫蓝色半透明 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* 盒子阴影：黑色半透明 */
+            backdrop-filter: blur(0px); /* 背景滤镜：模糊0像素（无效果） */
+            aspect-ratio: 4 / 5; /* 宽高比：4:5 */
+        }
+        .world-button.full-width {
+            aspect-ratio: auto; /* 宽高比：自动 */
+            flex-direction: row; /* 弹性方向：横向 */
+            gap: 1rem; /* 间隙：1rem */
+            min-height: 85px; /* 最小高度：85像素 */
+            height: auto; /* 高度：自动 */
+            padding: 0.8rem 1rem; /* 内边距：上下0.8rem，左右1rem */
+        }
+        .world-button::before {
+            content: ""; /* 伪元素内容：空 */
+            position: absolute; /* 定位方式：绝对定位 */
+            top: 0; /* 顶部距离：0 */
+            left: 0; /* 左侧距离：0 */
+            width: 100%; /* 宽度：100%父容器 */
+            height: 100%; /* 高度：100%父容器 */
+            background-size: cover; /* 背景尺寸：覆盖 */
+            background-position: center; /* 背景位置：居中 */
+            background-repeat: no-repeat; /* 背景重复：不重复 */
+            opacity: 0.65; /* 不透明度：0.65 */
+            transition: opacity 0.2s ease; /* 过渡：不透明度0.2秒缓动 */
+            pointer-events: none; /* 指针事件：穿透 */
+            z-index: 0; /* 堆叠层级：0 */
+        }
+        .world-button:hover::before,
+        .world-button:active::before {
+            opacity: 0.78; /* 悬停/激活时：不透明度提升到0.78 */
+        }
+        .button-text {
+            position: relative; /* 定位方式：相对定位 */
+            z-index: 3; /* 堆叠层级：3 */
+            font-size: 1.8rem; /* 字体大小：1.8rem */
+            font-weight: 600; /* 字重：600 */
+            color: #f0eaff; /* 字体颜色：淡紫色 */
+            transition: text-shadow 0.2s ease; /* 过渡：文字阴影0.2秒缓动 */
+            letter-spacing: 2px; /* 字间距：2像素 */
+            background: transparent; /* 背景：透明 */
+            padding: 0.2rem 0.8rem; /* 内边距：上下0.2rem，左右0.8rem */
+            border-radius: 40px; /* 圆角：40像素 */
+        }
+        .world-button.full-width .button-text {
+            background: transparent; /* 背景：透明 */
+            padding: 0.2rem 0.8rem; /* 内边距：上下0.2rem，左右0.8rem */
+            font-size: 1.8rem; /* 字体大小：1.8rem */
+        }
+        .world-button:hover,
+        .world-button:active,
+        .world-button:focus-visible {
+            transform: scale(1.02); /* 变换：放大1.02倍 */
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.5), /* 盒子阴影：外发光效果 */
+                        0 0 0 4px rgba(168, 139, 255, 0.3),
+                        0 0 20px 6px rgba(168, 139, 255, 0.85),
+                        0 12px 28px rgba(0, 0, 0, 0.5);
+            border-color: #a88bff; /* 边框颜色：紫蓝色 */
+        }
+        .world-button:hover .button-text,
+        .world-button:active .button-text {
+            text-shadow: 0 3px 10px rgba(168, 139, 255, 0.9), 0 5px 18px rgba(0, 0, 0, 0.6); /* 悬停/激活文字阴影：紫蓝色光晕加强 */
+        }
+
+        .footer-note {
+            text-align: center; /* 文本对齐：居中 */
+            margin-top: 2.5rem; /* 上外边距：2.5rem */
+            font-size: 0.75rem; /* 字体大小：0.75rem */
+            color: #a88bcc; /* 字体颜色：紫蓝色 */
+            border-top: 1px dashed rgba(168, 139, 255, 0.3); /* 上边框：1像素虚线，紫蓝色半透明 */
+            padding-top: 1.2rem; /* 上内边距：1.2rem */
+            z-index: 2; /* 堆叠层级：2 */
+            position: relative; /* 定位方式：相对定位 */
+            width: 100%; /* 宽度：100%父容器 */
+            max-width: 680px; /* 最大宽度：680像素 */
+            margin-left: auto; /* 左外边距：自动 */
+            margin-right: auto; /* 右外边距：自动 */
+        }
+
+        /* 响应式高度调整 (保持原有) */
+        @media (max-height: 850px) {
+            .hero-section { margin-bottom: 1.8rem; } /* 媒体查询：下边距1.8rem */
+            .button-container { gap: 1.5rem; margin-bottom: 1.2rem; } /* 媒体查询：间隙1.5rem，下边距1.2rem */
+            .footer-note { margin-top: 1.8rem; padding-top: 1rem; } /* 媒体查询：上边距1.8rem，上内边距1rem */
+        }
+        @media (max-height: 720px) {
+            .hero-title { font-size: 3.5rem; margin-bottom: 0.3rem; } /* 媒体查询：字体3.5rem，下边距0.3rem */
+            .hero-sub { font-size: 1.4rem; margin-bottom: 0; } /* 媒体查询：字体1.4rem，下边距0 */
+            .button-container { gap: 1.2rem; grid-template-columns: repeat(2, minmax(140px, 240px)); } /* 媒体查询：间隙1.2rem，列宽最小140px最大240px */
+            .world-button.full-width { min-height: 72px; } /* 媒体查询：全宽按钮最小高度72px */
+            .button-text { font-size: 1.6rem; } /* 媒体查询：按钮文字1.6rem */
+        }
+        @media (max-height: 620px) {
+            .hero-title { font-size: 2.8rem; } /* 媒体查询：字体2.8rem */
+            .hero-sub { font-size: 1.2rem; } /* 媒体查询：字体1.2rem */
+            .button-container { gap: 1rem; grid-template-columns: repeat(2, minmax(130px, 210px)); } /* 媒体查询：间隙1rem，列宽最小130px最大210px */
+            .world-button.full-width { min-height: 62px; } /* 媒体查询：全宽按钮最小高度62px */
+            .button-text { font-size: 1.4rem; } /* 媒体查询：按钮文字1.4rem */
+        }
+        @media (max-height: 540px) {
+            .hero-title { font-size: 2.2rem; } /* 媒体查询：字体2.2rem */
+            .hero-sub { font-size: 1rem; } /* 媒体查询：字体1rem */
+            .button-container { gap: 0.8rem; margin-bottom: 0.6rem; grid-template-columns: repeat(2, minmax(120px, 190px)); } /* 媒体查询：间隙0.8rem，下边距0.6rem，列宽最小120px最大190px */
+            .world-button.full-width { min-height: 52px; gap: 0.6rem; } /* 媒体查询：全宽按钮最小高度52px，间隙0.6rem */
+            .button-text { font-size: 1.2rem; } /* 媒体查询：按钮文字1.2rem */
+        }
+        @media (max-width: 550px) {
+            .button-container { gap: 1rem; padding: 0 0.8rem; grid-template-columns: repeat(2, minmax(125px, 1fr)); } /* 媒体查询：间隙1rem，内边距0 0.8rem，列宽最小125px等比例 */
+            .button-text { font-size: 1.3rem; } /* 媒体查询：按钮文字1.3rem */
+        }
+
+        /* 扭曲、波浪、投影、提示等特效层 (保持不变) */
+        .distortion-overlay {
+            position: fixed; /* 定位方式：固定定位 */
+            top: 0; /* 顶部距离：0 */
+            left: 0; /* 左侧距离：0 */
+            width: 100%; /* 宽度：100%视口宽度 */
+            height: 100%; /* 高度：100%视口高度 */
+            pointer-events: none; /* 指针事件：穿透 */
+            z-index: 9998; /* 堆叠层级：9998 */
+            opacity: 0; /* 不透明度：0（隐藏） */
+            transition: opacity 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1); /* 过渡：不透明度0.6秒缓动 */
+            backdrop-filter: blur(0px) contrast(1) brightness(1); /* 背景滤镜：模糊0，对比1，亮度1（无效果） */
+            filter: url(#liquidDistortion); /* 滤镜：引用SVG液体扭曲效果 */
+        }
+        .wave-overlay {
+            position: fixed; /* 定位方式：固定定位 */
+            bottom: 0; /* 底部距离：0 */
+            left: 0; /* 左侧距离：0 */
+            width: 100%; /* 宽度：100%父容器 */
+            height: 200px; /* 高度：200像素 */
+            pointer-events: none; /* 指针事件：穿透 */
+            z-index: 9999; /* 堆叠层级：9999 */
+            opacity: 0; /* 不透明度：0（隐藏） */
+            transition: opacity 0.5s ease; /* 过渡：不透明度0.5秒缓动 */
+        }
+        .wave-overlay canvas {
+            position: absolute; /* 定位方式：绝对定位 */
+            bottom: 0; /* 底部距离：0 */
+            left: 0; /* 左侧距离：0 */
+            width: 100%; /* 宽度：100%父容器 */
+            height: 100%; /* 高度：100%父容器 */
+            display: block; /* 显示模式：块级 */
+        }
+        .bg-projection {
+            position: fixed; /* 定位方式：固定定位 */
+            top: 0; /* 顶部距离：0 */
+            left: 0; /* 左侧距离：0 */
+            width: 100%; /* 宽度：100%视口宽度 */
+            height: 100%; /* 高度：100%视口高度 */
+            background-size: cover; /* 背景尺寸：覆盖 */
+            background-position: center; /* 背景位置：居中 */
+            background-repeat: no-repeat; /* 背景重复：不重复 */
+            pointer-events: none; /* 指针事件：穿透 */
+            z-index: 1; /* 堆叠层级：1 */
+            opacity: 0; /* 不透明度：0（隐藏） */
+            filter: blur(30px); /* 滤镜：模糊30像素 */
+            transform: scale(1.2); /* 变换：放大1.2倍 */
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), /* 过渡：不透明度0.8秒缓动 */
+                        transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), /* 变换0.8秒缓动 */
+                        filter 0.8s ease; /* 滤镜0.8秒缓动 */
+            will-change: transform, opacity, filter; /* 性能优化：将变化的属性提升为合成层 */
+        }
+        .bg-projection.active {
+            opacity: 0.5; /* 激活时不透明度：0.5 */
+            transform: scale(1); /* 变换：原始大小 */
+            filter: blur(20px); /* 滤镜：模糊20像素 */
+            animation: breatheGlow 5s ease-in-out infinite; /* 动画：呼吸光晕5秒缓动无限 */
+        }
+        @keyframes breatheGlow {
+            0% { opacity: 0.25; transform: scale(1.10); filter: blur(25px); } /* 开始：不透明度0.25，缩放1.10，模糊25px */
+            50% { opacity: 0.75; transform: scale(1.05); filter: blur(15px); } /* 中间：不透明度0.75，缩放1.05，模糊15px */
+            100% { opacity: 0.25; transform: scale(1.10); filter: blur(25px); } /* 结束：回到开始状态 */
+        }
+        .bottom-text-tip {
+            position: fixed; /* 定位方式：固定定位 */
+            bottom: 30px; /* 底部距离：30像素 */
+            left: 50%; /* 左侧距离：父容器宽度的50% */
+            transform: translateX(-50%); /* 变换：向左偏移自身一半，实现水平居中 */
+            width: auto; /* 宽度：自动 */
+            text-align: center; /* 文本对齐：居中 */
+            font-size: clamp(1rem, 4vw, 1.4rem); /* 字体大小：clamp动态，最小1rem，4vw，最大1.4rem */
+            color: #e0d8ff; /* 字体颜色：淡紫色 */
+            text-shadow: 0 0 10px #a88bff, 0 0 20px rgba(168, 139, 255, 0.5); /* 文字阴影：紫蓝色光晕 */
+            font-weight: 400; /* 字重：400正常 */
+            letter-spacing: 2px; /* 字间距：2像素 */
+            pointer-events: none; /* 指针事件：穿透 */
+            z-index: 10000; /* 堆叠层级：10000 */
+            opacity: 0; /* 不透明度：0（隐藏） */
+            transition: opacity 0.4s ease; /* 过渡：不透明度0.4秒缓动 */
+            background: linear-gradient(90deg, transparent, rgba(168, 139, 255, 0.2), transparent); /* 背景：线性渐变透明到紫蓝半透明再到透明 */
+            padding: 12px 20px; /* 内边距：上下12px，左右20px */
+            backdrop-filter: blur(4px); /* 背景滤镜：模糊4像素 */
+            border-radius: 40px; /* 圆角：40像素 */
+            white-space: nowrap; /* 空白处理：不换行 */
+            font-family: inherit; /* 字体族：继承父级 */
+        }
+        @media (max-width: 640px) {
+            .bottom-text-tip {
+                white-space: normal; /* 媒体查询：允许换行 */
+                width: 80%; /* 宽度：80%父容器 */
+                font-size: 0.9rem; /* 字体大小：0.9rem */
+                bottom: 20px; /* 底部距离：20像素 */
+                padding: 8px 16px; /* 内边距：上下8px，左右16px */
+            }
+        }
+        .world-button:focus-visible {
+            outline: 3px solid #a88bff; /* 轮廓：3像素实线紫蓝色 */
+            outline-offset: 4px; /* 轮廓偏移：4像素 */
+        }
+    </style>
+    <link rel="stylesheet" href="./assets/theme.css">
+    <script src="./assets/common.js"></script>
+</head>
+<body>
+    <svg style="position: absolute; width: 0; height: 0; pointer-events: none;" xmlns="http://www.w3.org/2000/svg"> <!-- SVG容器：绝对定位，宽高0，穿透事件 -->
+        <defs>
+            <filter id="liquidDistortion" x="-20%" y="-20%" width="140%" height="140%"> <!-- 滤镜：液体扭曲，范围扩大20% -->
+                <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="3" result="noise" seed="2"/> <!-- 湍流：分形噪声，基频0.005，八度3，输出noise，种子2 -->
+                <feDisplacementMap id="displacementMap" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" result="displaced"/> <!-- 置换映射：输入原图，噪声图，缩放0，红通道X，绿通道Y -->
+                <feGaussianBlur in="displaced" stdDeviation="1.5" result="blurred"/> <!-- 高斯模糊：输入置换后图像，标准差1.5 -->
+                <feBlend in="SourceGraphic" in2="blurred" mode="screen" result="mixed"/> <!-- 混合模式：原图与模糊图屏幕混合 -->
+                <feComposite in="mixed" in2="SourceGraphic" operator="in"/> <!-- 合成：混合结果与原图做交集裁剪 -->
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="sky-container">
+        <div class="bg-glow"></div>
+        <div class="nebula"></div>
+        <div class="mist"></div>
+    </div>
+
+    <div class="home-logo" id="homeLogoBtn" aria-label="返回虚衍主页" title="返回虚衍主页"> <!-- Logo容器：无障碍标签，标题提示 -->
+        <img src="./0虚衍主页/logo-0.webp" alt="虚衍文化科技 · 主页" draggable="false" id="logoImgElement"> <!-- Logo图片：alt文本，禁止拖拽 -->
+    </div>
+
+    <div class="hero-section">
+        <h1 class="hero-title">虚衍世界观</h1>
+        <p class="hero-sub">虚衍回响 · 万象归一</p>
+    </div>
+
+    <div class="button-container">
+        <div class="world-button" id="bookOfVoidBtn" data-url="1-1虚衍之书.html" data-default-link="/xuyan-book"> <!-- 虚衍之书按钮：自定义数据属性url和默认链接 -->
+            <img class="btn-bg-img" src="./1虚衍世界/1虚衍之书.webp" alt="虚衍之书" style="display: none;"> <!-- 隐藏的背景图片：用于CSS伪元素 -->
+            <span class="button-text">虚衍之书</span>
+        </div>
+        <div class="world-button" id="godTearsBtn" data-url="https://example.com/god-tear" data-default-link="/god-tear"> <!-- 神明之泣按钮 -->
+            <img class="btn-bg-img" src="./1虚衍世界/2神明之泣.webp" alt="神明之泣" style="display: none;">
+            <span class="button-text">神明之泣</span>
+        </div>
+        <div class="world-button full-width" id="timeSpaceBtn" data-url="https://example.com/temporal-spacetime" data-default-link="/time-space"> <!-- 临世时空按钮，全宽样式 -->
+            <img class="btn-bg-img" src="./1虚衍世界/3临世时空.webp" alt="临世时空" style="display: none;">
+            <span class="button-text">临世时空</span>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        ✦ 点击虚衍标志返回主页面 ✦
+    </div>
+
+    <div class="bg-projection" id="bgProjection"></div> <!-- 背景投影层 -->
+    <div class="distortion-overlay" id="distortionOverlay"></div> <!-- 扭曲叠加层 -->
+    <div class="wave-overlay" id="waveOverlay"> <!-- 波浪叠加层 -->
+        <canvas id="waveCanvas"></canvas> <!-- 波浪Canvas画布 -->
+    </div>
+    <div class="bottom-text-tip" id="bottomTextTip"></div> <!-- 底部文字提示 -->
+
+    <script>
+        (function(){
+            "use strict";
+
+            // 背景星星生成
+            function createDistantStars() {
+                const container = document.querySelector('.sky-container');
+                if (!container) return;
+                container.querySelectorAll('.distant-star').forEach(s => s.remove()); // 移除已有的星星
+                const starCount = 35; // 星星数量：35颗
+                const minSize = 1.5, maxSize = 5; // 最小尺寸：1.5像素，最大尺寸：5像素
+                const minDur = 2, maxDur = 5; // 最小时长：2秒，最大时长：5秒
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'distant-star';
+                    const size = minSize + Math.random() * (maxSize - minSize); // 随机大小
+                    const duration = minDur + Math.random() * (maxDur - minDur); // 随机闪烁周期
+                    star.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--twinkle-duration:${duration}s`;
+                    container.appendChild(star);
+                }
+            }
+            createDistantStars();
+
+            // 为按钮添加伪元素背景图 + 记录图片URL用于投影
+            function applyTransparentImageBackgrounds() {
+                document.querySelectorAll('.world-button').forEach(btn => {
+                    const hiddenImg = btn.querySelector('.btn-bg-img');
+                    if (!hiddenImg) return;
+                    let imgSrc = hiddenImg.src;
+                    if (!imgSrc || imgSrc === '' || imgSrc.includes('placeholder')) {
+                        imgSrc = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cdefs%3E%3CradialGradient id="cosmic" cx="50%25" cy="50%25" r="70%25"%3E%3Cstop offset="0%25" stop-color="%236a46c4"/%3E%3Cstop offset="100%25" stop-color="%2320124a"/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width="200" height="200" fill="url(%23cosmic)"/%3E%3Ccircle cx="100" cy="80" r="20" fill="%23b59eff" opacity="0.8"/%3E%3Cpath d="M70 140 L100 110 L130 140" fill="none" stroke="%23dacdff" stroke-width="3" opacity="0.9"/%3E%3Ctext x="100" y="170" font-size="15" fill="%23edeaff" text-anchor="middle" font-family="monospace"%3E✦%3C/text%3E%3C/svg%3E'; // 备用SVG图片
+                    }
+                    const uniqueClass = `btn-style-${Math.random().toString(36).substr(2, 8)}`;
+                    btn.classList.add(uniqueClass);
+                    const style = document.createElement('style');
+                    document.head.appendChild(style);
+                    style.sheet.insertRule(`.${uniqueClass}::before { background-image: url('${imgSrc}'); }`, 0); // 动态生成伪元素背景
+                    hiddenImg.remove();
+                    btn.dataset.bgUrl = imgSrc; // 保存图片URL到dataset
+                });
+            }
+            applyTransparentImageBackgrounds();
+
+            // 背景投影
+            const bgProjection = document.getElementById('bgProjection');
+            let projectionTimeout = null;
+            function showProjection(bgUrl) {
+                if (!bgProjection) return;
+                if (projectionTimeout) clearTimeout(projectionTimeout);
+                bgProjection.classList.remove('active');
+                bgProjection.style.backgroundImage = `url('${bgUrl}')`; // 设置背景投影图片
+                void bgProjection.offsetHeight; // 强制重排
+                bgProjection.classList.add('active');
+            }
+            function hideProjection() {
+                if (!bgProjection) return;
+                if (projectionTimeout) clearTimeout(projectionTimeout);
+                projectionTimeout = setTimeout(() => {
+                    bgProjection.classList.remove('active');
+                }, 100);
+            }
+            function bindProjectionToButtons() {
+                document.querySelectorAll('.world-button').forEach(btn => {
+                    const bgUrl = btn.dataset.bgUrl;
+                    if (!bgUrl) return;
+                    btn.addEventListener('mouseenter', () => showProjection(bgUrl));
+                    btn.addEventListener('mouseleave', hideProjection);
+                    btn.addEventListener('touchstart', () => showProjection(bgUrl), { passive: true });
+                    btn.addEventListener('touchend', hideProjection);
+                });
+            }
+
+            // 跳转链接
+            function bindJumpLinks() {
+                const handleJump = (e) => {
+                    e.stopPropagation();
+                    const btn = e.currentTarget;
+                    let url = btn.getAttribute('data-url') || btn.getAttribute('data-default-link'); // 获取跳转链接
+                    if (!url || url === '#') {
+                        btn.style.transform = 'scale(0.95)'; // 无效链接时视觉反馈
+                        setTimeout(() => btn.style.transform = '', 150);
+                        return;
+                    }
+                    window.location.href = url; // 跳转
+                };
+                document.querySelectorAll('.world-button').forEach(btn => {
+                    btn.removeEventListener('click', handleJump);
+                    btn.addEventListener('click', handleJump);
+                });
+            }
+
+            // 扭曲特效 (临世时空)
+            let distortionOverlay = null, displacementMap = null, distortionAnimFrame = null, distortionActive = false, distortionHideTimeout = null;
+            const DISTORTION_START = 0, DISTORTION_END = 6000, DURATION = 600000; // 扭曲起始缩放0，结束缩放6000，动画时长600000毫秒
+            const easeOutCubic = t => 1 - Math.pow(1 - t, 5); // 缓动函数：五次方缓出
+            function setDistortionScale(v) { if(displacementMap) displacementMap.setAttribute('scale', Math.min(DISTORTION_END, Math.max(0, v))); } // 设置扭曲缩放值
+            function resetDistortion() { setDistortionScale(DISTORTION_START); if(distortionAnimFrame) cancelAnimationFrame(distortionAnimFrame); distortionActive = false; } // 重置扭曲
+            function startDistortion() {
+                if(!displacementMap) return;
+                resetDistortion();
+                distortionActive = true;
+                const startTime = performance.now();
+                function animate(now) {
+                    if(!distortionActive) return;
+                    const p = Math.min(1, (now - startTime) / DURATION); // 动画进度0-1
+                    setDistortionScale(DISTORTION_START + (DISTORTION_END - DISTORTION_START) * easeOutCubic(p));
+                    if(p < 1) distortionAnimFrame = requestAnimationFrame(animate);
+                    else { setDistortionScale(DISTORTION_END); distortionActive = false; }
+                }
+                distortionAnimFrame = requestAnimationFrame(animate);
+            }
+            function showDistortion() { if(distortionOverlay) { if(distortionHideTimeout) clearTimeout(distortionHideTimeout); distortionOverlay.style.opacity = '0.85'; startDistortion(); } } // 显示扭曲叠加层
+            function hideDistortion() { if(distortionOverlay) { resetDistortion(); distortionHideTimeout = setTimeout(() => distortionOverlay.style.opacity = '0', 80); } } // 隐藏扭曲叠加层
+            function bindTimeSpaceDistortion() {
+                const btn = document.getElementById('timeSpaceBtn');
+                if(!btn) return;
+                distortionOverlay = document.getElementById('distortionOverlay');
+                const filterElem = document.querySelector('#liquidDistortion');
+                if(filterElem) displacementMap = filterElem.querySelector('#displacementMap');
+                setDistortionScale(DISTORTION_START);
+                btn.addEventListener('mouseenter', showDistortion);
+                btn.addEventListener('mouseleave', hideDistortion);
+                btn.addEventListener('touchstart', showDistortion, { passive: true });
+                btn.addEventListener('touchend', hideDistortion);
+            }
+
+            // 波浪特效 (虚衍之书)
+            let waveOverlay, waveCanvas, waveCtx, waveAnimId, waveActive = false, wavePhase = 0, waveTimeout;
+            function initWave() {
+                waveOverlay = document.getElementById('waveOverlay');
+                waveCanvas = document.getElementById('waveCanvas');
+                if(!waveCanvas || !waveOverlay) return;
+                waveCtx = waveCanvas.getContext('2d');
+                const resize = () => { const rect = waveOverlay.getBoundingClientRect(); waveCanvas.width = rect.width; waveCanvas.height = rect.height; drawWave(); }; // 调整画布尺寸并重绘
+                window.addEventListener('resize', resize);
+                resize();
+            }
+            function drawWave() {
+                if(!waveCtx || !waveCanvas) return;
+                const w = waveCanvas.width, h = waveCanvas.height;
+                if(w===0 || h===0) return;
+                waveCtx.clearRect(0,0,w,h);
+                for(let i=0;i<9;i++){
+                    const yOff = -(i*12)-5, spd = 1+i*0.3, phOff = i*1.2; // 每条波浪的垂直偏移、速度、相位偏移
+                    waveCtx.beginPath();
+                    waveCtx.strokeStyle = `rgba(168,139,255,${0.4-i*0.06})`; // 波浪颜色随索引变淡
+                    waveCtx.lineWidth = 2.5 - i*0.3; // 线宽递减
+                    waveCtx.shadowBlur = 8;
+                    waveCtx.shadowColor = "#a88bff";
+                    for(let x=0;x<=w;x+=5){
+                        const y = h + yOff + Math.sin(x*0.01 + wavePhase*spd + phOff)*10; // 正弦曲线计算Y坐标
+                        x===0 ? waveCtx.moveTo(x,y) : waveCtx.lineTo(x,y);
+                    }
+                    waveCtx.stroke();
+                }
+                waveCtx.beginPath();
+                waveCtx.strokeStyle = "rgba(224,216,255,0.25)"; // 额外一条浅色波浪
+                waveCtx.lineWidth = 4;
+                for(let x=0;x<=w;x+=5){
+                    const y = h - 2 + Math.sin(x*0.008 + wavePhase*1.8)*8;
+                    x===0 ? waveCtx.moveTo(x,y) : waveCtx.lineTo(x,y);
+                }
+                waveCtx.stroke();
+            }
+            function startWaveAnim() { if(!waveActive) return; wavePhase += 0.025; drawWave(); waveAnimId = requestAnimationFrame(startWaveAnim); } // 启动波浪动画
+            function showWave() { if(!waveOverlay) return; if(waveTimeout) clearTimeout(waveTimeout); waveOverlay.style.opacity = '1'; if(!waveActive){ waveActive=true; if(!waveAnimId) waveAnimId = requestAnimationFrame(startWaveAnim); } } // 显示波浪并启动动画
+            function hideWave() { if(!waveOverlay) return; if(waveTimeout) clearTimeout(waveTimeout); waveTimeout = setTimeout(()=>{ waveOverlay.style.opacity='0'; if(waveActive){ waveActive=false; if(waveAnimId) cancelAnimationFrame(waveAnimId); waveAnimId=null; if(waveCtx&&waveCanvas) waveCtx.clearRect(0,0,waveCanvas.width,waveCanvas.height); } },200); } // 隐藏波浪并停止动画
+            function bindBookWave() { const btn = document.getElementById('bookOfVoidBtn'); if(!btn) return; initWave(); btn.addEventListener('mouseenter', showWave); btn.addEventListener('mouseleave', hideWave); btn.addEventListener('touchstart', showWave, {passive:true}); btn.addEventListener('touchend', hideWave); } // 绑定虚衍之书按钮的波浪特效
+
+            // 粒子特效 (神明之泣)
+            let particleContainer = null, activeParticles = [], particleAnimId2 = null, particleInterval = null, isParticleEmitterActive = false;
+            const PARTICLE_CONFIG = { minSize:5, maxSize:10, minSpeed:0.5, maxSpeed:2.5, minFade:0.0005, maxFade:0.005, generationInterval:150, maxParticles:350 }; // 粒子配置
+            function ensureParticleContainer() {
+                if (!particleContainer) {
+                    particleContainer = document.createElement('div');
+                    particleContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999; overflow:hidden;'; // 粒子容器样式固定定位覆盖全屏
+                    document.body.appendChild(particleContainer);
+                }
+                return particleContainer;
+            }
+            function createParticle() {
+                const container = ensureParticleContainer();
+                const particle = document.createElement('div');
+                const size = PARTICLE_CONFIG.minSize + Math.random() * (PARTICLE_CONFIG.maxSize - PARTICLE_CONFIG.minSize); // 随机大小
+                particle.style.cssText = `
+                    position: fixed;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, #f5eeff, #b59eff);
+                    box-shadow: 0 0 12px #c8b4ff;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${Math.random() * window.innerWidth}px;
+                    top: ${window.innerHeight - 5}px;
+                    opacity: 0.9;
+                `;
+                const speedY = PARTICLE_CONFIG.minSpeed + Math.random() * (PARTICLE_CONFIG.maxSpeed - PARTICLE_CONFIG.minSpeed); // 随机上飘速度
+                const fadeRate = PARTICLE_CONFIG.minFade + Math.random() * (PARTICLE_CONFIG.maxFade - PARTICLE_CONFIG.minFade); // 随机淡出速率
+                let currentOpacity = 0.85 + Math.random() * 0.15;
+                particle.style.opacity = currentOpacity;
+                particle._data = { speedY, fadeRate, opacity: currentOpacity }; // 存储粒子私有数据
+                container.appendChild(particle);
+                activeParticles.push(particle);
+            }
+            function updateParticlesMovement() {
+                if (!particleContainer) return;
+                let anyAlive = false;
+                for (let i = activeParticles.length-1; i >= 0; i--) {
+                    const p = activeParticles[i];
+                    if (!p || !p.parentNode) { activeParticles.splice(i,1); continue; }
+                    const data = p._data;
+                    if (!data) { p.remove(); activeParticles.splice(i,1); continue; }
+                    let currentTop = parseFloat(p.style.top);
+                    let newTop = currentTop - data.speedY; // 向上移动
+                    let newOpacity = data.opacity - data.fadeRate; // 不透明度递减
+                    if (newTop + parseFloat(p.style.width) < 0 || newOpacity <= 0.02) { // 超出屏幕或完全透明则移除
+                        p.remove();
+                        activeParticles.splice(i,1);
+                        continue;
+                    }
+                    p.style.top = `${newTop}px`;
+                    p.style.opacity = newOpacity;
+                    data.opacity = newOpacity;
+                    anyAlive = true;
+                }
+                if (anyAlive || isParticleEmitterActive) {
+                    particleAnimId2 = requestAnimationFrame(updateParticlesMovement);
+                } else {
+                    if (particleAnimId2) cancelAnimationFrame(particleAnimId2);
+                    particleAnimId2 = null;
+                }
+            }
+            function startParticleGenerator() {
+                if (particleInterval) clearInterval(particleInterval);
+                if (!particleAnimId2 && (activeParticles.length > 0 || isParticleEmitterActive)) {
+                    particleAnimId2 = requestAnimationFrame(updateParticlesMovement);
+                }
+                particleInterval = setInterval(() => {
+                    if (!isParticleEmitterActive) return;
+                    createParticle();
+                    if (activeParticles.length > PARTICLE_CONFIG.maxParticles) { // 超过最大粒子数时裁剪
+                        const removeCount = Math.min(60, activeParticles.length - 200);
+                        const removed = activeParticles.splice(0, removeCount);
+                        removed.forEach(p => p.remove());
+                    }
+                    if (!particleAnimId2) particleAnimId2 = requestAnimationFrame(updateParticlesMovement);
+                }, PARTICLE_CONFIG.generationInterval);
+            }
+            function activateParticleEffect() {
+                if (isParticleEmitterActive) return;
+                isParticleEmitterActive = true;
+                ensureParticleContainer();
+                if (!particleAnimId2) particleAnimId2 = requestAnimationFrame(updateParticlesMovement);
+                startParticleGenerator();
+            }
+            function deactivateParticleEffect() {
+                if (!isParticleEmitterActive) return;
+                isParticleEmitterActive = false;
+                if (particleInterval) { clearInterval(particleInterval); particleInterval = null; }
+            }
+            function bindGodTearsParticle() {
+                const btn = document.getElementById('godTearsBtn');
+                if (!btn) return;
+                btn.addEventListener('mouseenter', activateParticleEffect);
+                btn.addEventListener('mouseleave', deactivateParticleEffect);
+                btn.addEventListener('touchstart', activateParticleEffect, { passive: true });
+                btn.addEventListener('touchend', deactivateParticleEffect);
+            }
+
+            // 底部文字提示
+            const textMap = { '虚衍之书': '虚衍之书 | 虚衍万物过去与未来之预衍', '神明之泣': '神明之泣 | 神明与造物无尽结局之总述', '临世时空': '临世时空 | 平行未来所见最圆满之结局' }; // 提示文本映射
+            let bottomTip = null, tipTimeout = null;
+            function showBottomText(t) { if(bottomTip){ if(tipTimeout) clearTimeout(tipTimeout); bottomTip.innerText = t; bottomTip.style.opacity = '1'; } } // 显示底部提示文字
+            function hideBottomText() { if(bottomTip){ if(tipTimeout) clearTimeout(tipTimeout); tipTimeout = setTimeout(()=>{ if(bottomTip) bottomTip.style.opacity='0'; },500); } } // 隐藏底部提示文字
+            function bindBottomText(btn, key){ if(!btn||!textMap[key]) return; const txt=textMap[key]; btn.addEventListener('mouseenter',(e)=>{ e.stopPropagation(); showBottomText(txt); }); btn.addEventListener('mouseleave',(e)=>{ e.stopPropagation(); hideBottomText(); }); btn.addEventListener('touchstart',(e)=>{ e.stopPropagation(); showBottomText(txt); },{passive:true}); btn.addEventListener('touchend',(e)=>{ e.stopPropagation(); hideBottomText(); }); } // 为按钮绑定提示文字事件
+            function initBottomText() { bottomTip = document.getElementById('bottomTextTip'); if(!bottomTip) return; bindBottomText(document.getElementById('bookOfVoidBtn'),'虚衍之书'); bindBottomText(document.getElementById('godTearsBtn'),'神明之泣'); bindBottomText(document.getElementById('timeSpaceBtn'),'临世时空'); } // 初始化底部提示
+
+            // Logo 跳转主页
+            function setupHomeLogo() {
+                const logo = document.getElementById('homeLogoBtn');
+                if(logo) logo.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='./0虚衍主页.html'; }); // 点击Logo跳转主页
+            }
+
+            // ----- 性能：窗口尺寸变化节流处理 -----
+        function onResizeThrottled() {
+            /* 尺寸变化后重绘依赖视口的元素（星空/粒子容器） */
+            var sky = document.querySelector('.sky-container');
+            if (sky) sky.style.height = window.innerHeight + 'px';
+        }
+        window.addEventListener('resize', XY.throttle(onResizeThrottled, 200), { passive: true });
+
+        function init() {
+                bindJumpLinks();
+                setupHomeLogo();
+                bindTimeSpaceDistortion();
+                bindBookWave();
+                bindGodTearsParticle();
+                initBottomText();
+                bindProjectionToButtons();
+            }
+            init();
+        })();
+    </script>
+
+    <script>
+    /* 无障碍：为可点击容器补键盘操作（Enter / Space）与语义角色 */
+    (function () {
+        if (!window.XY) return;
+        var SELECTORS = [{ sel: ".world-button", label: "打开板块" }];
+
+        SELECTORS.forEach(function (item) {
+            document.querySelectorAll(item.sel).forEach(function (el, i) {
+                if (el.tagName === 'A' || el.tagName === 'BUTTON') return;
+                if (el.hasAttribute('role') && el.getAttribute('role') === 'button') return;
+
+                el.setAttribute('role', 'button');
+                el.setAttribute('tabindex', '0');
+                el.classList.add('xy-focusable');
+
+                /* 生成可读标签：优先 data-label / 内部文字 */
+                var label = el.getAttribute('data-label')
+                    || (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)
+                    || item.label;
+                el.setAttribute('aria-label', label + (i > 0 ? ' ' + (i + 1) : ''));
+
+                /* 键盘激活 = 派发一次 click，复用既有逻辑 */
+                el.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        el.click();
+                    }
+                });
+            });
+        });
+
+        /* 视觉隐藏但可被读屏识别的页面标题 */
+        if (!document.querySelector('.xy-sr-only')) {
+            var h = document.createElement('h1');
+            h.className = 'xy-sr-only';
+            h.textContent = document.title || '虚衍教派';
+            document.body.insertBefore(h, document.body.firstChild);
+        }
+    })();
+    </script>
+</body>
+</html>

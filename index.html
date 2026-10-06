@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>虚衍|主页</title>
+    <link id="faviconLink" rel="icon" type="image/webp" href="./0虚衍主页/logo.webp">
+    <link rel="apple-touch-icon" href="./0虚衍主页/logo.webp">
+    <meta name="theme-color" content="#131129">
+    <meta name="description" content="虚衍教派官方网站 — 虚无中衍化的世界，从诞生到神明意志的完整叙事。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="虚衍教派">
+    <meta property="og:title" content="虚衍 | 虚衍教派">
+    <meta property="og:description" content="虚衍教派官方网站 — 虚无中衍化的世界，从诞生到神明意志的完整叙事。">
+    <meta property="og:image" content="./0虚衍主页/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="虚衍 | 虚衍教派">
+    <meta name="twitter:description" content="虚衍教派官方网站 — 虚无中衍化的世界，从诞生到神明意志的完整叙事。">
+    <meta name="twitter:image" content="./0虚衍主页/logo.webp">
+<style>
+        /* ---------- 全局样式重置 + 响应式基准 ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #131129 0%, #0b091c 50%, #05040e 100%);
+            font-family: "思源黑体", "微软雅黑", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: default;
+            touch-action: manipulation;
+        }
+
+        /* 长按进度圆环 */
+        .press-ring {
+            position: fixed;
+            width: clamp(44px, 8vw, 60px);
+            height: clamp(44px, 8vw, 60px);
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+            transform: translate(-50%, -50%);
+            left: 0;
+            top: 0;
+        }
+
+        .white-flash {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999999;
+            transition: opacity 1s ease;
+        }
+
+        /* 星空背景容器 */
+        .sky-container {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(122, 9, 28, 0.05) 0%, transparent 70%);
+        }
+
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle clamp(180px, 35vw, 380px) at 20% 30%, rgba(122, 9, 28, 0.08) 0%, transparent 100%),
+                radial-gradient(circle clamp(240px, 45vw, 500px) at 70% 60%, rgba(168, 139, 255, 0.06) 0%, transparent 100%);
+        }
+
+        .mist {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(224, 216, 255, 0.05);
+            animation: mistPulse 10s infinite ease-in-out;
+        }
+        @keyframes mistPulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.5; }
+        }
+
+        .distant-star {
+            position: absolute;
+            background: #e0d8ff;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 5px #a88bff);
+            animation: starTwinkle var(--twinkle-duration) infinite ease-in-out;
+        }
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.8; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* Logo样式 (呼吸发光 + 触碰辉光) */
+        .logo {
+            position: fixed;
+            top: clamp(12px, 3vw, 28px);
+            left: clamp(12px, 3vw, 28px);
+            width: clamp(45px, 8vw, 70px);
+            height: auto;
+            z-index: 100;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 12px;
+            background: transparent;
+        }
+        .logo-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+            animation: logoRotate 25s linear infinite, logoBreathingGlow 10s ease-in-out infinite;
+            transform-origin: center;
+            filter: drop-shadow(0 0 6px rgba(168, 139, 255, 0.6));
+        }
+        @keyframes logoRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes logoBreathingGlow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(168, 139, 255, 0.5)) drop-shadow(0 0 50px rgba(122, 92, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 5px #a88bff) drop-shadow(0 0 10px rgba(168, 139, 255, 0.8)); }
+        }
+        .logo::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: radial-gradient(circle, rgba(168, 139, 255, 0.3), transparent 70%);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .logo:hover::after,
+        .logo:active::after,
+        .logo.touch-glow::after {
+            opacity: 0.9;
+        }
+        .logo:active {
+            transform: scale(0.97);
+        }
+
+        /* 主容器 */
+        .main-content {
+            text-align: center;
+            z-index: 5;
+            transition: transform 0.3s ease;
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        .main-content.move-up {
+            transform: translateY(clamp(-60px, -10vh, -100px));
+        }
+
+        /* 主标题样式 */
+        .main-title {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 1000;
+            letter-spacing: clamp(4px, 1.5vw, 12px);
+            text-shadow: 0 0 12px #a88bff, 0 0 25px #7a5cff;
+            margin-bottom: 0.5rem;
+            animation: glowPulse 5s infinite ease-in-out, fadeUp 0.8s ease;
+            line-height: 1.2;
+            white-space: nowrap;
+            color: #f0eaff;
+        }
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 15px #a88bff, 0 0 30px #7a5cff; }
+            50% { text-shadow: 0 0 25px #c5b8ff, 0 0 50px #a88bff; }
+        }
+
+        /* 副标题样式 */
+        .sub-title {
+            font-size: clamp(1rem, 3vw, 2.5rem);
+            color: #c5b8ff;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.8s ease;
+            font-weight: 400;
+            text-shadow: 0 0 6px rgba(168, 139, 255, 0.4);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            .main-title { white-space: normal; word-break: break-word; letter-spacing: clamp(2px, 2vw, 15px); }
+        }
+
+        /* 按钮样式 - 完全继承虚衍世界按钮的字体风格 (字重、字间距、阴影强化) */
+        .btn-wrap {
+            position: relative;
+            display: inline-block;
+            z-index: 11;
+        }
+        .more-btn, .nav-btn {
+            padding: clamp(10px, 2vh, 16px) clamp(20px, 6vw, 40px);
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            /* 关键调整: 字体重合虚衍世界按钮风格 */
+            font-weight: 600;           /* 原500调整为600，与虚衍世界按钮一致 */
+            letter-spacing: 2px;        /* 增加字间距，对齐虚衍世界按钮风格 */
+            color: #f0eaff;
+            background: rgba(11, 9, 28, 0.25);
+            border: 2px solid #a88bff;
+            border-radius: clamp(8px, 2vw, 14px);
+            text-shadow: 0 0 6px #a88bff;   /* 强化文字光晕，更贴近虚衍世界按钮 */
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+        }
+        /* 与虚衍世界按钮一致的悬停效果：外发光 + 轻微放大 + 背景微光 */
+        .more-btn:hover, .nav-btn:hover {
+            transform: scale(1.02);
+            background: rgba(168, 139, 255, 0.2);
+            border-color: #d4c8ff;
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.5), 0 0 18px rgba(168, 139, 255, 0.6);
+            text-shadow: 0 0 8px #d4c8ff, 0 0 12px #a88bff;  /* 悬停时光晕增强，模仿虚衍世界交互 */
+        }
+
+        /* 导航弹出层 - 增大尺寸避免发光被裁剪 */
+        .nav-overlay {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(30px, 6vw, 70px);
+            z-index: 88888;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            margin-top: clamp(60px, 15vh, 0px);
+            flex-wrap: wrap;
+            max-width: 95vw;
+            width: max-content;
+            max-height: 70vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border-radius: 28px;
+        }
+        .nav-overlay::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .nav-overlay::-webkit-scrollbar-track {
+            background: rgba(168, 139, 255, 0.1);
+            border-radius: 6px;
+        }
+        .nav-overlay::-webkit-scrollbar-thumb {
+            background: rgba(168, 139, 255, 0.5);
+            border-radius: 6px;
+        }
+
+        /* 粒子样式 */
+        .btn-particle, .float-particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 1;
+            filter: drop-shadow(0 0 5px #a88bff);
+            pointer-events: none;
+            z-index: 999;
+        }
+        .btn-particle {
+            width: 5px;
+            height: 5px;
+            background: #e0d8ff;
+            animation: btnParticleFade 1s ease-out forwards;
+        }
+        .float-particle {
+            width: 5px;
+            height: 5px;
+            background: #e0d8ff;
+            animation: particleFloat 1.5s ease-out forwards;
+        }
+        @keyframes btnParticleFade {
+            0% { transform: translate(0,0) scale(1); opacity: 0.9; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+        @keyframes particleFloat {
+            0% { transform: translate(0,0) scale(1); opacity: 0.9; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* 星光流动效果 */
+        .starlight {
+            position: absolute;
+            background: #e0d8ff;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 5px #a88bff);
+            z-index: 3;
+            transition: transform 0.05s linear;
+            animation: randomBlink var(--blink-duration) infinite ease-in-out;
+            pointer-events: auto;
+        }
+        @keyframes randomBlink {
+            0% { opacity: var(--min-opacity); transform: scale(var(--min-opacity)); }
+            50% { opacity: var(--max-opacity); transform: scale(var(--max-opacity)); }
+            100% { opacity: var(--min-opacity); transform: scale(var(--min-opacity)); }
+        }
+
+        /* 空闲提示文字 - 采用导航页底部注释风格 */
+        .idle-footer-tip {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 0.75rem;
+            color: #a88bcc;
+            background: transparent;
+            padding-top: 0;
+            z-index: 10000;
+            white-space: nowrap;
+            font-family: inherit;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            letter-spacing: 1px;
+            width: auto;
+            max-width: 90vw;
+        }
+        @media (max-width: 640px) {
+            .idle-footer-tip {
+                white-space: normal;
+                width: 80%;
+                font-size: 0.7rem;
+                bottom: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="./assets/theme.css">
+    <script src="./assets/common.js"></script>
+</head>
+<body>
+
+<svg class="press-ring" viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="20" fill="none" stroke="rgba(168,139,255,0.3)" stroke-width="5"/>
+    <circle id="progressCircle" cx="30" cy="30" r="20" fill="none" stroke="#a88bff" stroke-width="5"
+            stroke-dasharray="125.6" stroke-dashoffset="125.6" stroke-linecap="round"
+            transform="rotate(-90 30 30)"/>
+</svg>
+<div class="white-flash"></div>
+<div class="sky-container">
+    <div class="bg-glow"></div>
+    <div class="nebula"></div>
+    <div class="mist"></div>
+</div>
+<div class="logo" id="homeLogoBtn">
+    <img class="logo-img" id="logoImg" alt="虚衍文化科技Logo">
+</div>
+
+<div class="main-content" role="main">
+    <h1 class="main-title" id="mainTitle">虚衍文化科技</h1>
+    <p class="sub-title" id="subTitle">吾等同自虚无衍化，故亦同为一体</p>
+    <div class="btn-wrap">
+        <button class="more-btn" id="mainBtn">了解更多</button>
+    </div>
+    <div class="nav-overlay" id="navOverlay"></div>
+</div>
+
+<div class="idle-footer-tip" id="idleTip">长按按钮收集光点切换界面状态</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- 直接定义常量（参数回归分散）----------
+        const LOGO_IMG_SRC = "./0虚衍主页/logo-0.webp";
+        const FAVICON_SRC = "./0虚衍主页/logo.webp";
+        const MAIN_TITLE_TEXT = "虚衍文化科技";
+        const SUB_TITLE_TEXT = "吾等自虚无衍化，故应亦同为一体";
+        const BTN_DEFAULT_TEXT = "了解更多";
+        const BTN_ACTIVE_TEXT = "回归初始";
+
+        const NAV_BUTTONS = [
+            { text: "虚衍世界", link: "1虚衍世界.html", target: "_self" },
+            { text: "造物信息", link: "2造物信息.html", target: "_self" },
+            { text: "了解我们", link: "3了解我们.html", target: "_self" },
+            { text: "加入我们", link: "4加入我们.html", target: "_self" }
+        ];
+
+        // 星星相关常量
+        const DISTANT_STAR_COUNT = 35;
+        const DISTANT_STAR_MIN_SIZE = 1.5;
+        const DISTANT_STAR_MAX_SIZE = 5;
+        const TWINKLE_MIN_DUR = 2;
+        const TWINKLE_MAX_DUR = 5;
+
+        // 星光相关常量
+        const STARLIGHT_CREATE_INTERVAL = 1000;
+        const STARLIGHT_MIN_SIZE = 2;
+        const STARLIGHT_MAX_SIZE = 10;
+        const STARLIGHT_MIN_SPEED = 0.25;
+        const STARLIGHT_MAX_SPEED = 0.5;
+        const BLINK_MIN_DUR = 2.5;
+        const BLINK_MAX_DUR = 5;
+        const BLINK_MIN_OPACITY = 0.1;
+        const BLINK_MAX_OPACITY = 1.0;
+
+        // 交互常量
+        const BUTTON_SAFE_ZONE_EXPAND = 50;
+        const ATTRACT_RANGE = 150;
+        const TRIGGER_NUM = 5;
+        const CONSUME_DURATION = 1000;
+        const PEAK_DURATION = 1500;
+        const RING_DURATION = 1000;
+        const MOUSE_ADSORB_SMOOTHNESS = 0.15;
+        const BUTTON_ADSORB_SPEED = 0.1;
+        const BUTTON_ADSORB_TRIGGER_DIST = 5;
+        const FADE_LIGHT_STEP = 0.05;
+        const FADE_LIGHT_INTERVAL = 40;
+
+        // 粒子常量
+        const BTN_PARTICLE_COUNT = 10;
+        const BTN_HOVER_PARTICLE_COUNT = 15;
+        const BTN_PARTICLE_MAX_TX = 100;
+        const BTN_PARTICLE_MAX_TY = 100;
+        const FLOAT_PARTICLE_COUNT = 10;
+        const FLOAT_PARTICLE_MAX_TX = 75;
+        const FLOAT_PARTICLE_MAX_TY = 75;
+        const FLOAT_PARTICLE_TY_OFFSET = -25;
+        const FLOAT_PARTICLE_REMOVE_DELAY = 2000;
+
+        // DOM 元素
+        const whiteFlash = document.querySelector('.white-flash');
+        const navOverlay = document.querySelector('.nav-overlay');
+        const mainBtn = document.querySelector('.more-btn');
+        const mainContent = document.querySelector('.main-content');
+        const pressRing = document.querySelector('.press-ring');
+        const progressCircle = document.getElementById('progressCircle');
+        const circumference = 2 * Math.PI * 20;
+        progressCircle.style.strokeDasharray = circumference;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        // 状态变量
+        let isAbsorb = false, isConsume = false, lightPeakHold = false, mouseAdsorbOn = false;
+        let isHolding = false, isFlashing = false, flashRound = 0;
+        let mouseX = 0, mouseY = 0, mouseDownTime = 0;
+        let starList = [];
+        let starlightInterval = null;
+        let animationFrameId = null;
+
+        // 空闲检测相关
+        let idleTimer = null;
+        const idleTip = document.getElementById('idleTip');
+        const IDLE_DELAY = 5000;
+        function resetIdleTimer() {
+            if(idleTip) idleTip.style.opacity = '0';
+            if(idleTimer) clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                if(idleTip && !document.hidden) idleTip.style.opacity = '1';
+            }, IDLE_DELAY);
+        }
+        function onUserActivity() {
+            resetIdleTimer();
+        }
+
+        // 页面可见性管理 (停止/恢复动画与生成器)
+        let isPageVisible = true;
+        function pauseAllAnimations() {
+            if(animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            if(starlightInterval) {
+                clearInterval(starlightInterval);
+                starlightInterval = null;
+            }
+        }
+        function resumeAllAnimations() {
+            if(!isPageVisible) return;
+            if(!animationFrameId) animationFrameId = requestAnimationFrame(animationLoop);
+            if(!starlightInterval) starlightInterval = setInterval(createStarlight, STARLIGHT_CREATE_INTERVAL);
+        }
+        function handleVisibilityChange() {
+            isPageVisible = !document.hidden;
+            if(isPageVisible) {
+                resumeAllAnimations();
+                resetIdleTimer();
+            } else {
+                pauseAllAnimations();
+                if(idleTip) idleTip.style.opacity = '0';
+                if(idleTimer) clearTimeout(idleTimer);
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // ----- 基础样式与内容渲染 -----
+        function renderStaticContent() {
+            const logoImg = document.getElementById('logoImg');
+            if(logoImg) logoImg.src = LOGO_IMG_SRC;
+            document.getElementById('mainTitle').innerText = MAIN_TITLE_TEXT;
+            document.getElementById('subTitle').innerText = SUB_TITLE_TEXT;
+            document.getElementById('mainBtn').innerText = BTN_DEFAULT_TEXT;
+            const faviconLink = document.getElementById('faviconLink');
+            faviconLink.href = FAVICON_SRC;
+            faviconLink.type = 'image/png';
+
+            const navOverlayDiv = document.getElementById('navOverlay');
+            navOverlayDiv.innerHTML = '';
+            NAV_BUTTONS.forEach(btn => {
+                if(!btn.text.trim()) return;
+                const navBtn = document.createElement('button');
+                navBtn.className = 'nav-btn';
+                navBtn.innerText = btn.text;
+                navBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(btn.link && btn.link !== '#') {
+                        if(btn.target === '_blank') window.open(btn.link);
+                        else window.location.href = btn.link;
+                    }
+                });
+                navOverlayDiv.appendChild(navBtn);
+            });
+        }
+
+        // ----- 星空 (固定星星) -----
+        function createDistantStar() {
+            const sky = document.querySelector(".sky-container");
+            const star = document.createElement("div");
+            star.className = "distant-star";
+            const size = DISTANT_STAR_MIN_SIZE + Math.random() * (DISTANT_STAR_MAX_SIZE - DISTANT_STAR_MIN_SIZE);
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            const duration = TWINKLE_MIN_DUR + Math.random() * (TWINKLE_MAX_DUR - TWINKLE_MIN_DUR);
+            star.style.setProperty('--twinkle-duration', `${duration}s`);
+            sky.appendChild(star);
+        }
+        // 减少动态效果时降低星点数量
+        (function () {
+            var n = XY.reduceMotion ? Math.round(DISTANT_STAR_COUNT * 0.4) : DISTANT_STAR_COUNT;
+            for (let i = 0; i < n; i++) createDistantStar();
+        })();
+
+        // ----- 粒子效果 (按钮、悬浮) -----
+        function createBtnParticles(btn, count = BTN_PARTICLE_COUNT) {
+            const rect = btn.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            for(let i=0;i<count;i++) {
+                const p = document.createElement('div');
+                p.className = 'btn-particle';
+                const tx = (Math.random() - 0.5) * BTN_PARTICLE_MAX_TX;
+                const ty = (Math.random() - 0.5) * BTN_PARTICLE_MAX_TY;
+                p.style.setProperty('--tx', `${tx}px`);
+                p.style.setProperty('--ty', `${ty}px`);
+                p.style.left = `${cx}px`;
+                p.style.top = `${cy}px`;
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        function createFloatParticles(x, y) {
+            for(let i=0;i<FLOAT_PARTICLE_COUNT;i++) {
+                const p = document.createElement('div');
+                p.className = 'float-particle';
+                const tx = (Math.random() - 0.5) * FLOAT_PARTICLE_MAX_TX;
+                const ty = (Math.random() - 0.5) * FLOAT_PARTICLE_MAX_TY + FLOAT_PARTICLE_TY_OFFSET;
+                p.style.setProperty('--tx', `${tx}px`);
+                p.style.setProperty('--ty', `${ty}px`);
+                p.style.left = `${x}px`;
+                p.style.top = `${y}px`;
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1500 + FLOAT_PARTICLE_REMOVE_DELAY);
+            }
+        }
+
+        // ----- 流光 (starlight) 逻辑 -----
+        function getButtonSafeZone() {
+            const r = mainBtn.getBoundingClientRect();
+            const expand = BUTTON_SAFE_ZONE_EXPAND;
+            return { x1: r.left - expand, x2: r.right + expand, y1: r.top - expand, y2: r.bottom + expand };
+        }
+
+        function createStarlight() {
+            if(!isPageVisible) return;
+            const safe = getButtonSafeZone();
+            let x, y;
+            do {
+                x = Math.random() * window.innerWidth;
+                y = window.innerHeight + 10;
+            } while (x > safe.x1 && x < safe.x2 && y > safe.y1 && y < safe.y2);
+            const star = document.createElement("div");
+            star.className = "starlight";
+            star.size = Math.random() * (STARLIGHT_MAX_SIZE - STARLIGHT_MIN_SIZE) + STARLIGHT_MIN_SIZE;
+            star.baseSpeed = Math.random() * (STARLIGHT_MAX_SPEED - STARLIGHT_MIN_SPEED) + STARLIGHT_MIN_SPEED;
+            star.x = x; star.y = y;
+            const blinkDuration = (Math.random() * (BLINK_MAX_DUR - BLINK_MIN_DUR) + BLINK_MIN_DUR).toFixed(2);
+            const minOpacity = (Math.random() * (BLINK_MAX_OPACITY - BLINK_MIN_OPACITY) + BLINK_MIN_OPACITY).toFixed(2);
+            const maxOpacity = (Math.random() * (1 - BLINK_MAX_OPACITY) + BLINK_MAX_OPACITY).toFixed(2);
+            star.style.width = star.size + "px";
+            star.style.height = star.size + "px";
+            star.style.setProperty('--blink-duration', `${blinkDuration}s`);
+            star.style.setProperty('--min-opacity', minOpacity);
+            star.style.setProperty('--max-opacity', maxOpacity);
+            star.addEventListener('mouseenter', e => createFloatParticles(e.clientX, e.clientY));
+            star.addEventListener('touchstart', e => { const touch = e.touches[0]; createFloatParticles(touch.clientX, touch.clientY); });
+            document.body.appendChild(star);
+            starList.push(star);
+        }
+
+        function releaseStars() { isAbsorb = false; if(isFlashing && !lightPeakHold) { isConsume = false; isFlashing = false; lightPeakHold = false; fadeLight(); } }
+        function resetRing() { progressCircle.style.strokeDashoffset = circumference; pressRing.style.display = 'none'; isHolding = false; }
+        function updateRing(percent) { progressCircle.style.strokeDashoffset = circumference * (1 - percent); }
+
+        function fadeLight() {
+            let fade = setInterval(() => {
+                let op = parseFloat(whiteFlash.style.opacity);
+                op -= FADE_LIGHT_STEP;
+                if(op <= 0) { whiteFlash.style.opacity = 0; clearInterval(fade); lightPeakHold = false; isConsume = false; isFlashing = false; }
+                else whiteFlash.style.opacity = op;
+            }, FADE_LIGHT_INTERVAL);
+        }
+
+        function resetRound() {
+            starList.forEach(item => item.remove());
+            starList.length = 0;
+            flashRound++;
+            if(flashRound % 2 === 1) {
+                navOverlay.style.opacity = '1';
+                navOverlay.style.pointerEvents = 'auto';
+                mainContent.classList.add('move-up');
+                mainBtn.innerText = BTN_ACTIVE_TEXT;
+            } else {
+                navOverlay.style.opacity = '0';
+                navOverlay.style.pointerEvents = 'none';
+                mainContent.classList.remove('move-up');
+                mainBtn.innerText = BTN_DEFAULT_TEXT;
+            }
+            fadeLight();
+            isFlashing = false;
+        }
+
+        // 动画循环 (星光移动)
+        function animationLoop() {
+            if(!isPageVisible) return;
+            const btnRect = mainBtn.getBoundingClientRect();
+            const cx = btnRect.left + btnRect.width / 2;
+            const cy = btnRect.top + btnRect.height / 2;
+            if(isConsume && !lightPeakHold && !isFlashing) {
+                isFlashing = true;
+                mouseDownTime = performance.now();
+            }
+            if(isConsume && !lightPeakHold && isFlashing) {
+                const now = performance.now();
+                const progress = Math.min(1, (now - mouseDownTime) / CONSUME_DURATION);
+                whiteFlash.style.opacity = progress;
+                if(progress >= 1) { lightPeakHold = true; setTimeout(resetRound, PEAK_DURATION); }
+            }
+            for(let i = starList.length-1; i >= 0; i--) {
+                const s = starList[i];
+                if(s.y < -50 || s.x < -50 || s.x > window.innerWidth + 50) {
+                    s.remove(); starList.splice(i,1); continue;
+                }
+                if(!isAbsorb) s.y -= s.baseSpeed * 0.5;
+                if(!isAbsorb && mouseAdsorbOn) {
+                    const dx = mouseX - s.x, dy = mouseY - s.y;
+                    if(Math.hypot(dx, dy) < ATTRACT_RANGE) {
+                        s.x += dx * MOUSE_ADSORB_SMOOTHNESS;
+                        s.y += dy * MOUSE_ADSORB_SMOOTHNESS;
+                    }
+                }
+                if(isAbsorb) {
+                    const dx = cx - s.x, dy = cy - s.y;
+                    s.x += dx * BUTTON_ADSORB_SPEED;
+                    s.y += dy * BUTTON_ADSORB_SPEED;
+                    if(Math.hypot(dx, dy) < BUTTON_ADSORB_TRIGGER_DIST && !isConsume && starList.length >= TRIGGER_NUM) isConsume = true;
+                }
+                s.style.left = (s.x - s.size/2) + "px";
+                s.style.top = (s.y - s.size/2) + "px";
+            }
+            animationFrameId = requestAnimationFrame(animationLoop);
+        }
+
+        // ----- 长按圆环与鼠标吸附 -----
+        function handlePointerStart(e, isTouch = false) {
+            let target = isTouch ? e.touches[0].target : e.target;
+            if(target.closest && target.closest('.logo')) return;
+            if(target.classList && (target.classList.contains('more-btn') || target.classList.contains('nav-btn'))) return;
+            if(!isTouch && e.button !== 0) return;
+            isHolding = true;
+            pressRing.style.display = 'block';
+            const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+            const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+            pressRing.style.left = clientX + 'px';
+            pressRing.style.top = clientY + 'px';
+            updateRing(0);
+            const startTime = Date.now();
+            const ringLoop = () => {
+                if(!isHolding) return;
+                const elapsed = Date.now() - startTime;
+                const percent = Math.min(1, elapsed / RING_DURATION);
+                updateRing(percent);
+                if(percent < 1) requestAnimationFrame(ringLoop);
+                else { mouseAdsorbOn = !mouseAdsorbOn; resetRing(); }
+            };
+            ringLoop();
+        }
+        function handleMove(e, isTouch=false) {
+            const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+            const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+            mouseX = clientX; mouseY = clientY;
+            if(pressRing.style.display === 'block') {
+                pressRing.style.left = clientX + 'px';
+                pressRing.style.top = clientY + 'px';
+            }
+        }
+        function handleEnd() { resetRing(); }
+
+        function bindEvents() {
+            document.addEventListener('mousedown', e => handlePointerStart(e, false));
+            document.addEventListener('mousemove', e => handleMove(e, false));
+            document.addEventListener('mouseup', handleEnd);
+            document.addEventListener('mouseleave', resetRing);
+            document.addEventListener('touchstart', e => { e.preventDefault(); handlePointerStart(e, true); }, { passive: false });
+            document.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e, true); }, { passive: false });
+            document.addEventListener('touchend', handleEnd);
+            document.addEventListener('touchcancel', handleEnd);
+            mainBtn.addEventListener('mousedown', () => { isAbsorb = true; isConsume = false; lightPeakHold = false; whiteFlash.style.opacity = 0; isFlashing = false; });
+            mainBtn.addEventListener('mouseup', releaseStars);
+            mainBtn.addEventListener('mouseleave', releaseStars);
+            mainBtn.addEventListener('touchstart', (e) => { e.preventDefault(); isAbsorb = true; isConsume = false; lightPeakHold = false; whiteFlash.style.opacity = 0; isFlashing = false; });
+            mainBtn.addEventListener('touchend', releaseStars);
+            mainBtn.addEventListener('touchcancel', releaseStars);
+            mainBtn.addEventListener('mouseenter', () => createBtnParticles(mainBtn, BTN_HOVER_PARTICLE_COUNT));
+            mainBtn.addEventListener('touchstart', (e) => { createBtnParticles(mainBtn, BTN_HOVER_PARTICLE_COUNT); }, { passive: false });
+        }
+
+        // ----- Logo 交互与跳转 -----
+        var setupLogo = XY.setupLogo;
+
+        // ----- 无障碍降级：键盘/鼠标用户可不依赖长按直接进入导航 -----
+        function setupA11yFallback() {
+            // 主按钮：Enter / Space（或双击）直接展开导航
+            if (mainBtn) {
+                mainBtn.setAttribute('aria-label', '进入虚衍导览');
+                mainBtn.setAttribute('aria-expanded', 'false');
+                mainBtn.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        // 展开导航（等同一次长按完成）
+                        starList.forEach(function (it) { it.remove(); });
+                        starList.length = 0;
+                        if (flashRound % 2 === 0) flashRound++;
+                        navOverlay.style.opacity = '1';
+                        navOverlay.style.pointerEvents = 'auto';
+                        mainContent.classList.add('move-up');
+                        mainBtn.innerText = BTN_ACTIVE_TEXT;
+                        mainBtn.setAttribute('aria-expanded', 'true');
+                        fadeLight();
+                        // 焦点移入导航，便于键盘继续操作
+                        var first = navOverlay.querySelector('button');
+                        if (first) first.focus();
+                    }
+                });
+            }
+
+            // 减少动态效果时，降低星光生成频率以节省资源
+            if (XY.reduceMotion && starlightInterval) {
+                clearInterval(starlightInterval);
+                starlightInterval = setInterval(createStarlight, STARLIGHT_CREATE_INTERVAL * 3);
+            }
+        }
+
+        // ----- 空闲检测激活 -----
+        function initIdleDetection() {
+            const events = ['mousemove', 'click', 'touchstart', 'keydown', 'scroll'];
+            events.forEach(ev => window.addEventListener(ev, onUserActivity));
+            resetIdleTimer();
+        }
+
+        // ----- 初始化入口 -----
+        function init() {
+            renderStaticContent();
+            bindEvents();
+            setupLogo();
+            setupA11yFallback();
+            animationFrameId = requestAnimationFrame(animationLoop);
+            starlightInterval = setInterval(createStarlight, STARLIGHT_CREATE_INTERVAL);
+            initIdleDetection();
+            isPageVisible = !document.hidden;
+            if(!isPageVisible) pauseAllAnimations();
+        }
+        init();
+    })();
+</script>
+
+    <script>
+    /* 无障碍：为可点击容器补键盘操作（Enter / Space）与语义角色 */
+    (function () {
+        if (!window.XY) return;
+        var SELECTORS = [{ sel: ".btn-wrap", label: "进入虚衍导览" }];
+
+        SELECTORS.forEach(function (item) {
+            document.querySelectorAll(item.sel).forEach(function (el, i) {
+                if (el.tagName === 'A' || el.tagName === 'BUTTON') return;
+                if (el.hasAttribute('role') && el.getAttribute('role') === 'button') return;
+
+                el.setAttribute('role', 'button');
+                el.setAttribute('tabindex', '0');
+                el.classList.add('xy-focusable');
+
+                /* 生成可读标签：优先 data-label / 内部文字 */
+                var label = el.getAttribute('data-label')
+                    || (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)
+                    || item.label;
+                el.setAttribute('aria-label', label + (i > 0 ? ' ' + (i + 1) : ''));
+
+                /* 键盘激活 = 派发一次 click，复用既有逻辑 */
+                el.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        el.click();
+                    }
+                });
+            });
+        });
+
+        /* 视觉隐藏但可被读屏识别的页面标题 */
+        if (!document.querySelector('.xy-sr-only')) {
+            var h = document.createElement('h1');
+            h.className = 'xy-sr-only';
+            h.textContent = document.title || '虚衍教派';
+            document.body.insertBefore(h, document.body.firstChild);
+        }
+    })();
+    </script>
+</body>
+</html>

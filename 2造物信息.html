@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>虚衍 | 造物</title>
+    <link id="faviconLink" rel="icon" type="image/webp" href="./0虚衍主页/logo.webp">
+    <link rel="apple-touch-icon" href="./0虚衍主页/logo.webp">
+    <meta name="theme-color" content="#131129">
+    <meta name="description" content="造物信息 — 虚实之间，万象重构。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="虚衍教派">
+    <meta property="og:title" content="虚衍 | 造物">
+    <meta property="og:description" content="造物信息 — 虚实之间，万象重构。">
+    <meta property="og:image" content="./0虚衍主页/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="虚衍 | 造物">
+    <meta name="twitter:description" content="造物信息 — 虚实之间，万象重构。">
+    <meta name="twitter:image" content="./0虚衍主页/logo.webp">
+<style>
+        /* ---------- 全局重置 + 星空氛围 ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #131129 0%, #0b091c 50%, #05040e 100%);
+            font-family: "思源黑体", "微软雅黑", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #f0eaff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            touch-action: pan-x pan-y;
+        }
+
+        /* 星空容器 */
+        .sky-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(122, 9, 28, 0.08) 0%, transparent 70%);
+        }
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle clamp(180px, 35vw, 380px) at 20% 30%, rgba(122, 9, 28, 0.12) 0%, transparent 100%),
+                        radial-gradient(circle clamp(240px, 45vw, 500px) at 80% 65%, rgba(168, 139, 255, 0.08) 0%, transparent 100%);
+        }
+        .mist {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(224, 216, 255, 0.03);
+            animation: mistPulse 12s infinite ease-in-out;
+        }
+        @keyframes mistPulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.5; }
+        }
+
+        .distant-star {
+            position: absolute;
+            background: #e0d8ff;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 4px #a88bff);
+            animation: starTwinkle 3s infinite ease-in-out;
+        }
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.5; transform: scale(0.7); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Logo样式 */
+        .logo {
+            position: fixed;
+            top: clamp(12px, 3vw, 28px);
+            left: clamp(12px, 3vw, 28px);
+            width: clamp(45px, 8vw, 70px);
+            z-index: 200;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 12px;
+        }
+        .logo-img {
+            width: 100%;
+            display: block;
+            border-radius: 10px;
+            animation: logoRotate 25s linear infinite, logoBreathingGlow 10s ease-in-out infinite;
+            transform-origin: center;
+            filter: drop-shadow(0 0 6px rgba(168, 139, 255, 0.6));
+        }
+        @keyframes logoRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes logoBreathingGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(168, 139, 255, 0.5)) drop-shadow(0 0 30px rgba(122, 92, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 4px #a88bff) drop-shadow(0 0 12px rgba(168, 139, 255, 0.8)); }
+        }
+        .logo::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: radial-gradient(circle, rgba(168, 139, 255, 0.3), transparent 70%);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+        .logo:hover::after, .logo:active::after { opacity: 0.9; }
+        .logo:active { transform: scale(0.97); }
+
+        /* 主容器 — 无滚动，内容完全居中 */
+        .main-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* 大标题与副标题样式 — 完全对齐导航页 */
+        .main-title {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 1000;
+            letter-spacing: clamp(4px, 1.5vw, 12px);
+            text-shadow: 0 0 12px #a88bff, 0 0 25px #7a5cff;
+            margin-bottom: 0.5rem;
+            animation: fadeUp 0.8s ease;
+            color: #f0eaff;
+        }
+        .sub-title {
+            font-size: clamp(1rem, 3vw, 2.5rem);
+            color: #c5b8ff;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            margin-bottom: 1.8rem;
+            animation: fadeUp 0.8s ease;
+            font-weight: 400;
+            text-shadow: 0 0 6px rgba(168, 139, 255, 0.4);
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 双卡叠放舞台 — 增大卡片尺寸 */
+        .dual-stack {
+            position: relative;
+            width: 100%;
+            max-width: min(90vw, 500px);
+            margin: 0 auto;
+            aspect-ratio: 1 / 1;
+            max-height: min(55vh, 500px);
+        }
+
+        .card-stack {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 卡片公用样式 — 与导航页按钮基础样式对齐 */
+        .creation-card {
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            max-width: 340px;
+            max-height: 340px;
+            border-radius: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            overflow: hidden;
+            will-change: transform, opacity, filter;
+            border: 2px solid rgba(168, 139, 255, 0.6);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* 响应式卡片尺寸自适应 */
+        @media (max-width: 650px) {
+            .creation-card { max-width: 290px; max-height: 290px; }
+        }
+        @media (max-width: 480px) {
+            .creation-card { max-width: 260px; max-height: 260px; }
+        }
+        @media (max-height: 700px) {
+            .creation-card { max-width: 270px; max-height: 270px; }
+        }
+        @media (max-height: 600px) {
+            .creation-card { max-width: 240px; max-height: 240px; }
+            .card-title { font-size: 1.4rem; }
+        }
+
+        /* 伪元素背景图片 */
+        .creation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.85;
+            transition: opacity 0.25s ease, filter 0.25s ease;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: inherit;
+        }
+        .creation-card:hover::before {
+            opacity: 1;
+            filter: brightness(1.1) drop-shadow(0 0 6px rgba(168, 139, 255, 0.6));
+        }
+        .creation-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 1;
+            transition: background 0.25s ease;
+        }
+        .creation-card:hover::after {
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 5;
+            padding: 0.5rem;
+            width: 100%;
+        }
+
+        /* ========== 卡片标题字体样式：完全对齐虚衍世界按钮字体风格 ========== */
+        .card-title {
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
+            /* 关键修改：字重、字间距、颜色、阴影向虚衍世界按钮看齐 */
+            font-weight: 600;                /* 原800改为600，与虚衍世界按钮一致 */
+            letter-spacing: 2px;             /* 增加字间距，对齐按钮风格 */
+            color: #f0eaff;                  /* 纯色，取消渐变背景，与按钮文字统一 */
+            text-shadow: 0 0 6px #a88bff, 0 0 12px rgba(168, 139, 255, 0.5); /* 按钮风格光晕 */
+            background: none;                /* 移除渐变背景 */
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            margin-bottom: 0;
+            transition: text-shadow 0.2s ease;
+        }
+        /* 悬停时文字光晕增强，完全参照虚衍世界按钮交互 */
+        .creation-card:hover .card-title {
+            text-shadow: 0 0 12px #d4c8ff, 0 0 20px #a88bff;
+        }
+
+        /* 前置卡片激活样式 */
+        .creation-card.active-card {
+            z-index: 20;
+            transform: translateY(0) scale(1);
+            filter: blur(0px) brightness(1);
+            opacity: 1;
+            border-color: rgba(168, 139, 255, 0.9);
+        }
+        
+        /* 前置卡片悬停效果：保留原放大光晕效果，视觉上放大（符合预期）*/
+        .creation-card.active-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.5),
+                        0 0 0 4px rgba(168, 139, 255, 0.3),
+                        0 0 20px 6px rgba(168, 139, 255, 0.85),
+                        0 12px 28px rgba(0, 0, 0, 0.5);
+            border-color: #a88bff;
+        }
+        
+        /* 后置卡片悬停效果：只增强光晕和边框，绝对不会产生任何放大效果（保留原有偏移缩放形态）*/
+        .creation-card.inactive-shadow:hover {
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.5),
+                        0 0 0 4px rgba(168, 139, 255, 0.3),
+                        0 0 20px 6px rgba(168, 139, 255, 0.85),
+                        0 12px 28px rgba(0, 0, 0, 0.5);
+            border-color: #a88bff;
+        }
+
+        /* 后置虚影卡片 — 露出底部更多 */
+        .creation-card.inactive-shadow {
+            z-index: 10;
+            filter: blur(3px) brightness(0.75);
+            opacity: 0.85;
+            border-color: rgba(168, 139, 255, 0.4);
+            pointer-events: auto;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+        }
+        @media (min-width: 1024px) and (min-height: 700px) {
+            .creation-card.inactive-shadow { transform: translateY(55px) scale(0.82); }
+        }
+        @media (max-width: 1024px), (max-height: 700px) {
+            .creation-card.inactive-shadow { transform: translateY(45px) scale(0.8); }
+        }
+        @media (max-width: 650px), (max-height: 600px) {
+            .creation-card.inactive-shadow { transform: translateY(35px) scale(0.78); }
+        }
+        @media (max-width: 480px), (max-height: 550px) {
+            .creation-card.inactive-shadow { transform: translateY(28px) scale(0.75); }
+        }
+
+        /* 入场/出场动画 */
+        .creation-card.slide-from-bottom {
+            animation: slideUpSpring 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+        }
+        .creation-card.slide-out-up {
+            animation: slideOutUp 0.4s forwards;
+        }
+        @keyframes slideUpSpring {
+            0% { transform: translateY(100%) scale(0.85); opacity: 0; filter: blur(8px); }
+            100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+        }
+        @keyframes slideOutUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+            100% { transform: translateY(-50%) scale(0.88); opacity: 0; filter: blur(8px); visibility: hidden; }
+        }
+
+        .bottom-tip {
+            margin-top: 1.8rem;
+            font-size: 0.7rem;
+            color: #a88bcc;
+            border-top: 1px dashed rgba(168, 139, 255, 0.3);
+            padding-top: 0.8rem;
+            width: 85%;
+            text-align: center;
+        }
+
+        /* 背景投影层 */
+        .bg-projection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            filter: blur(30px);
+            transform: scale(1.2);
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), filter 0.8s ease;
+        }
+        .bg-projection.active {
+            opacity: 0.5;
+            transform: scale(1);
+            filter: blur(20px);
+            animation: breatheGlow 5s ease-in-out infinite;
+        }
+        @keyframes breatheGlow {
+            0% { opacity: 0.25; transform: scale(1.10); filter: blur(25px); }
+            50% { opacity: 0.75; transform: scale(1.05); filter: blur(15px); }
+            100% { opacity: 0.25; transform: scale(1.10); filter: blur(25px); }
+        }
+
+        /* 扭曲特效层 */
+        .distortion-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background: rgba(168, 139, 255, 0.12);
+            filter: url(#liquidDistortionNew);
+            backdrop-filter: blur(0px);
+            will-change: filter;
+        }
+
+        /* 粒子容器 */
+        .particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        
+        /* 底部悬浮提示条（与导航页风格一致） */
+        .bottom-text-tip {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, transparent, rgba(168,139,255,0.2), transparent);
+            padding: 12px 20px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            font-size: clamp(1rem, 4vw, 1.4rem);
+            color: #e0d8ff;
+            text-shadow: 0 0 10px #a88bff;
+            white-space: nowrap;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        @media (max-width: 640px) {
+            .bottom-text-tip { white-space: normal; width: 80%; font-size: 0.9rem; bottom: 20px; padding: 8px 16px; }
+        }
+    </style>
+    <link rel="stylesheet" href="./assets/theme.css">
+    <script src="./assets/common.js"></script>
+</head>
+<body>
+
+<div class="sky-container">
+    <div class="bg-glow"></div>
+    <div class="nebula"></div>
+    <div class="mist"></div>
+</div>
+
+<div class="logo" id="homeLogo">
+    <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp">
+</div>
+
+<div class="main-wrapper">
+    <div class="main-title">造物信息</div>
+    <div class="sub-title">虚实之间 · 万象重构</div>
+
+    <div class="dual-stack">
+        <div class="card-stack" id="cardStack">
+            <!-- 虚拟幻想卡片 (后置虚影) -->
+            <div class="creation-card inactive-shadow" id="fantasyCard" data-type="fantasy" 
+                 data-link="https://www.example.com/virtual-dream" 
+                 data-explanation="数字星海 · 意识棱镜  量子叙事，虚实交织"
+                 data-bg="./2造物信息/虚拟幻想.webp">
+                <div class="card-content">
+                    <div class="card-title">虚拟幻想</div>
+                </div>
+            </div>
+            <!-- 现实具象卡片 (默认激活前置) -->
+            <div class="creation-card active-card" id="realityCard" data-type="reality" 
+                 data-link="https://www.example.com/reality-construct"
+                 data-explanation="原型基石 · 能量打印  机械神域，实体星港"
+                 data-bg="./2造物信息/现实具象.webp">
+                <div class="card-content">
+                    <div class="card-title">现实具象</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom-tip">✨ 按住当前卡片向下滑动，或点击下方露出的按钮区域，即可切换虚实 ✨</div>
+</div>
+
+<!-- 背景投影层 -->
+<div class="bg-projection" id="bgProjection"></div>
+
+<!-- 扭曲特效层 -->
+<div class="distortion-layer" id="distortionLayer"></div>
+
+<!-- SVG 液体扭曲滤镜 -->
+<svg style="position: absolute; width: 0; height: 0; pointer-events: none;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="liquidDistortionNew" x="-30%" y="-30%" width="160%" height="160%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="3" result="noise" seed="2"/>
+            <feDisplacementMap id="displacementMapNew" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+            <feGaussianBlur in="displaced" stdDeviation="1.5" result="blurred"/>
+            <feBlend in="SourceGraphic" in2="blurred" mode="screen" result="mixed"/>
+            <feComposite in="mixed" in2="SourceGraphic" operator="in"/>
+        </filter>
+    </defs>
+</svg>
+
+<div class="particle-container" id="particleContainer"></div>
+
+<script>
+    (function(){
+        "use strict";
+        // ---------- 图片背景注入器 ----------
+        const styleSheet = (function(){
+            const sheet = document.createElement('style');
+            document.head.appendChild(sheet);
+            return sheet.sheet;
+        })();
+        function setBgForCard(card, imageUrl) {
+            if(!imageUrl || imageUrl === "") return;
+            const uniqueClass = `card-bg-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`;
+            card.classList.add(uniqueClass);
+            const rule = `.${uniqueClass}::before { background-image: url('${imageUrl}') !important; }`;
+            styleSheet.insertRule(rule, styleSheet.cssRules.length);
+            card.dataset.bgUrl = imageUrl;
+        }
+
+        const fantasyCard = document.getElementById('fantasyCard');
+        const realityCard = document.getElementById('realityCard');
+        const fantasyBg = fantasyCard.getAttribute('data-bg');
+        const realityBg = realityCard.getAttribute('data-bg');
+        if(fantasyBg) setBgForCard(fantasyCard, fantasyBg);
+        if(realityBg) setBgForCard(realityCard, realityBg);
+
+        const bgProjection = document.getElementById('bgProjection');
+        let activeType = 'reality';
+        let isSwitching = false;
+        let dragStartY = 0;
+        let isDragging = false;
+        let hasTriggeredSwitch = false;
+        const dragThreshold = 35;
+
+        function updateProjection() {
+            const activeCard = (activeType === 'fantasy') ? fantasyCard : realityCard;
+            const bgUrl = activeCard.dataset.bgUrl;
+            if(bgUrl) {
+                bgProjection.classList.remove('active');
+                bgProjection.style.backgroundImage = `url('${bgUrl}')`;
+                setTimeout(() => { bgProjection.classList.add('active'); }, 10);
+            } else {
+                bgProjection.classList.remove('active');
+                bgProjection.style.backgroundImage = '';
+            }
+        }
+        updateProjection();
+
+        // 扭曲特效
+        const distortionLayer = document.getElementById('distortionLayer');
+        let displacementMapNew = null;
+        let distortionAnimFrame = null;
+        let distortionActive = false;
+        let distortionHideTimeout = null;
+        const filterElemNew = document.querySelector('#liquidDistortionNew');
+        if(filterElemNew) displacementMapNew = filterElemNew.querySelector('#displacementMapNew');
+        
+        const DISTORTION_START = 0;
+        const DISTORTION_END = 6000;
+        const DURATION = 600000;
+        const easeOutCubic = t => 1 - Math.pow(1 - t, 5);
+        function setDistortionScale(v) { if(displacementMapNew) displacementMapNew.setAttribute('scale', Math.min(DISTORTION_END, Math.max(0, v))); }
+        function resetDistortion() { setDistortionScale(DISTORTION_START); if(distortionAnimFrame) cancelAnimationFrame(distortionAnimFrame); distortionActive = false; }
+        function startDistortion() {
+            if(!displacementMapNew) return;
+            resetDistortion();
+            distortionActive = true;
+            const startTime = performance.now();
+            function animate(now) {
+                if(!distortionActive) return;
+                const p = Math.min(1, (now - startTime) / DURATION);
+                setDistortionScale(DISTORTION_START + (DISTORTION_END - DISTORTION_START) * easeOutCubic(p));
+                if(p < 1) distortionAnimFrame = requestAnimationFrame(animate);
+                else { setDistortionScale(DISTORTION_END); distortionActive = false; }
+            }
+            distortionAnimFrame = requestAnimationFrame(animate);
+        }
+        function showDistortion() {
+            if(distortionHideTimeout) clearTimeout(distortionHideTimeout);
+            distortionLayer.style.opacity = '0.85';
+            startDistortion();
+        }
+        function hideDistortion() {
+            resetDistortion();
+            distortionHideTimeout = setTimeout(() => { if(distortionLayer) distortionLayer.style.opacity = '0'; }, 80);
+        }
+
+        // 粒子特效 (现实具象)
+        const particleContainer = document.getElementById('particleContainer');
+        let activeParticles = [];
+        let particleAnimId = null;
+        let particleInterval = null;
+        let isParticleEmitterActive = false;
+        const PARTICLE_CONFIG = {
+            minSize: 3, maxSize: 10, minSpeed: 0.4, maxSpeed: 2.0,
+            minFade: 0.0006, maxFade: 0.0045, generationInterval: 130, maxParticles: 340
+        };
+        function createRealityParticle() {
+            if(!particleContainer) return;
+            const particle = document.createElement('div');
+            const size = PARTICLE_CONFIG.minSize + Math.random() * (PARTICLE_CONFIG.maxSize - PARTICLE_CONFIG.minSize);
+            const posX = Math.random() * window.innerWidth;
+            particle.style.cssText = `
+                position: fixed;
+                border-radius: 50%;
+                background: radial-gradient(circle, #f9f2ff, #c9adff);
+                box-shadow: 0 0 12px #c5a3ff, 0 0 4px #a88bff;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${posX}px;
+                top: ${window.innerHeight - 5}px;
+                opacity: 0.95;
+                pointer-events: none;
+                will-change: transform, opacity;
+            `;
+            const speedY = PARTICLE_CONFIG.minSpeed + Math.random() * (PARTICLE_CONFIG.maxSpeed - PARTICLE_CONFIG.minSpeed);
+            const fadeRate = PARTICLE_CONFIG.minFade + Math.random() * (PARTICLE_CONFIG.maxFade - PARTICLE_CONFIG.minFade);
+            let currentOpacity = 0.8 + Math.random() * 0.2;
+            particle.style.opacity = currentOpacity;
+            particle._data = { speedY, fadeRate, opacity: currentOpacity };
+            particleContainer.appendChild(particle);
+            activeParticles.push(particle);
+        }
+        function updateParticles() {
+            if(!particleContainer) return;
+            let anyAlive = false;
+            for(let i=activeParticles.length-1; i>=0; i--) {
+                const p = activeParticles[i];
+                if(!p || !p.parentNode) { activeParticles.splice(i,1); continue; }
+                const data = p._data;
+                if(!data) { p.remove(); activeParticles.splice(i,1); continue; }
+                let currentTop = parseFloat(p.style.top);
+                let newTop = currentTop - data.speedY;
+                let newOpacity = data.opacity - data.fadeRate;
+                if(newTop + parseFloat(p.style.width) < 0 || newOpacity <= 0.02) {
+                    p.remove();
+                    activeParticles.splice(i,1);
+                    continue;
+                }
+                p.style.top = `${newTop}px`;
+                p.style.opacity = newOpacity;
+                data.opacity = newOpacity;
+                anyAlive = true;
+            }
+            if(anyAlive || isParticleEmitterActive) {
+                particleAnimId = requestAnimationFrame(updateParticles);
+            } else {
+                if(particleAnimId) cancelAnimationFrame(particleAnimId);
+                particleAnimId = null;
+            }
+        }
+        function startParticleGenerator() {
+            if(particleInterval) clearInterval(particleInterval);
+            if(!particleAnimId && (activeParticles.length>0 || isParticleEmitterActive)) particleAnimId = requestAnimationFrame(updateParticles);
+            particleInterval = setInterval(() => {
+                if(!isParticleEmitterActive) return;
+                createRealityParticle();
+                if(activeParticles.length > PARTICLE_CONFIG.maxParticles) {
+                    const removeCount = Math.min(40, activeParticles.length - 260);
+                    const removed = activeParticles.splice(0, removeCount);
+                    removed.forEach(p => p.remove());
+                }
+                if(!particleAnimId) particleAnimId = requestAnimationFrame(updateParticles);
+            }, PARTICLE_CONFIG.generationInterval);
+        }
+        function activateRealityParticles() {
+            if(isParticleEmitterActive) return;
+            isParticleEmitterActive = true;
+            if(!particleAnimId) particleAnimId = requestAnimationFrame(updateParticles);
+            startParticleGenerator();
+        }
+        function deactivateRealityParticles() {
+            if(!isParticleEmitterActive) return;
+            isParticleEmitterActive = false;
+            if(particleInterval) { clearInterval(particleInterval); particleInterval = null; }
+        }
+        window.addEventListener('resize', () => { activeParticles = activeParticles.filter(p => p.parentNode); });
+
+        // 卡片切换逻辑
+        function updateCardAppearance(animateNewCard = false) {
+            if(activeType === 'fantasy') {
+                fantasyCard.classList.add('active-card');
+                fantasyCard.classList.remove('inactive-shadow');
+                realityCard.classList.add('inactive-shadow');
+                realityCard.classList.remove('active-card');
+            } else {
+                realityCard.classList.add('active-card');
+                realityCard.classList.remove('inactive-shadow');
+                fantasyCard.classList.add('inactive-shadow');
+                fantasyCard.classList.remove('active-card');
+            }
+            fantasyCard.classList.remove('slide-from-bottom', 'slide-out-up');
+            realityCard.classList.remove('slide-from-bottom', 'slide-out-up');
+            if(animateNewCard) {
+                const newActiveCard = (activeType === 'fantasy') ? fantasyCard : realityCard;
+                newActiveCard.classList.add('slide-from-bottom');
+                setTimeout(() => newActiveCard.classList.remove('slide-from-bottom'), 500);
+            }
+        }
+
+        function cleanupEffects() {
+            hideDistortion();
+            deactivateRealityParticles();
+        }
+
+        function switchActiveType() {
+            if(isSwitching) return;
+            isSwitching = true;
+            cleanupEffects();
+            const oldCard = (activeType === 'fantasy') ? fantasyCard : realityCard;
+            oldCard.classList.add('slide-out-up');
+            setTimeout(() => oldCard.classList.remove('slide-out-up'), 350);
+            activeType = (activeType === 'fantasy') ? 'reality' : 'fantasy';
+            updateCardAppearance(true);
+            bindSwipeToActiveCard();
+            updateProjection();
+            setTimeout(() => { isSwitching = false; }, 500);
+        }
+
+        function bindClickSwitchOnInactive() {
+            const handleInactiveClick = (e) => {
+                e.stopPropagation();
+                if(isSwitching) return;
+                const targetCard = e.currentTarget;
+                if(targetCard.classList.contains('inactive-shadow')) switchActiveType();
+            };
+            fantasyCard.removeEventListener('click', handleInactiveClick);
+            realityCard.removeEventListener('click', handleInactiveClick);
+            fantasyCard.addEventListener('click', handleInactiveClick);
+            realityCard.addEventListener('click', handleInactiveClick);
+        }
+
+        let currentActiveCard = realityCard;
+        function updateActiveCardRef() { currentActiveCard = (activeType === 'fantasy') ? fantasyCard : realityCard; }
+        function onPointerStart(e) {
+            if(isSwitching) return;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            dragStartY = clientY;
+            isDragging = true;
+            hasTriggeredSwitch = false;
+            if(e.cancelable) e.preventDefault();
+        }
+        function onPointerMove(e) {
+            if(!isDragging || isSwitching) return;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            if(clientY - dragStartY > dragThreshold && !hasTriggeredSwitch) {
+                hasTriggeredSwitch = true;
+                isDragging = false;
+                switchActiveType();
+                updateActiveCardRef();
+                bindSwipeToActiveCard();
+            }
+        }
+        function onPointerEnd() { isDragging = false; hasTriggeredSwitch = false; }
+        function bindSwipeToActiveCard() {
+            [fantasyCard, realityCard].forEach(c => {
+                c.removeEventListener('mousedown', onPointerStart);
+                c.removeEventListener('touchstart', onPointerStart);
+            });
+            document.removeEventListener('mousemove', onPointerMove);
+            document.removeEventListener('mouseup', onPointerEnd);
+            document.removeEventListener('touchmove', onPointerMove);
+            document.removeEventListener('touchend', onPointerEnd);
+            const activeCard = (activeType === 'fantasy') ? fantasyCard : realityCard;
+            activeCard.addEventListener('mousedown', onPointerStart);
+            activeCard.addEventListener('touchstart', onPointerStart, { passive: false });
+            document.addEventListener('mousemove', onPointerMove);
+            document.addEventListener('mouseup', onPointerEnd);
+            document.addEventListener('touchmove', onPointerMove, { passive: false });
+            document.addEventListener('touchend', onPointerEnd);
+        }
+
+        function bindCardJump() {
+            const handleJump = (e) => {
+                if(isSwitching || isDragging) return;
+                e.stopPropagation();
+                const link = e.currentTarget.getAttribute('data-link');
+                if(link && link !== '#') window.open(link, '_blank');
+            };
+            fantasyCard.addEventListener('click', handleJump);
+            realityCard.addEventListener('click', handleJump);
+        }
+
+        // 底部浮动提示
+        let tipTimeout = null;
+        const dynamicTip = document.createElement('div');
+        dynamicTip.className = 'bottom-text-tip';
+        document.body.appendChild(dynamicTip);
+        function showBottomText(text) {
+            if(tipTimeout) clearTimeout(tipTimeout);
+            dynamicTip.innerText = text;
+            dynamicTip.style.opacity = '1';
+        }
+        function hideBottomText() {
+            if(tipTimeout) clearTimeout(tipTimeout);
+            tipTimeout = setTimeout(() => { dynamicTip.style.opacity = '0'; }, 300);
+        }
+
+        function bindHoverAndTip() {
+            const handleEnter = (card) => {
+                const expl = card.getAttribute('data-explanation');
+                if(expl) showBottomText(expl);
+                if(card.classList.contains('active-card')) {
+                    if(card.id === 'fantasyCard') showDistortion();
+                    if(card.id === 'realityCard') activateRealityParticles();
+                }
+            };
+            const handleLeave = (card) => {
+                hideBottomText();
+                if(card.classList.contains('active-card')) {
+                    if(card.id === 'fantasyCard') hideDistortion();
+                    if(card.id === 'realityCard') deactivateRealityParticles();
+                }
+            };
+            [fantasyCard, realityCard].forEach(card => {
+                card.addEventListener('mouseenter', () => handleEnter(card));
+                card.addEventListener('mouseleave', () => handleLeave(card));
+                card.addEventListener('touchstart', () => handleEnter(card), { passive: true });
+                card.addEventListener('touchend', () => handleLeave(card));
+            });
+        }
+
+        // 星空光点
+        var initStars = XY.initStars;
+
+        var setupLogo = XY.setupLogo;
+
+        // ----- 性能：窗口尺寸变化节流处理 -----
+        function onResizeThrottled() {
+            /* 尺寸变化后重绘依赖视口的元素（星空/粒子容器） */
+            var sky = document.querySelector('.sky-container');
+            if (sky) sky.style.height = window.innerHeight + 'px';
+        }
+        window.addEventListener('resize', XY.throttle(onResizeThrottled, 200), { passive: true });
+
+        function init() {
+            initStars();
+            setupLogo();
+            activeType = 'reality';
+            updateCardAppearance(false);
+            updateActiveCardRef();
+            bindSwipeToActiveCard();
+            bindClickSwitchOnInactive();
+            bindCardJump();
+            bindHoverAndTip();
+            setDistortionScale(0);
+            hideDistortion();
+            deactivateRealityParticles();
+        }
+        init();
+    })();
+</script>
+
+    <script>
+    /* 无障碍：为可点击容器补键盘操作（Enter / Space）与语义角色 */
+    (function () {
+        if (!window.XY) return;
+        var SELECTORS = [{ sel: ".creation-card", label: "切换虚实视图" }];
+
+        SELECTORS.forEach(function (item) {
+            document.querySelectorAll(item.sel).forEach(function (el, i) {
+                if (el.tagName === 'A' || el.tagName === 'BUTTON') return;
+                if (el.hasAttribute('role') && el.getAttribute('role') === 'button') return;
+
+                el.setAttribute('role', 'button');
+                el.setAttribute('tabindex', '0');
+                el.classList.add('xy-focusable');
+
+                /* 生成可读标签：优先 data-label / 内部文字 */
+                var label = el.getAttribute('data-label')
+                    || (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)
+                    || item.label;
+                el.setAttribute('aria-label', label + (i > 0 ? ' ' + (i + 1) : ''));
+
+                /* 键盘激活 = 派发一次 click，复用既有逻辑 */
+                el.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        el.click();
+                    }
+                });
+            });
+        });
+
+        /* 视觉隐藏但可被读屏识别的页面标题 */
+        if (!document.querySelector('.xy-sr-only')) {
+            var h = document.createElement('h1');
+            h.className = 'xy-sr-only';
+            h.textContent = document.title || '虚衍教派';
+            document.body.insertBefore(h, document.body.firstChild);
+        }
+    })();
+    </script>
+</body>
+</html>

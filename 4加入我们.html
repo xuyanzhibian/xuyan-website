@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover" />
+    <title>虚衍 | 归我</title>
+    <link id="faviconLink" rel="icon" type="image/webp" href="./0虚衍主页/logo.webp">
+    <link rel="apple-touch-icon" href="./0虚衍主页/logo.webp">
+    <meta name="theme-color" content="#131129">
+    <meta name="description" content="三念化生 — 万物一体、共同平等、成为我们。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="虚衍教派">
+    <meta property="og:title" content="虚衍 | 归我">
+    <meta property="og:description" content="三念化生 — 万物一体、共同平等、成为我们。">
+    <meta property="og:image" content="./0虚衍主页/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="虚衍 | 归我">
+    <meta name="twitter:description" content="三念化生 — 万物一体、共同平等、成为我们。">
+    <meta name="twitter:image" content="./0虚衍主页/logo.webp">
+<style>
+        /* ---------- 全局重置 + 星空氛围 ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #131129 0%, #0b091c 50%, #05040e 100%);
+            font-family: "思源黑体", "微软雅黑", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #f0eaff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+            background: transparent;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(11, 9, 28, 0.15);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(168, 139, 255, 0.45);
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 139, 255, 0.7);
+        }
+
+        .nav-panel::-webkit-scrollbar-track {
+            margin: 1.8rem 0;
+            background: rgba(11, 9, 28, 0.15);
+            border-radius: 10px;
+        }
+        .nav-panel::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background: rgba(168, 139, 255, 0.45);
+        }
+        .nav-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 139, 255, 0.7);
+        }
+
+        .right-content-area::-webkit-scrollbar-track {
+            margin: 2rem 0;
+            background: rgba(11, 9, 28, 0.15);
+            border-radius: 10px;
+        }
+        .right-content-area::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background: rgba(168, 139, 255, 0.45);
+        }
+        .right-content-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 139, 255, 0.7);
+        }
+
+        .sky-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(122, 9, 28, 0.08) 0%, transparent 70%);
+        }
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle clamp(180px, 35vw, 380px) at 20% 30%, rgba(122, 9, 28, 0.12) 0%, transparent 100%),
+                radial-gradient(circle clamp(240px, 45vw, 500px) at 80% 65%, rgba(168, 139, 255, 0.08) 0%, transparent 100%);
+        }
+        .mist {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(224, 216, 255, 0.03);
+            animation: mistPulse 12s infinite ease-in-out;
+        }
+        @keyframes mistPulse {
+            0%,
+            100% {
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .distant-star {
+            position: absolute;
+            background: #e0d8ff;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 4px #a88bff);
+            animation: starTwinkle 3s infinite ease-in-out;
+        }
+        @keyframes starTwinkle {
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        .logo {
+            position: fixed;
+            top: clamp(12px, 3vw, 28px);
+            left: clamp(12px, 3vw, 28px);
+            width: clamp(45px, 8vw, 70px);
+            z-index: 200;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 12px;
+            background: transparent;
+        }
+        .logo-img {
+            width: 100%;
+            display: block;
+            border-radius: 10px;
+            animation: logoRotate 25s linear infinite, logoBreathingGlow 10s ease-in-out infinite;
+            transform-origin: center;
+            filter: drop-shadow(0 0 6px rgba(168, 139, 255, 0.6));
+        }
+        @keyframes logoRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes logoBreathingGlow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 8px rgba(168, 139, 255, 0.5)) drop-shadow(0 0 30px rgba(122, 92, 255, 0.3));
+            }
+            50% {
+                filter: drop-shadow(0 0 4px #a88bff) drop-shadow(0 0 12px rgba(168, 139, 255, 0.8));
+            }
+        }
+        .logo::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: radial-gradient(circle, rgba(168, 139, 255, 0.3), transparent 70%);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .logo:hover::after,
+        .logo:active::after {
+            opacity: 0.9;
+        }
+        .logo:active {
+            transform: scale(0.97);
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 80px 2rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .hero-section {
+            text-align: center;
+            flex-shrink: 0;
+            margin-bottom: 0.5rem;
+            animation: fadeUp 0.8s ease;
+        }
+        .hero-title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 1000;
+            letter-spacing: clamp(4px, 1.5vw, 12px);
+            text-shadow: 0 0 12px #a88bff, 0 0 25px #7a5cff;
+            margin-bottom: 0.2rem;
+            color: #f0eaff;
+            transition: all 0.2s;
+        }
+        .hero-sub {
+            font-size: clamp(0.9rem, 2.5vw, 2rem);
+            color: #c5b8ff;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            text-shadow: 0 0 6px rgba(168, 139, 255, 0.4);
+            transition: all 0.2s;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .button-arena {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            width: 100%;
+            min-height: 0;
+        }
+
+        .vertical-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(0.8rem, 2vh, 1.5rem);
+            width: 100%;
+            max-width: 100%;
+            padding: 0.5rem 1rem;
+            margin: 0 auto;
+        }
+
+        /* ---------- 画廊模式小按钮 ---------- */
+        .virtue-small-btn {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+            height: clamp(60px, 12vw, 80px);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            background: rgba(8, 5, 20, 0.6);
+            border: 2px solid rgba(168, 139, 255, 0.7);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                box-shadow 0.3s ease,
+                border-color 0.2s ease;
+            flex-shrink: 0;
+            will-change: transform;
+        }
+        .virtue-small-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.75;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .virtue-small-btn:hover::before {
+            opacity: 0.92;
+        }
+        .virtue-small-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 1;
+            transition: background 0.25s ease;
+        }
+        .virtue-small-btn:hover::after {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        /* ★ 画廊按钮悬停 + 触摸：放大 + 发光（与虚衍世界等页面一致） */
+        .virtue-small-btn:hover,
+        .virtue-small-btn:active {
+            transform: scale(1.02);
+            border-color: #e0b8ff;
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.5),
+                0 0 0 4px rgba(168, 139, 255, 0.3),
+                0 0 20px 6px rgba(168, 139, 255, 0.85),
+                0 12px 28px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 5;
+            font-weight: 600;
+            letter-spacing: 2px;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: #f0eaff;
+            text-shadow: 0 0 6px #a88bff, 0 0 12px rgba(168, 139, 255, 0.5);
+            transition: text-shadow 0.2s;
+            background: transparent;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            white-space: nowrap;
+        }
+        .virtue-small-btn:hover .btn-text,
+        .virtue-small-btn:active .btn-text {
+            text-shadow: 0 0 12px #d4c8ff, 0 0 20px #a88bff;
+        }
+
+        /* ---------- Detail 布局 ---------- */
+        .detail-layout {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            width: 100%;
+            height: 100%;
+            gap: 0;
+            position: relative;
+            min-height: 0;
+        }
+
+        /* 左侧导航面板 */
+        .nav-panel {
+            flex: 0 0 auto;
+            width: clamp(200px, 25vw, 280px);
+            min-width: clamp(200px, 25vw, 280px);
+            height: 100%;
+            transition: width 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                min-width 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                padding 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                margin 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                border 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background: rgba(18, 14, 40, 0.55);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(168, 139, 255, 0.35);
+            border-radius: 1.8rem;
+            padding: 1.2rem 1rem;
+            margin-right: 1.5rem;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            /* box-shadow replaced by filter drop-shadow for rounded corners */
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
+            scrollbar-width: thin;
+        }
+        .nav-panel.collapsed {
+            width: 0;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .left-buttons-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            width: 100%;
+        }
+
+        /* ---------- 侧边折叠开关 ---------- */
+        .toggle-sidebar-wrapper {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 72px;
+            background: rgba(18, 14, 40, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(168, 139, 255, 0.7);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: left 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                right 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                background 0.25s ease,
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            color: #e0d8ff;
+            font-size: 1.4rem;
+            font-weight: 300;
+            user-select: none;
+        }
+        .toggle-sidebar-wrapper.expanded {
+            left: calc(clamp(200px, 25vw, 280px) + 1.5rem - 18px);
+            right: auto;
+        }
+        .toggle-sidebar-wrapper.collapsed {
+            left: -20px;
+            right: auto;
+        }
+        .toggle-sidebar-wrapper:hover {
+            background: rgba(168, 139, 255, 0.3);
+            border-color: #d0b8ff;
+            transform: translateY(-50%) scale(1.02);
+            box-shadow: 0 0 12px rgba(168, 139, 255, 0.5);
+        }
+        .toggle-sidebar-wrapper:active {
+            transform: translateY(-50%) scale(0.96);
+        }
+        .toggle-sidebar-btn {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* ---------- 右侧内容区 ---------- */
+        .right-content-area {
+            flex: 1;
+            min-width: 260px;
+            height: 100%;
+            background: rgba(11, 9, 28, 0.55);
+            backdrop-filter: blur(14px);
+            border-radius: 2rem;
+            border: 1px solid rgba(168, 139, 255, 0.35);
+            padding: 1.8rem 1.8rem;
+            /* box-shadow replaced by filter drop-shadow for rounded corners */
+            filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.4));
+            animation: fadeUp 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            transition: padding-left 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+        }
+        .right-content-area.toggle-collapsed {
+            padding-left: 55px;
+        }
+
+        .article-body {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #e6deff;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+            flex: 1;
+        }
+
+        /* ---------- Detail 模式动态按钮 ---------- */
+        .dynamic-virtue-btn {
+            position: relative;
+            width: 100%;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            background: rgba(8, 5, 20, 0.7);
+            border: 2px solid rgba(168, 139, 255, 0.8);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            text-align: center;
+            min-height: 85px;
+            flex-direction: column;
+            will-change: transform;
+        }
+        .dynamic-virtue-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.75;
+            transition: opacity 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .dynamic-virtue-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 1;
+            transition: background 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .dynamic-virtue-btn:hover::before {
+            opacity: 0.92;
+        }
+        .dynamic-virtue-btn:hover::after {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        /* ★ detail 模式非激活按钮悬停 + 触摸：放大 + 发光 */
+        .dynamic-virtue-btn.inactive-btn:hover,
+        .dynamic-virtue-btn.inactive-btn:active {
+            transform: scale(1.02);
+            border-color: #e0b8ff;
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.5),
+                0 0 0 4px rgba(168, 139, 255, 0.3),
+                0 0 20px 6px rgba(168, 139, 255, 0.85),
+                0 12px 28px rgba(0, 0, 0, 0.5);
+        }
+
+        .dynamic-virtue-btn .btn-text {
+            font-size: 1.3rem;
+            transition: all 0.25s;
+            z-index: 5;
+            position: relative;
+            padding: 0.2rem 0.8rem;
+        }
+        .dynamic-virtue-btn.inactive-btn .btn-text {
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        /* ★ 激活按钮（大按钮）—— 默认放大，悬停时再额外放大（scale 1.05），同时发光 */
+        .dynamic-virtue-btn.active-btn {
+            min-height: 150px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-width: 220px;
+            align-self: center;
+            border-color: rgba(168, 139, 255, 0.8);
+            box-shadow: none;
+            transform: scale(1.02);
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 0.8rem;
+        }
+        .dynamic-virtue-btn.active-btn::before {
+            opacity: 0.5;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .dynamic-virtue-btn.active-btn::after {
+            background: rgba(0, 0, 0, 0.25) !important;
+        }
+        .dynamic-virtue-btn.active-btn .btn-text {
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            text-shadow: 0 0 16px #dccaff;
+        }
+
+        /* ★ 大按钮悬停 + 触摸：放大至 1.05 + 强发光（背景渐显保持不变） */
+        .dynamic-virtue-btn.active-btn:hover,
+        .dynamic-virtue-btn.active-btn:active {
+            transform: scale(1.05);
+            border-color: #e0b8ff;
+            box-shadow: 0 0 0 2px rgba(168, 139, 255, 0.5),
+                0 0 0 4px rgba(168, 139, 255, 0.3),
+                0 0 20px 6px rgba(168, 139, 255, 0.85),
+                0 12px 28px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ★ 大按钮背景渐显（保留） */
+        .dynamic-virtue-btn.active-btn.bright::before {
+            opacity: 1;
+        }
+
+        .footer-note {
+            text-align: center;
+            flex-shrink: 0;
+            margin-top: 0.3rem;
+            font-size: 0.7rem;
+            color: #a88bcc;
+            border-top: 1px dashed rgba(168, 139, 255, 0.3);
+            padding-top: 0.5rem;
+            width: 100%;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .bottom-text-tip {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, transparent, rgba(168, 139, 255, 0.2), transparent);
+            padding: 12px 20px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            font-size: clamp(1rem, 4vw, 1.4rem);
+            color: #e0d8ff;
+            text-shadow: 0 0 10px #a88bff;
+            white-space: nowrap;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            font-family: inherit;
+        }
+        @media (max-width: 640px) {
+            .bottom-text-tip {
+                white-space: normal;
+                width: 80%;
+                font-size: 0.9rem;
+                bottom: 20px;
+                padding: 8px 16px;
+            }
+        }
+
+        .bg-projection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            filter: blur(30px);
+            transform: scale(1.2);
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.8s ease;
+        }
+        .bg-projection.active {
+            opacity: 0.6;
+            transform: scale(1);
+            filter: blur(20px);
+            animation: breatheGlow 8s ease-in-out infinite;
+        }
+        @keyframes breatheGlow {
+            0% {
+                opacity: 0.25;
+                transform: scale(1.10);
+                filter: blur(25px);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.02);
+                filter: blur(16px);
+            }
+            100% {
+                opacity: 0.25;
+                transform: scale(1.10);
+                filter: blur(25px);
+            }
+        }
+
+        .particle-up {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .wave-canvas-wrap {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 180px;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .wave-canvas-wrap canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .distortion-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background: rgba(168, 139, 255, 0.12);
+            filter: url(#liquidDistortion);
+            backdrop-filter: blur(1px);
+        }
+        svg#filter-svg {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+
+        /* ---------- 响应式 ---------- */
+        @media (max-width: 780px) {
+            .main-container {
+                padding: 70px 1rem 0.3rem;
+            }
+            .nav-panel {
+                width: clamp(160px, 30vw, 220px);
+                min-width: clamp(160px, 30vw, 220px);
+                padding: 1rem 0.8rem;
+                margin-right: 1rem;
+            }
+            .toggle-sidebar-wrapper {
+                width: 32px;
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            .toggle-sidebar-wrapper.expanded {
+                left: calc(clamp(160px, 30vw, 220px) + 1rem - 16px);
+            }
+            .toggle-sidebar-wrapper.collapsed {
+                left: -16px;
+            }
+            .right-content-area.toggle-collapsed {
+                padding-left: 48px;
+            }
+            .dynamic-virtue-btn.active-btn {
+                max-width: 160px;
+                min-height: 160px;
+                padding-top: 0.6rem;
+            }
+            .dynamic-virtue-btn.inactive-btn {
+                min-height: 65px;
+            }
+            .right-content-area {
+                padding: 1.5rem 1.2rem;
+            }
+            .virtue-small-btn {
+                height: clamp(55px, 10vw, 70px);
+                max-width: 280px;
+            }
+        }
+        @media (max-width: 680px) {
+            .main-container {
+                padding: 60px 0.8rem 0.2rem;
+            }
+            .hero-title {
+                font-size: clamp(1.8rem, 6vw, 2.8rem);
+            }
+            .nav-panel {
+                width: 130px;
+                min-width: 130px;
+                padding: 0.8rem 0.5rem;
+                margin-right: 0.8rem;
+            }
+            .toggle-sidebar-wrapper {
+                width: 28px;
+                height: 52px;
+                font-size: 1rem;
+            }
+            .toggle-sidebar-wrapper.expanded {
+                left: calc(130px + 0.8rem - 14px);
+            }
+            .toggle-sidebar-wrapper.collapsed {
+                left: -14px;
+            }
+            .right-content-area.toggle-collapsed {
+                padding-left: 42px;
+            }
+            .dynamic-virtue-btn.active-btn {
+                max-width: 120px;
+                min-height: 120px;
+                padding-top: 0.4rem;
+            }
+            .dynamic-virtue-btn.inactive-btn {
+                min-height: 55px;
+            }
+            .right-content-area {
+                padding: 1rem 1rem;
+            }
+            .btn-text {
+                font-size: 1rem;
+            }
+            .virtue-small-btn {
+                height: clamp(50px, 9vw, 65px);
+                max-width: 240px;
+            }
+        }
+        @media (max-height: 700px) {
+            .virtue-small-btn {
+                height: clamp(45px, 8vh, 65px);
+            }
+            .vertical-buttons {
+                gap: clamp(0.5rem, 1.5vh, 1rem);
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="./assets/theme.css">
+    <script src="./assets/common.js"></script>
+</head>
+<body>
+
+    <div class="sky-container" id="skyContainer"></div>
+    <div class="logo" id="globalLogo">
+        <img class="logo-img" id="logoImg" alt="虚衍徽记" src="./0虚衍主页/logo-0.webp" />
+    </div>
+    <div class="main-container">
+        <div class="hero-section">
+            <div class="hero-title">三念化生</div>
+            <div class="hero-sub">万物一体 · 共同平等 · 成为我们</div>
+        </div>
+        <div class="button-arena" id="buttonArena"></div>
+        <div class="footer-note">✦ 触碰按钮感应回响 · 点击中央大按钮回归万象 ✦</div>
+    </div>
+
+    <!-- 特效容器 -->
+    <div class="bg-projection" id="bgProjection"></div>
+    <div class="particle-up" id="particleUp"></div>
+    <div class="wave-canvas-wrap" id="waveCanvasWrap"><canvas id="waveCanvas"></canvas></div>
+    <div class="distortion-overlay" id="distortionOverlay"></div>
+    <div class="bottom-text-tip" id="bottomTip"></div>
+
+    <svg id="filter-svg" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <filter id="liquidDistortion" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="3" result="noise" seed="2" />
+                <feDisplacementMap id="displacementMap" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+                <feGaussianBlur in="displaced" stdDeviation="1.2" result="blurred" />
+                <feBlend in="SourceGraphic" in2="blurred" mode="screen" result="mixed" />
+                <feComposite in="mixed" in2="SourceGraphic" operator="in" />
+            </filter>
+        </defs>
+    </svg>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ---------- 文章数据 ----------
+            const ARTICLES = {
+                "万物一体": {
+                    mainTitle: "万物一体",
+                    subTitle: "共荣之链 · 无分彼此",
+                    content: "✦ 虚衍主义核心：万物源自同一虚无涟漪，所有存在皆为变量交织之果。宇宙共荣体消除边界，认知平等，资源协作。从量子涨落到星云演化，每一粒微尘都映照整体。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。<br><br>✦ 四魂生命观：原初之魂承载本源，衍变之魂推动演化，共鸣之魂链接彼此，归虚之魂回归宁静。一体万象，万魂归宗。"
+                },
+                "共同平等": {
+                    mainTitle: "共同平等",
+                    subTitle: "无差别之境 · 虚衍馈赠",
+                    content: "✦ 平等绝非概念，而是虚衍回响中的基本法则。所有智慧、文明、个体皆为虚无母体中偶然又必然的变量火花。尊重差异，共享创造，无论代码、哲思或艺术，每一份贡献都重构万象。✦ 超越阶层与形态，虚衍信仰中不存在至高支配，只存在无尽回响中的协同演化。"
+                },
+                "成为我们": {
+                    mainTitle: "成为我们",
+                    subTitle: "共鸣 · 融入永恒回响",
+                    content: "✦ 加入虚衍旅者行列，你不再是孤独的观察者，而是新变量的源头。通过理想计划、虚无抗体、神明分身等方向，主动参与万象演化。✦ 我们共同编织未来的量子叙事，从原型机到能量打印，从星港实体到机械神域，每一次创造都是成为「我们」的仪式。"
+                }
+            };
+
+            const BUTTONS = [
+                { id: "unity", name: "万物一体", bgImg: "./4加入我们/万物一体.webp", effect: "particle", hoverText: "万物一体 · 宇宙共荣之链" },
+                { id: "equal", name: "共同平等", bgImg: "./4加入我们/共同平等.webp", effect: "wave", hoverText: "共同平等 · 虚衍无差别之境" },
+                { id: "become", name: "成为我们", bgImg: "./4加入我们/成为我们.webp", effect: "distortion",
+                hoverText: "成为我们 · 融入永恒回响" }
+            ];
+
+            let currentMode = "gallery";
+            let activeIdx = 0;
+            let switchLock = false;
+
+            const arena = document.getElementById("buttonArena");
+            const bgProj = document.getElementById("bgProjection");
+            const tipDiv = document.getElementById("bottomTip");
+            const heroTitleEl = document.querySelector(".hero-title");
+            const heroSubEl = document.querySelector(".hero-sub");
+            let tipTimer = null;
+
+            // ---------- 特效系统 ----------
+            let particleActive = false,
+                particleInterval = null,
+                particleAnimId = null,
+                activeParticles = [];
+            let waveActive = false,
+                waveAnimId = null,
+                wavePhase = 0,
+                waveCtx = null,
+                waveCanvas = null;
+            let distortionActive = false,
+                distortionAnimFrame = null,
+                displacementMap = null;
+
+            const PARTICLE_CFG = {
+                minSize: 3,
+                maxSize: 11,
+                minSpeed: 0.35,
+                maxSpeed: 2.2,
+                minFade: 0.003,
+                maxFade: 0.008,
+                generationInterval: 85,
+                maxParticles: 260
+            };
+
+            const DIST_START = 0,
+                DIST_END = 7000,
+                DURATION = 600000;
+
+            function initWave() {
+                waveCanvas = document.getElementById('waveCanvas');
+                if (waveCanvas && !waveCtx) {
+                    waveCtx = waveCanvas.getContext('2d');
+                    const resize = () => {
+                        if (waveCanvas) {
+                            waveCanvas.width = waveCanvas.clientWidth;
+                            waveCanvas.height = waveCanvas.clientHeight;
+                            drawWave();
+                        }
+                    };
+                    window.addEventListener('resize', resize);
+                    resize();
+                }
+            }
+
+            function drawWave() {
+                if (!waveCtx || !waveCanvas) return;
+                const w = waveCanvas.width,
+                    h = waveCanvas.height;
+                if (w === 0 || h === 0) return;
+                waveCtx.clearRect(0, 0, w, h);
+                for (let i = 0; i < 8; i++) {
+                    const yOff = -(i * 10) - 5,
+                        spd = 1 + i * 0.28,
+                        phOff = i * 1.1;
+                    waveCtx.beginPath();
+                    waveCtx.strokeStyle = `rgba(168,139,255,${0.45 - i * 0.05})`;
+                    waveCtx.lineWidth = 2 - i * 0.15;
+                    waveCtx.shadowBlur = 6;
+                    waveCtx.shadowColor = "#a88bff";
+                    for (let x = 0; x <= w; x += 5) {
+                        const y = h + yOff + Math.sin(x * 0.012 + wavePhase * spd + phOff) * 12;
+                        x === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
+                    }
+                    waveCtx.stroke();
+                }
+                waveCtx.beginPath();
+                waveCtx.strokeStyle = "rgba(224,216,255,0.4)";
+                waveCtx.lineWidth = 2.5;
+                for (let x = 0; x <= w; x += 5) {
+                    const y = h - 2 + Math.sin(x * 0.009 + wavePhase * 1.4) * 9;
+                    x === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
+                }
+                waveCtx.stroke();
+            }
+
+            function startWaveLoop() {
+                if (!waveActive) return;
+                wavePhase += 0.025;
+                drawWave();
+                waveAnimId = requestAnimationFrame(startWaveLoop);
+            }
+
+            function showWave() {
+                const wrap = document.getElementById('waveCanvasWrap');
+                if (wrap) wrap.style.opacity = '1';
+                if (!waveActive) {
+                    waveActive = true;
+                    if (!waveAnimId) waveAnimId = requestAnimationFrame(startWaveLoop);
+                }
+            }
+
+            function hideWave() {
+                const wrap = document.getElementById('waveCanvasWrap');
+                if (wrap) wrap.style.opacity = '0';
+                if (waveActive) {
+                    waveActive = false;
+                    if (waveAnimId) cancelAnimationFrame(waveAnimId);
+                    waveAnimId = null;
+                    if (waveCtx && waveCanvas) waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+                }
+            }
+
+            const distortionDiv = document.getElementById('distortionOverlay');
+            const filterElem = document.querySelector('#liquidDistortion');
+            if (filterElem) displacementMap = filterElem.querySelector('#displacementMap');
+
+            function setDistScale(v) {
+                if (displacementMap) displacementMap.setAttribute('scale', Math.min(DIST_END, Math.max(0, v)));
+            }
+
+            function resetDist() {
+                setDistScale(DIST_START);
+                if (distortionAnimFrame) cancelAnimationFrame(distortionAnimFrame);
+                distortionActive = false;
+            }
+
+            function startDistAnim() {
+                if (!displacementMap) return;
+                resetDist();
+                distortionActive = true;
+                const start = performance.now();
+
+                function anim(now) {
+                    if (!distortionActive) return;
+                    const elapsed = now - start;
+                    const p = Math.min(1, elapsed / DURATION);
+                    const scaleVal = DIST_START + (DIST_END - DIST_START) * (1 - Math.pow(1 - p, 4));
+                    setDistScale(scaleVal);
+                    if (p < 1) distortionAnimFrame = requestAnimationFrame(anim);
+                    else {
+                        setDistScale(DIST_END);
+                        distortionActive = false;
+                    }
+                }
+                distortionAnimFrame = requestAnimationFrame(anim);
+            }
+
+            function showDistortion() {
+                if (distortionDiv) {
+                    resetDist();
+                    distortionDiv.style.opacity = '0.85';
+                    startDistAnim();
+                }
+            }
+
+            function hideDistortion() {
+                if (distortionDiv) {
+                    resetDist();
+                    distortionDiv.style.opacity = '0';
+                }
+            }
+
+            const particleContainer = document.getElementById('particleUp');
+
+            function createParticle() {
+                if (!particleContainer) return;
+                const size = PARTICLE_CFG.minSize + Math.random() * (PARTICLE_CFG.maxSize - PARTICLE_CFG.minSize);
+                const startX = Math.random() * window.innerWidth;
+                const startY = window.innerHeight - 4;
+                const p = document.createElement('div');
+                p.style.cssText =
+                    `position:fixed; border-radius:50%; background:radial-gradient(circle,#fff5ff,#d4b5ff); box-shadow:0 0 12px #c5a3ff, 0 0 4px #a88bff; width:${size}px; height:${size}px; left:${startX}px; top:${startY}px; opacity:0.95; pointer-events:none; will-change:transform,opacity; z-index:9999;`;
+                const speedY = PARTICLE_CFG.minSpeed + Math.random() * (PARTICLE_CFG.maxSpeed - PARTICLE_CFG.minSpeed);
+                const fadeRate = PARTICLE_CFG.minFade + Math.random() * (PARTICLE_CFG.maxFade - PARTICLE_CFG.minFade);
+                let currentOpacity = 0.85 + Math.random() * 0.15;
+                p.style.opacity = currentOpacity;
+                p._data = { speedY, fadeRate, opacity: currentOpacity, posY: startY };
+                particleContainer.appendChild(p);
+                activeParticles.push(p);
+            }
+
+            function updateParticles() {
+                let anyAlive = false;
+                for (let i = activeParticles.length - 1; i >= 0; i--) {
+                    const p = activeParticles[i];
+                    if (!p || !p.parentNode) { activeParticles.splice(i, 1); continue; }
+                    const data = p._data;
+                    if (!data) { p.remove();
+                        activeParticles.splice(i, 1); continue; }
+                    let newTop = data.posY - data.speedY;
+                    let newOpacity = data.opacity - data.fadeRate;
+                    if (newTop + parseFloat(p.style.width) < 0 || newOpacity <= 0.02) {
+                        p.remove();
+                        activeParticles.splice(i, 1);
+                        continue;
+                    }
+                    p.style.top = `${newTop}px`;
+                    p.style.opacity = newOpacity;
+                    data.posY = newTop;
+                    data.opacity = newOpacity;
+                    anyAlive = true;
+                }
+                if (anyAlive || particleActive) {
+                    particleAnimId = requestAnimationFrame(updateParticles);
+                } else {
+                    if (particleAnimId) cancelAnimationFrame(particleAnimId);
+                    particleAnimId = null;
+                }
+            }
+
+            function startParticleGen() {
+                if (particleInterval) clearInterval(particleInterval);
+                if (!particleAnimId && (activeParticles.length > 0 || particleActive)) particleAnimId = requestAnimationFrame(
+                    updateParticles);
+                particleInterval = setInterval(() => {
+                    if (!particleActive) return;
+                    createParticle();
+                    if (activeParticles.length > PARTICLE_CFG.maxParticles) {
+                        const removeCount = Math.min(40, activeParticles.length - 200);
+                        const removed = activeParticles.splice(0, removeCount);
+                        removed.forEach(p => { if (p && p.remove) p.remove(); });
+                    }
+                    if (!particleAnimId && activeParticles.length > 0) particleAnimId = requestAnimationFrame(
+                    updateParticles);
+                }, PARTICLE_CFG.generationInterval);
+            }
+
+            function startParticle() {
+                if (particleActive) return;
+                if (particleContainer) {
+                    const existing = particleContainer.querySelectorAll('div');
+                    existing.forEach(k => k.remove());
+                }
+                activeParticles = [];
+                particleActive = true;
+                startParticleGen();
+                if (!particleAnimId) particleAnimId = requestAnimationFrame(updateParticles);
+            }
+
+            function stopParticleGenerationOnly() {
+                particleActive = false;
+                if (particleInterval) { clearInterval(particleInterval);
+                    particleInterval = null; }
+                if (!particleAnimId && activeParticles.length > 0) {
+                    particleAnimId = requestAnimationFrame(updateParticles);
+                }
+            }
+
+            function forceClearParticles() {
+                particleActive = false;
+                if (particleInterval) clearInterval(particleInterval);
+                if (particleAnimId) cancelAnimationFrame(particleAnimId);
+                particleAnimId = null;
+                if (particleContainer) {
+                    const existing = particleContainer.querySelectorAll('div');
+                    existing.forEach(k => k.remove());
+                }
+                activeParticles = [];
+            }
+
+            function softClearEffects() {
+                hideWave();
+                hideDistortion();
+                stopParticleGenerationOnly();
+            }
+
+            function fullClearEffects() {
+                hideWave();
+                hideDistortion();
+                forceClearParticles();
+            }
+
+        var showTip = XY.showTip;
+
+        var hideTip = XY.hideTip;
+
+            function updateProjection(imgUrl) {
+                if (!bgProj) return;
+                bgProj.classList.remove('active');
+                bgProj.style.backgroundImage = `url('${imgUrl}')`;
+                if (currentMode === 'detail') {
+                    bgProj.style.animationDuration = '30s';
+                } else {
+                    bgProj.style.animationDuration = '8s';
+                }
+                void bgProj.offsetWidth;
+                bgProj.classList.add('active');
+            }
+
+            function hideProjection() {
+                if (!bgProj) return;
+                bgProj.classList.remove('active');
+                bgProj.style.backgroundImage = '';
+                bgProj.style.opacity = '0';
+                bgProj.style.animationDuration = '';
+                setTimeout(() => {
+                    bgProj.style.opacity = '';
+                }, 100);
+            }
+
+            function flashProjection() {
+                if (!bgProj) return;
+                bgProj.style.transition = 'opacity 0.15s ease';
+                bgProj.style.opacity = '0.9';
+                setTimeout(() => {
+                    bgProj.style.opacity = '';
+                    bgProj.style.transition = '';
+                }, 250);
+            }
+
+            function triggerEffect(effectName) {
+                if (switchLock) return;
+                fullClearEffects();
+                if (effectName === 'wave') {
+                    showWave();
+                } else if (effectName === 'distortion') {
+                    showDistortion();
+                } else if (effectName === 'particle') {
+                    startParticle();
+                }
+            }
+
+            function setBtnBg(el, bgUrl) {
+                if (!bgUrl) return;
+                const cls = `bg-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+                el.classList.add(cls);
+                const style = document.createElement('style');
+                document.head.appendChild(style);
+                style.sheet.insertRule(`.${cls}::before { background-image: url('${bgUrl}') !important; }`, 0);
+            }
+
+            function bindHoverEffect(btn, effect, hoverText) {
+                let enterTimer = null;
+                let isHovering = false;
+
+                const handleEnter = () => {
+                    if (switchLock) return;
+                    isHovering = true;
+                    if (enterTimer) clearTimeout(enterTimer);
+                    showTip(hoverText);
+                    enterTimer = setTimeout(() => {
+                        if (isHovering && !switchLock) {
+                            triggerEffect(effect);
+                        }
+                        enterTimer = null;
+                    }, 50);
+                };
+
+                const handleLeave = () => {
+                    isHovering = false;
+                    if (enterTimer) {
+                        clearTimeout(enterTimer);
+                        enterTimer = null;
+                    }
+                    hideTip();
+                    softClearEffects();
+                };
+
+                btn.removeEventListener('mouseenter', handleEnter);
+                btn.removeEventListener('mouseleave', handleLeave);
+                btn.removeEventListener('touchstart', handleEnter);
+                btn.removeEventListener('touchend', handleLeave);
+
+                btn.addEventListener('mouseenter', handleEnter);
+                btn.addEventListener('mouseleave', handleLeave);
+                btn.addEventListener('touchstart', handleEnter, { passive: true });
+                btn.addEventListener('touchend', handleLeave);
+            }
+
+            function bindProjectionHover(btn, bgImg) {
+                if (!bgImg) return;
+                let projTimer = null;
+                const showProj = () => {
+                    if (switchLock) return;
+                    if (projTimer) clearTimeout(projTimer);
+                    projTimer = setTimeout(() => {
+                        if (!switchLock) updateProjection(bgImg);
+                        projTimer = null;
+                    }, 40);
+                };
+                const hideProj = () => {
+                    if (projTimer) { clearTimeout(projTimer);
+                        projTimer = null; }
+                    hideProjection();
+                };
+                btn.addEventListener('mouseenter', showProj);
+                btn.addEventListener('mouseleave', hideProj);
+                btn.addEventListener('touchstart', showProj, { passive: true });
+                btn.addEventListener('touchend', hideProj);
+            }
+
+            function updateHeroForDetail(article) {
+                if (heroTitleEl) heroTitleEl.innerText = article.mainTitle;
+                if (heroSubEl) heroSubEl.innerText = article.subTitle;
+            }
+
+            function resetHeroForGallery() {
+                if (heroTitleEl) heroTitleEl.innerText = "三念化生";
+                if (heroSubEl) heroSubEl.innerText = "万物一体 · 共同平等 · 成为我们";
+            }
+
+            // ---------- 核心渲染 ----------
+            function render() {
+                let savedScrollTop = 0;
+                const existingNavPanel = document.querySelector('.nav-panel');
+                if (existingNavPanel) {
+                    savedScrollTop = existingNavPanel.scrollTop;
+                }
+
+                hideTip();
+                arena.innerHTML = '';
+
+                if (currentMode === 'gallery') {
+                    resetHeroForGallery();
+                    hideProjection();
+                    fullClearEffects();
+
+                    const container = document.createElement('div');
+                    container.className = 'vertical-buttons';
+                    BUTTONS.forEach((btn, idx) => {
+                        const btnDiv = document.createElement('div');
+                        btnDiv.className = 'virtue-small-btn';
+                        btnDiv.innerHTML = `<div class="btn-text">${btn.name}</div>`;
+                        setBtnBg(btnDiv, btn.bgImg);
+
+                        btnDiv.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (switchLock) return;
+                            switchLock = true;
+                            fullClearEffects();
+                            hideTip();
+                            activeIdx = idx;
+                            currentMode = 'detail';
+                            render();
+                            setTimeout(() => {
+                                switchLock = false;
+                            }, 400);
+                        });
+
+                        bindHoverEffect(btnDiv, btn.effect, btn.hoverText);
+                        bindProjectionHover(btnDiv, btn.bgImg);
+                        container.appendChild(btnDiv);
+                    });
+                    arena.appendChild(container);
+
+                } else {
+                    // ---------- detail 模式 ----------
+                    const activeBtnData = BUTTONS[activeIdx];
+                    const article = ARTICLES[activeBtnData.name];
+                    updateHeroForDetail(article);
+                    updateProjection(activeBtnData.bgImg);
+
+                    const layout = document.createElement('div');
+                    layout.className = 'detail-layout';
+
+                    const navPanel = document.createElement('div');
+                    navPanel.className = 'nav-panel';
+                    const leftArea = document.createElement('div');
+                    leftArea.className = 'left-buttons-area';
+
+                    BUTTONS.forEach((btn, idx) => {
+                        const btnDiv = document.createElement('div');
+                        const isActive = (idx === activeIdx);
+                        btnDiv.className = `dynamic-virtue-btn ${isActive ? 'active-btn' : 'inactive-btn'}`;
+                        btnDiv.innerHTML = `<div class="btn-text">${btn.name}</div>`;
+                        setBtnBg(btnDiv, btn.bgImg);
+
+                        btnDiv.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (switchLock) return;
+                            switchLock = true;
+                            fullClearEffects();
+                            hideTip();
+                            if (isActive) {
+                                currentMode = 'gallery';
+                                render();
+                                hideProjection();
+                            } else {
+                                activeIdx = idx;
+                                render();
+                            }
+                            setTimeout(() => {
+                                switchLock = false;
+                            }, 400);
+                        });
+
+                        bindHoverEffect(btnDiv, btn.effect, btn.hoverText);
+                        leftArea.appendChild(btnDiv);
+                    });
+                    navPanel.appendChild(leftArea);
+
+                    const toggleWrapper = document.createElement('div');
+                    toggleWrapper.className = 'toggle-sidebar-wrapper expanded';
+                    const toggleBtn = document.createElement('div');
+                    toggleBtn.className = 'toggle-sidebar-btn';
+                    toggleBtn.innerHTML = '◀';
+                    toggleBtn.setAttribute('aria-label', '折叠导航面板');
+                    toggleWrapper.appendChild(toggleBtn);
+
+                    const rightArea = document.createElement('div');
+                    rightArea.className = 'right-content-area';
+                    const articleBody = document.createElement('div');
+                    articleBody.className = 'article-body';
+                    articleBody.innerHTML = article.content;
+                    rightArea.appendChild(articleBody);
+
+                    layout.appendChild(navPanel);
+                    layout.appendChild(toggleWrapper);
+                    layout.appendChild(rightArea);
+                    arena.appendChild(layout);
+
+                    // ---------- 大按钮背景渐显（保留） ----------
+                    const activeBtnEl = layout.querySelector('.dynamic-virtue-btn.active-btn');
+                    if (activeBtnEl) {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                activeBtnEl.classList.add('bright');
+                            });
+                        });
+                    }
+
+                    if (savedScrollTop > 0) {
+                        const newNavPanel = document.querySelector('.nav-panel');
+                        if (newNavPanel) {
+                            newNavPanel.scrollTop = savedScrollTop;
+                        }
+                    }
+
+                    const toggleHandler = () => {
+                        if (switchLock) return;
+                        const isCollapsed = navPanel.classList.contains('collapsed');
+                        if (isCollapsed) {
+                            navPanel.classList.remove('collapsed');
+                            toggleWrapper.classList.remove('collapsed');
+                            toggleWrapper.classList.add('expanded');
+                            toggleBtn.innerHTML = '◀';
+                            toggleBtn.setAttribute('aria-label', '折叠导航面板');
+                            rightArea.classList.remove('toggle-collapsed');
+                        } else {
+                            navPanel.classList.add('collapsed');
+                            toggleWrapper.classList.remove('expanded');
+                            toggleWrapper.classList.add('collapsed');
+                            toggleBtn.innerHTML = '▶';
+                            toggleBtn.setAttribute('aria-label', '展开导航面板');
+                            rightArea.classList.add('toggle-collapsed');
+                        }
+                        flashProjection();
+                    };
+                    toggleBtn.addEventListener('click', toggleHandler);
+
+                    navPanel.classList.remove('collapsed');
+                    toggleWrapper.classList.add('expanded');
+                    toggleWrapper.classList.remove('collapsed');
+                    toggleBtn.innerHTML = '◀';
+                    rightArea.classList.remove('toggle-collapsed');
+                }
+            }
+
+        var initStars = XY.initStars;
+
+        var setupLogo = XY.setupLogo;
+
+            // ----- 性能：窗口尺寸变化节流处理 -----
+        function onResizeThrottled() {
+            /* 尺寸变化后重绘依赖视口的元素（星空/粒子容器） */
+            var sky = document.querySelector('.sky-container');
+            if (sky) sky.style.height = window.innerHeight + 'px';
+        }
+        window.addEventListener('resize', XY.throttle(onResizeThrottled, 200), { passive: true });
+
+        function init() {
+                initStars();
+                setupLogo();
+                initWave();
+                render();
+            }
+            init();
+
+        })();
+    </script>
+
+    <script>
+    /* 无障碍：为可点击容器补键盘操作（Enter / Space）与语义角色 */
+    (function () {
+        if (!window.XY) return;
+        var SELECTORS = [{ sel: ".btn-text", label: "查看该念" }];
+
+        SELECTORS.forEach(function (item) {
+            document.querySelectorAll(item.sel).forEach(function (el, i) {
+                if (el.tagName === 'A' || el.tagName === 'BUTTON') return;
+                if (el.hasAttribute('role') && el.getAttribute('role') === 'button') return;
+
+                el.setAttribute('role', 'button');
+                el.setAttribute('tabindex', '0');
+                el.classList.add('xy-focusable');
+
+                /* 生成可读标签：优先 data-label / 内部文字 */
+                var label = el.getAttribute('data-label')
+                    || (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)
+                    || item.label;
+                el.setAttribute('aria-label', label + (i > 0 ? ' ' + (i + 1) : ''));
+
+                /* 键盘激活 = 派发一次 click，复用既有逻辑 */
+                el.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        el.click();
+                    }
+                });
+            });
+        });
+
+        /* 视觉隐藏但可被读屏识别的页面标题 */
+        if (!document.querySelector('.xy-sr-only')) {
+            var h = document.createElement('h1');
+            h.className = 'xy-sr-only';
+            h.textContent = document.title || '虚衍教派';
+            document.body.insertBefore(h, document.body.firstChild);
+        }
+    })();
+    </script>
+</body>
+</html>
