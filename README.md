@@ -29,10 +29,16 @@
 - 统一 13 列，其中 **`点击后显示的文本`** 一列存放「点击/悬停后页面上出现的文字」
 - 该列支持富文本标记，网页端由 `XY.renderRichText()` 渲染成图片 / 视频 / 音频
 
-### 改表 → 改站（一条命令）
+### 改表 → 改站（双击一个文件就行）
 
 腾讯文档里的表格和网页上的内容是**两个地方**：表格是数据源，
-网页读的是仓库里的 `assets/site-config.json`。所以改完表必须同步 + 发布才会生效。
+网页读的是仓库里的 `assets/site-config.json` / `assets/site-config.js`。
+所以改完表必须「同步 + 发布」才会生效。
+
+**最省事的方式**：双击项目根目录的 **`一键发布到网站.bat`**，它会自动
+「读在线表格 → 生成配置 → 推送到 GitHub」。完成后约 1 分钟线上生效。
+
+命令行等价写法：
 
 ```bash
 # 在线表格改完 → 同步 → 推送到 GitHub（一条命令搞定）
@@ -45,11 +51,12 @@ python .虚衍网站内容配置总表.ref/publish.py --sync-only
 python .虚衍网站内容配置总表.ref/publish.py --dry-run
 ```
 
-发布需要 GitHub token，任选一种提供方式（不会写进仓库任何文件）：
+### Token 放在哪
 
-1. 存一行到 `%USERPROFILE%\.workbuddy\github-token.txt`
-2. `set GITHUB_TOKEN=ghp_xxx` 后运行
-3. `python publish.py ghp_xxx`
+Token 已存在 **`.虚衍网站内容配置总表.ref/.token`**（一行一个 token），
+`publish.py` 与 `push_github.py` 会自动读取，**不用每次输入**。
+覆盖顺序：环境变量 `GITHUB_TOKEN` > 命令行参数 > `.token` 文件。
+`.token` 不在推送清单里，不会被传到 GitHub，但请把它当密码看待、不要外发。
 
 单独的两个步骤（需要时用）：
 
@@ -58,10 +65,14 @@ python .虚衍网站内容配置总表.ref/publish.py --dry-run
 python .虚衍网站内容配置总表.ref/build.py --export-only
 
 # 推送 + 线上复验
-python .虚衍网站内容配置总表.ref/push_github.py <token>
+python .虚衍网站内容配置总表.ref/push_github.py
 python .虚衍网站内容配置总表.ref/verify_online.py
 ```
 
+> ⚠️ **两个数据源别搞混**：`publish.py` 以**在线表格**为准；
+> `build.py --export-only` 以**本地 xlsx** 为准。用后者会把在线表里的改动盖回去，
+> 所以日常只用 `publish.py`（或那个 .bat）。
+>
 > ⚠️ 不要直接运行 `python build.py`（无参数）——它会按脚本里的模板**重建整张表**，
 > 把你手改的内容覆盖掉。只有新增页面 / 元素、需要重新生成表时才用它。
 
@@ -99,8 +110,25 @@ XY.loadSiteConfig().then(function (cfg) {
 });
 ```
 
-> `site-config.json` 通过 fetch 读取（已带 `no-store`，避免改表后刷新不变），
-> 需经 HTTP 访问——本地直接双击打开 HTML 时浏览器会拦截。
+### 为什么没有「先显示旧文案、再变成新文案」的闪烁
+
+早期版本用 `fetch` 异步读 `site-config.json`：浏览器会先把 HTML 里写死的
+内置默认文案画出来，配置请求回来后再覆盖，中间那一瞬旧文案是**可见**的。
+
+现在改为两层保障：
+
+1. **同步配置**：构建脚本额外导出一份 `assets/site-config.js`
+   （内容是 `window.__XY_CONFIG__ = {…}`），页面在 `<head>` 里用
+   `<script src="./assets/site-config.js"></script>` **同步**加载。
+   首次绘制之前配置就已就位，从根上消除时序差。
+   顺带好处：直接双击打开 HTML（`file://`）也能读到配置，不再被 fetch 的同源策略拦住。
+2. **未就绪先隐藏**：`common.js` 在 `<head>` 执行时先给 `<html>` 加 `xy-cfg-pending`，
+   `theme.css` 把带 `data-config-name` 的元素设为 `visibility:hidden`（保留占位、不跳版）；
+   配置套用完成立即摘掉。若配置始终读不到，1.5 秒后强制摘掉，绝不长时间空白。
+
+`assets/site-config.js` 不存在时自动回退到 fetch 读 `site-config.json`，两条链路都可用。
+
+> 本地可直接打开 HTML 预览（配置走 JS 版）；但 `fetch` 回退链路需经 HTTP 访问。
 > 不调用 `autoApplyConfig()` / `loadSiteConfig()` 就不会产生任何额外请求。
 
 ### 富文本标记
@@ -121,8 +149,10 @@ XY.loadSiteConfig().then(function (cfg) {
 
 - 纯静态、零构建、无外部依赖
 - 全部配图 WebP 格式，1024px 内自适应缩放；视频 / 音频建议放 `./media/`
-- 公共资源：`assets/theme.css`（设计令牌 / 星空 / 媒体容器 / 动画降级）、
+- 公共资源：`assets/theme.css`（设计令牌 / 星空 / 媒体容器 / 动画降级 / 防闪占位）、
   `assets/common.js`（星空 / logo / 提示条 / 键盘可达性 / 富文本渲染 / 配置读取）
+- 站点配置：`assets/site-config.js`（同步加载，页面实际读取的）+ `assets/site-config.json`
+  （同内容，供 fetch 回退与其它程序消费），两者都由表格自动生成
 - 无障碍：`role=button` + `tabindex` + `aria-label`，支持 Enter/Space；`prefers-reduced-motion` 降级
 - 分享卡片：Open Graph + Twitter Card
 - `archive/` 为历史版本存档
