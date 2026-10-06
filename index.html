@@ -383,15 +383,15 @@
     <div class="nebula"></div>
     <div class="mist"></div>
 </div>
-<div class="logo" id="homeLogoBtn">
+<div class="logo" id="homeLogoBtn" role="button" tabindex="0" aria-label="前往万象导览" title="前往万象导览">
     <img class="logo-img" id="logoImg" alt="虚衍文化科技Logo">
 </div>
 
 <div class="main-content" role="main">
-    <h1 class="main-title" id="mainTitle">虚衍文化科技</h1>
-    <p class="sub-title" id="subTitle">吾等同自虚无衍化，故亦同为一体</p>
+    <h1 class="main-title" id="mainTitle" data-config-sheet="01_主页" data-config-name="主标题">虚衍文化科技</h1>
+    <p class="sub-title" id="subTitle" data-config-sheet="01_主页" data-config-name="副标题">吾等同自虚无衍化，故亦同为一体</p>
     <div class="btn-wrap">
-        <button class="more-btn" id="mainBtn">了解更多</button>
+        <button class="more-btn" id="mainBtn" data-config-sheet="01_主页" data-config-name="主按钮 · 默认态" data-config-active-name="主按钮 · 激活态">了解更多</button>
     </div>
     <div class="nav-overlay" id="navOverlay"></div>
 </div>
@@ -407,8 +407,8 @@
         const FAVICON_SRC = "./0虚衍主页/logo.webp";
         const MAIN_TITLE_TEXT = "虚衍文化科技";
         const SUB_TITLE_TEXT = "吾等自虚无衍化，故应亦同为一体";
-        const BTN_DEFAULT_TEXT = "了解更多";
-        const BTN_ACTIVE_TEXT = "回归初始";
+        let BTN_DEFAULT_TEXT = "了解更多";
+        let BTN_ACTIVE_TEXT = "回归初始";
 
         const NAV_BUTTONS = [
             { text: "虚衍世界", link: "1虚衍世界.html", target: "_self" },
@@ -810,12 +810,32 @@
             resetIdleTimer();
         }
 
+        // ----- 表格驱动：文案/标题由《虚衍网站内容配置总表》控制 -----
+        // 链路：改表 → .虚衍网站内容配置总表.ref/build.py 导出 assets/site-config.json → 本页读回。
+        // 读不到（离线打开 / 网络异常）时静默跳过，页面继续用上面的内置常量。
+        function applyTableConfig() {
+            if (!window.XY || !XY.autoApplyConfig) return;
+            XY.autoApplyConfig().then(function (res) {
+                if (!res || !res.applied) return;
+                const btn = document.getElementById('mainBtn');
+                if (!btn) return;
+                // 主按钮是双态元素，取回两套文案后按当前状态重挂
+                const dv = btn.getAttribute('data-config-value');
+                const av = btn.getAttribute('data-config-active-value');
+                if (dv) BTN_DEFAULT_TEXT = dv;
+                if (av) BTN_ACTIVE_TEXT = av;
+                btn.innerText = (flashRound % 2 === 1) ? BTN_ACTIVE_TEXT : BTN_DEFAULT_TEXT;
+                // 主标题 / 副标题由 XY.applyConfig 依 data-config-* 属性自动套用
+            }).catch(function () { /* 静默回落 */ });
+        }
+
         // ----- 初始化入口 -----
         function init() {
             renderStaticContent();
             bindEvents();
-            setupLogo();
+            setupLogo('./0-1虚衍导航.html', '.logo', 'logoImg', '前往万象导览');
             setupA11yFallback();
+            applyTableConfig();
             animationFrameId = requestAnimationFrame(animationLoop);
             starlightInterval = setInterval(createStarlight, STARLIGHT_CREATE_INTERVAL);
             initIdleDetection();

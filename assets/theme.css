@@ -144,3 +144,87 @@ body {
     overflow-x: hidden;
     max-width: 100%;
 }
+
+/* ------------------------------------------------------------------
+   富文本媒体容器
+   由 XY.renderRichText() 生成，对应标记：
+     [img:图片URL|描述]   [video:视频URL|标题]   [audio:音频URL|标题]
+   任何页面引入 theme.css + common.js 后即可直接使用这些标记。
+   ------------------------------------------------------------------ */
+.media-container {
+    margin: 1.5rem 0;
+    text-align: center;
+    border-radius: 1.2rem;
+    overflow: hidden;
+    background: rgba(18, 14, 40, 0.5);
+    border: 1px solid rgba(168, 139, 255, 0.2);
+    padding: 0.6rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.media-container:hover {
+    border-color: rgba(168, 139, 255, 0.5);
+    box-shadow: 0 0 20px rgba(168, 139, 255, 0.08);
+}
+
+.media-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.8rem;
+    display: block;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.media-img:hover {
+    transform: scale(1.01);
+}
+
+.media-video {
+    max-width: 100%;
+    border-radius: 0.8rem;
+    display: block;
+    margin: 0 auto;
+    background: #0a0818;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    height: auto;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* 音频：无画面，做成细长条 */
+.media-audio {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 460px;
+    border-radius: 999px;
+    background: rgba(10, 8, 24, 0.85);
+    filter: sepia(0.25) hue-rotate(215deg) saturate(1.4);
+}
+
+.media-caption {
+    color: #c5b8ff;
+    font-size: 0.9rem;
+    padding: 0.6rem 0 0.2rem;
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px rgba(168, 139, 255, 0.3);
+    opacity: 0.85;
+    font-weight: 400;
+}
+
+/* 媒体加载失败时的占位提示 */
+.media-fallback {
+    display: none;
+    color: #a88bcc;
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+}
+
+/* 减少动态效果时不做悬停缩放 */
+@media (prefers-reduced-motion: reduce) {
+    .media-img:hover {
+        transform: none;
+    }
+}

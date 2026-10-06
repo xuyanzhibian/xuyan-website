@@ -1972,51 +1972,9 @@
             //  媒体解析 + 自定义文本样式标签
             // ================================================================
             function renderContent(content) {
-                if (!content) return '';
-
-                // 1. 图片标签 [img:URL|描述]
-                let html = content.replace(
-                    /\[img:([^\|\]]+)(?:\|([^\]]+))?\]/g,
-                    function(match, url, alt) {
-                        const altText = (alt && alt.trim()) || '虚衍意象';
-                        const safeUrl = url.replace(/"/g, '&quot;');
-                        return `<div class="media-container">
-                                    <img src="${safeUrl}" alt="${altText}" class="media-img" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
-                                    <div class="media-caption">${altText}</div>
-                                    <div style="display:none;color:#a88bcc;font-size:0.85rem;padding:0.5rem 0;">✦ 图片加载失败 ✦</div>
-                                </div>`;
-                    }
-                );
-
-                // 2. 视频标签 [video:URL|标题]
-                html = html.replace(
-                    /\[video:([^\|\]]+)(?:\|([^\]]+))?\]/g,
-                    function(match, url, title) {
-                        const titleText = (title && title.trim()) || '虚衍回响 · 影像';
-                        const safeUrl = url.replace(/"/g, '&quot;');
-                        return `<div class="media-container">
-                                    <video src="${safeUrl}" controls class="media-video" preload="metadata" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-                                        您的浏览器不支持视频播放。
-                                    </video>
-                                    <div style="display:none;color:#a88bcc;font-size:0.85rem;padding:0.5rem 0;">✦ 视频加载失败 ✦</div>
-                                    <div class="media-caption">${titleText}</div>
-                                </div>`;
-                    }
-                );
-
-                // ====== 3. 自定义文本样式标签 ======
-                // 加粗 [b]文字[/b]
-                html = html.replace(/\[b\](.*?)\[\/b\]/gs, '<b>$1</b>');
-                // 斜体 [i]文字[/i]
-                html = html.replace(/\[i\](.*?)\[\/i\]/gs, '<i>$1</i>');
-                // 删除线 [s]文字[/s]
-                html = html.replace(/\[s\](.*?)\[\/s\]/gs, '<s>$1</s>');
-                // 下划线 [u]文字[/u]
-                html = html.replace(/\[u\](.*?)\[\/u\]/gs, '<u>$1</u>');
-                // 居中 [center]文字[/center]
-                html = html.replace(/\[center\](.*?)\[\/center\]/gs, '<div style="text-align:center; width:100%;">$1</div>');
-
-                return html;
+                /* 统一走公共库渲染器：支持 [img:URL|描述] [video:URL|标题] [audio:URL|标题]
+                   以及 [b] [i] [u] [s] [center] 行内标记（定义见 assets/common.js） */
+                return XY.renderRichText(content);
             }
 
             // ================================================================
