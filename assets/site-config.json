@@ -40,7 +40,7 @@
    "available": true,
    "captured": "2026-10-07 00:33:22",
    "file": ".cell-styles.json",
-   "note": "由 sync_styles.py 在 WorkBuddy 内抓取；改表格格式后需重跑"
+   "note": "由 sync_styles.py 在有登录票据时抓取；发布链路（publish.py / autopublish.py）会自动刷新，一般无需手动跑"
   },
   "note": "由 sync_online.py 从腾讯文档在线总表同步生成；也可用 build.py --export-only 从本地 xlsx 生成。网页用 XY.loadSiteConfig() / XY.configItem() 读取。"
  },
