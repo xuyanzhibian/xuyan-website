@@ -29,16 +29,29 @@
 - 统一 13 列，其中 **`点击后显示的文本`** 一列存放「点击/悬停后页面上出现的文字」
 - 该列支持富文本标记，网页端由 `XY.renderRichText()` 渲染成图片 / 视频 / 音频
 
-### 改表 → 改站（双击一个文件就行）
+### 改表 → 改站（三种方式，按省事程度挑）
 
 腾讯文档里的表格和网页上的内容是**两个地方**：表格是数据源，
 网页读的是仓库里的 `assets/site-config.json` / `assets/site-config.js`。
-所以改完表必须「同步 + 发布」才会生效。
+所以改完表必须「同步 + 发布」才会生效 —— 下面三种方式都帮你把这两步做掉了。
 
-**最省事的方式**：双击项目根目录的 **`一键发布到网站.bat`**，它会自动
-「读在线表格 → 生成配置 → 推送到 GitHub」。完成后约 1 分钟线上生效。
+**① 什么都不用做（已配置好，推荐）**
 
-命令行等价写法：
+后台有两件事在自动跑：
+
+| 谁 | 频率 | 干什么 |
+|---|---|---|
+| Windows 计划任务「虚衍网站自动发布」 | 每 5 分钟 | 检查在线表格，有改动就同步并发布 |
+| WorkBuddy 整点自动化 | 每小时 | 刷新腾讯文档票据（票据会过期，不刷会报 `no_token`） |
+
+**改完表格直接关掉页面就行**，最迟约 5 分钟自动上线。
+
+- 双击 `查看自动发布状态.bat` → 看任务状态 + 最近日志
+- 双击 `关闭自动同步上线.bat` / `开启自动同步上线.bat` → 关掉或重开
+
+**② 想立刻生效**：双击 **`一键发布到网站.bat`**（同步 + 推送，约 1 分钟上线）。
+
+**③ 命令行**：
 
 ```bash
 # 在线表格改完 → 同步 → 推送到 GitHub（一条命令搞定）
@@ -49,14 +62,27 @@ python .虚衍网站内容配置总表.ref/publish.py --sync-only
 
 # 只想知道改了什么，什么都不写
 python .虚衍网站内容配置总表.ref/publish.py --dry-run
+
+# 无人值守发布器（计划任务调用的就是它，无变化时直接跳过）
+python .虚衍网站内容配置总表.ref/autopublish.py
+python .虚衍网站内容配置总表.ref/install_schedule.py --interval 10   # 改成每 10 分钟
 ```
 
-### Token 放在哪
+### 凭证放在哪（两个，都别外发）
 
-Token 已存在 **`.虚衍网站内容配置总表.ref/.token`**（一行一个 token），
-`publish.py` 与 `push_github.py` 会自动读取，**不用每次输入**。
-覆盖顺序：环境变量 `GITHUB_TOKEN` > 命令行参数 > `.token` 文件。
-`.token` 不在推送清单里，不会被传到 GitHub，但请把它当密码看待、不要外发。
+| 文件 | 内容 | 谁维护 |
+|---|---|---|
+| `.虚衍网站内容配置总表.ref/.token` | GitHub 推送令牌 | 手动写入，一行 |
+| `.虚衍网站内容配置总表.ref/.tdoc-token.json` | 腾讯文档登录票据 | 由 `refresh_tdoc_token.py` 在 WorkBuddy 内导出，整点自动化自动刷新 |
+
+> **为什么票据要导出**：腾讯文档的登录票据是 WorkBuddy 宿主**按会话注入**的，
+> 脱离 WorkBuddy 的进程（计划任务、双击 .bat）一律取不到 —— 这正是早期
+> 「双击了但没更新」的根因。导出到 `.tdoc-token.json` 后，本机脚本就能自带票据运行。
+> 票据会过期，过期时日志里会出现 `no_token`，在 WorkBuddy 里跑一次
+> `refresh_tdoc_token.py` 即可恢复（整点自动化已在做）。
+
+两个文件都不在推送清单里，不会被传到 GitHub，但请当密码看待、不要外发。
+GitHub token 的覆盖顺序：环境变量 `GITHUB_TOKEN` > 命令行参数 > `.token` 文件。
 
 单独的两个步骤（需要时用）：
 
@@ -153,6 +179,11 @@ XY.loadSiteConfig().then(function (cfg) {
   `assets/common.js`（星空 / logo / 提示条 / 键盘可达性 / 富文本渲染 / 配置读取）
 - 站点配置：`assets/site-config.js`（同步加载，页面实际读取的）+ `assets/site-config.json`
   （同内容，供 fetch 回退与其它程序消费），两者都由表格自动生成
+- 发布链路脚本都在 `.虚衍网站内容配置总表.ref/`：
+  `autopublish.py`（无人值守，无变化则跳过）、`install_schedule.py`（计划任务开关）、
+  `refresh_tdoc_token.py`（导出/查看腾讯文档票据）、`publish.py`（手动一键）、
+  `sync_online.py`（在线表 → 配置）、`build.py`（本地表 → 配置 / 重建表）、
+  `push_github.py`（GitHub Git Data API 推送）、`verify_online.py`（线上复验）
 - 无障碍：`role=button` + `tabindex` + `aria-label`，支持 Enter/Space；`prefers-reduced-motion` 降级
 - 分享卡片：Open Graph + Twitter Card
 - `archive/` 为历史版本存档
