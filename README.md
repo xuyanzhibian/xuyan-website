@@ -155,10 +155,18 @@ XY.loadSiteConfig().then(function (cfg) {
 现在改为两层保障：
 
 1. **同步配置**：构建脚本额外导出一份 `assets/site-config.js`
-   （内容是 `window.__XY_CONFIG__ = {…}`），页面在 `<head>` 里用
-   `<script src="./assets/site-config.js"></script>` **同步**加载。
+   （内容是 `window.__XY_CONFIG__ = {…}`），页面在 `<head>` 里**同步**加载。
    首次绘制之前配置就已就位，从根上消除时序差。
    顺带好处：直接双击打开 HTML（`file://`）也能读到配置，不再被 fetch 的同源策略拦住。
+
+   ⚠️ **加载方式必须带时间戳**，不能写成静态的 `<script src="./assets/site-config.js">`：
+
+   ```html
+   <script>(function(){document.write('<scr'+'ipt src="./assets/site-config.js?t='
+       +Math.floor(Date.now()/3e4)+'"><\/scr'+'ipt>');})();</script>
+   ```
+
+   原因见下一节「改完表刷新却看不到更新」。
 2. **未就绪先隐藏**：`common.js` 在 `<head>` 执行时先给 `<html>` 加 `xy-cfg-pending`，
    `theme.css` 把带 `data-config-name` 的元素设为 `visibility:hidden`（保留占位、不跳版）；
    配置套用完成立即摘掉。若配置始终读不到，1.5 秒后强制摘掉，绝不长时间空白。
@@ -167,6 +175,39 @@ XY.loadSiteConfig().then(function (cfg) {
 
 > 本地可直接打开 HTML 预览（配置走 JS 版）；但 `fetch` 回退链路需经 HTTP 访问。
 > 不调用 `autoApplyConfig()` / `loadSiteConfig()` 就不会产生任何额外请求。
+
+### 改完表、刷新页面却看不到更新？（重要）
+
+**先别怀疑同步链路**：GitHub Pages 给所有资源都带了
+
+```
+Cache-Control: max-age=600
+```
+
+也就是**浏览器会把 `site-config.js` 缓存 10 分钟**。而 `<script src>` 这种加载方式
+完全受 HTTP 缓存控制（早先 fetch 用的 `no-store` 在这里不起作用）——文件在线上
+早就更新了，浏览器却还在用手里那份旧副本，于是「改了表刷新没变化」。
+
+所以页面**不写静态的 `<script src="./assets/site-config.js">`**，而是用上面那段
+内联脚本动态注入、并在 URL 上挂一个 30 秒粒度的时间戳。它仍然是 `<head>` 里同步执行
+（首帧就位、不闪烁），但每次刷新都是新的 URL，浏览器缓存必然 miss。
+
+> 实测（同一个浏览器 context + `max-age=600` 的响应头）：
+> 静态引用在改完之后刷新**仍读到旧值**；时间戳引用**立刻读到新值**。
+
+判断线上到底更新了没有，直接看响应头/文件内容，不要靠肉眼刷新：
+
+```bash
+python .虚衍网站内容配置总表.ref/verify_online.py     # 断言「页面文字 == 表格值」
+```
+
+两个补充说明：
+
+- **HTML 本身也被缓存 600 秒**。只改表格（配置变、HTML 不变）时不受影响；
+  但若我改动了 HTML 结构（比如这次的加载方式），你浏览器里的旧 HTML 要等缓存过期
+  或按一次 **Ctrl+F5** 强制刷新才会换新。
+- 想立刻确认是不是缓存问题：开一个**无痕窗口**（或无缓存刷新）打开站点，
+  如果无痕里是新的、普通窗口是旧的，那 100% 是缓存。
 
 ### 富文本标记
 
