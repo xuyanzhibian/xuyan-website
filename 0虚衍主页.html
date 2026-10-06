@@ -492,6 +492,11 @@
         const CONSUME_DURATION = cn(P_HOLD, "CONSUME_DURATION", 1000);
         const PEAK_DURATION = cn(P_PEAK, "PEAK_DURATION", 1500);
         const RING_DURATION = cn(P_RING, "RING_DURATION", 1000);
+        // 长按判定改为「按下按钮后持续 HOLD_DURATION 毫秒」的确定性计时，
+        // 不再依赖随机生成的光点个数（旧逻辑要凑满 TRIGGER_NUM 颗星，
+        // 按 1000ms 一颗算需要按住约 5 秒，移动端几乎没人能触发）。
+        // 总时长为 HOLD_DURATION + CONSUME_DURATION + PEAK_DURATION。
+        const HOLD_DURATION = cn(P_HOLD, "HOLD_DURATION", 600);
         const MOUSE_ADSORB_SMOOTHNESS = cn(P_SMOOTH, "MOUSE_ADSORB_SMOOTHNESS", 0.15);
         const BUTTON_ADSORB_SPEED = cn(P_SMOOTH, "BUTTON_ADSORB_SPEED", 0.1);
         const BUTTON_ADSORB_TRIGGER_DIST = cn(P_SMOOTH, "BUTTON_ADSORB_TRIGGER_DIST", 5);
@@ -523,7 +528,7 @@
         // 状态变量
         let isAbsorb = false, isConsume = false, lightPeakHold = false, mouseAdsorbOn = false;
         let isHolding = false, isFlashing = false, flashRound = 0;
-        let mouseX = 0, mouseY = 0, mouseDownTime = 0;
+        let mouseX = 0, mouseY = 0, mouseDownTime = 0, holdStartTime = 0;
         let starList = [];
         let starlightInterval = null;
         let animationFrameId = null;
@@ -591,12 +596,20 @@
                 const navBtn = document.createElement('button');
                 navBtn.className = 'nav-btn';
                 navBtn.innerText = btn.text;
-                navBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if(btn.link && btn.link !== '#') {
-                        if(btn.target === '_blank') window.open(btn.link);
-                        else window.location.href = btn.link;
-                    }
+                let jumped = false;
+                const go = () => {
+                    if(jumped) return;
+                    if(!btn.link || btn.link === '#') return;
+                    jumped = true;
+                    if(btn.target === '_blank') window.open(btn.link);
+                    else window.location.href = btn.link;
+                };
+                navBtn.addEventListener('click', (e) => { e.stopPropagation(); go(); });
+                // 兜底：部分移动端浏览器/套壳 WebView 在触摸后不派发合成 click，
+                // 这里直接监听 touchend，保证移动端「点一下就能跳转」。
+                navBtn.addEventListener('touchend', (e) => { e.stopPropagation(); go(); }, { passive: true });
+                navBtn.addEventListener('keydown', (e) => {
+                    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); go(); }
                 });
                 navOverlayDiv.appendChild(navBtn);
             });
@@ -707,6 +720,9 @@
             starList.forEach(item => item.remove());
             starList.length = 0;
             flashRound++;
+            holdStartTime = 0;
+            isAbsorb = false;
+            isConsume = false;
             if(flashRound % 2 === 1) {
                 navOverlay.style.opacity = '1';
                 navOverlay.style.pointerEvents = 'auto';
@@ -732,6 +748,11 @@
                 isFlashing = true;
                 mouseDownTime = performance.now();
             }
+            // 按住主按钮达到 HOLD_DURATION 即开始吸附/消耗（确定性，不受光点数量影响）
+            if(isAbsorb && !isConsume && !lightPeakHold && holdStartTime &&
+               performance.now() - holdStartTime >= HOLD_DURATION) {
+                isConsume = true;
+            }
             if(isConsume && !lightPeakHold && isFlashing) {
                 const now = performance.now();
                 const progress = Math.min(1, (now - mouseDownTime) / CONSUME_DURATION);
@@ -755,7 +776,7 @@
                     const dx = cx - s.x, dy = cy - s.y;
                     s.x += dx * BUTTON_ADSORB_SPEED;
                     s.y += dy * BUTTON_ADSORB_SPEED;
-                    if(Math.hypot(dx, dy) < BUTTON_ADSORB_TRIGGER_DIST && !isConsume && starList.length >= TRIGGER_NUM) isConsume = true;
+                    if(Math.hypot(dx, dy) < BUTTON_ADSORB_TRIGGER_DIST && !isConsume) isConsume = true;
                 }
                 s.style.left = (s.x - s.size/2) + "px";
                 s.style.top = (s.y - s.size/2) + "px";
@@ -798,19 +819,36 @@
         }
         function handleEnd() { resetRing(); }
 
+        // 判断触摸目标是否为「需要正常点击」的交互元素。
+        // 这些元素上不能 preventDefault：触摸事件的默认行为一旦被阻止，
+        // 浏览器就不会再派发合成 click，移动端表现为「点了没反应、不跳转」。
+        function isInteractiveTarget(el) {
+            while (el && el !== document) {
+                if (el.classList && (el.classList.contains('nav-btn') ||
+                    el.classList.contains('more-btn') || el.classList.contains('logo'))) return true;
+                if (el.tagName === 'A' || el.tagName === 'BUTTON') return true;
+                el = el.parentElement;
+            }
+            return false;
+        }
+
         function bindEvents() {
             document.addEventListener('mousedown', e => handlePointerStart(e, false));
             document.addEventListener('mousemove', e => handleMove(e, false));
             document.addEventListener('mouseup', handleEnd);
             document.addEventListener('mouseleave', resetRing);
-            document.addEventListener('touchstart', e => { e.preventDefault(); handlePointerStart(e, true); }, { passive: false });
+            document.addEventListener('touchstart', e => {
+                // 交互元素放行默认行为，否则 preventDefault 会吞掉移动端的合成 click
+                if (!isInteractiveTarget(e.target)) e.preventDefault();
+                handlePointerStart(e, true);
+            }, { passive: false });
             document.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e, true); }, { passive: false });
             document.addEventListener('touchend', handleEnd);
             document.addEventListener('touchcancel', handleEnd);
-            mainBtn.addEventListener('mousedown', () => { isAbsorb = true; isConsume = false; lightPeakHold = false; whiteFlash.style.opacity = 0; isFlashing = false; });
+            mainBtn.addEventListener('mousedown', () => { isAbsorb = true; isConsume = false; lightPeakHold = false; whiteFlash.style.opacity = 0; isFlashing = false; holdStartTime = performance.now(); });
             mainBtn.addEventListener('mouseup', releaseStars);
             mainBtn.addEventListener('mouseleave', releaseStars);
-            mainBtn.addEventListener('touchstart', (e) => { e.preventDefault(); isAbsorb = true; isConsume = false; lightPeakHold = false; whiteFlash.style.opacity = 0; isFlashing = false; });
+            mainBtn.addEventListener('touchstart', (e) => { isAbsorb = true; isConsume = false; lightPeakHold = false; whiteFlash.style.opacity = 0; isFlashing = false; holdStartTime = performance.now(); });
             mainBtn.addEventListener('touchend', releaseStars);
             mainBtn.addEventListener('touchcancel', releaseStars);
             mainBtn.addEventListener('mouseenter', () => createBtnParticles(mainBtn, BTN_HOVER_PARTICLE_COUNT));
