@@ -400,7 +400,7 @@
     </style>
     <link rel="stylesheet" href="./assets/theme.css">
     <!-- 同步加载站点配置：首次绘制前配置即就位，避免「先旧文案后新文案」的闪烁 -->
-    <script src="./assets/site-config.js"></script>
+    <script>(function(){document.write('<scr'+'ipt src="./assets/site-config.js?t='+Math.floor(Date.now()/3e4)+'"><\/scr'+'ipt>');})();</script>
     <script src="./assets/common.js"></script>
 </head>
 <body>
