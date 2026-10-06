@@ -955,6 +955,9 @@
                         if (bg && bg !== "—") b.bgImg = bg;
                         if (hover) b.hoverText = hover;
                         if (art && body) art.content = body;
+                        // 该格在表格里的整格格式（加粗 / 斜体 / 居中 …）
+                        const st = XY.cfgStyle(CFG_SHEET, row, null);
+                        if (art) { if (st) art.cellStyle = st; else delete art.cellStyle; }
                     }
                     const trow = ARTICLE_ROW[b.id];
                     if (art && trow) {
@@ -1476,7 +1479,12 @@
                     rightArea.className = 'right-content-area';
                     const articleBody = document.createElement('div');
                     articleBody.className = 'article-body';
-                    articleBody.innerHTML = article.content;
+                    // 走公共渲染器：单元格里的真实换行、[b]/[center] 等标记、<a> 链接都会生效
+                    articleBody.innerHTML = (window.XY && XY.renderRichText)
+                        ? XY.renderRichText(article.content) : article.content;
+                    if (article.cellStyle && window.XY && XY.applyCellStyle) {
+                        XY.applyCellStyle(articleBody, article.cellStyle);
+                    }
                     rightArea.appendChild(articleBody);
 
                     layout.appendChild(navPanel);

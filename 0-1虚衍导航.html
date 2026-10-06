@@ -711,20 +711,27 @@
             menuStructure.forEach(function (pri) {
                 pri.name = XY.cfgVal(S, pri.name, pri.name);
                 (pri.secondary || []).forEach(function (sec) {
-                    sec.title = XY.cfgVal(S, sec.title, sec.title);
-                    const img = XY.cfgRes(S, sec.title, null);
+                    // 表里的「元素名称」始终是原始名；改名后仍按原始名查其它列，
+                    // 否则一改菜单文案，底图/正文/悬停就全查不到了。
+                    const key = sec.title;
+                    sec.title = XY.cfgVal(S, key, key);
+                    const img = XY.cfgRes(S, key, null);
                     if (img) sec.image = img;
-                    const body = XY.cfgText(S, sec.title, null);
+                    const body = XY.cfgText(S, key, null);
                     if (body) sec.longText = body;            // 长文本正文
-                    const bg = XY.cfgHover(S, sec.title, null); // 二级行的「悬停文案」当作长文本底图备用
+                    // 该格在表格里的整格格式（加粗 / 斜体 / 居中 …）
+                    const st = XY.cfgStyle(S, key, null);
+                    if (st) sec.cellStyle = st;
+                    const bg = XY.cfgHover(S, key, null);      // 二级行的「悬停文案」当作长文本底图备用
                     if (bg && /\.(webp|png|jpe?g|gif|avif|svg)$/i.test(bg)) sec.longTextBgImage = bg;
                     (sec.tertiary || []).forEach(function (t) {
-                        t.name = XY.cfgVal(S, t.name, t.name);
-                        const h = XY.cfgHover(S, t.name, null);
+                        const tkey = t.name;
+                        t.name = XY.cfgVal(S, tkey, tkey);
+                        const h = XY.cfgHover(S, tkey, null);
                         if (h) t.hoverText = h;
-                        const l = XY.cfgLink(S, t.name, null);
+                        const l = XY.cfgLink(S, tkey, null);
                         if (l) t.targetId = l;
-                        const timg = XY.cfgRes(S, t.name, null);
+                        const timg = XY.cfgRes(S, tkey, null);
                         if (timg) t.image = timg;
                     });
                 });
@@ -828,7 +835,11 @@
         function renderLongText(sec) {
             let content = sec.longText || "虚衍回响正在编织，在此处将浮现更深刻的宇宙哲思与万象启示……";
             let bgImage = sec.longTextBgImage && sec.longTextBgImage.trim() !== "" ? sec.longTextBgImage : DEFAULT_LONG_TEXT_BG;
-            return `<div class="long-text-content" data-longtext-bgimage="${escapeHtml(bgImage)}">${content}</div>`;
+            // 走公共渲染器：单元格里的真实换行、[b]/[center] 等标记、<a> 链接都会生效
+            const bodyHtml = (window.XY && XY.renderRichText) ? XY.renderRichText(content) : content;
+            const css = (window.XY && XY.cellStyleToCss) ? XY.cellStyleToCss(sec.cellStyle) : "";
+            const styleAttr = css ? ` style="${escapeHtml(css)}"` : "";
+            return `<div class="long-text-content" data-longtext-bgimage="${escapeHtml(bgImage)}"${styleAttr}>${bodyHtml}</div>`;
         }
 
         // 👉 修改点：为有 targetId 的三级项生成跳转链接

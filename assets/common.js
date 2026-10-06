@@ -270,13 +270,15 @@
          单元格里直接按回车换行即可（换行符会渲染成 <br>）；
          表格里已经不需要再写 <br>——旧内容里的 <br> 仍兼容。
 
-       ── 媒体 ────────────────────────────────────────────────
+       ── 媒体与链接 ───────────────────────────────────────────
          [img:图片URL|描述]     插入图片（描述作为图注与 alt）
          [video:视频URL|标题]   插入视频（带播放控件）
          [audio:音频URL|标题]   插入音频（带播放控件）
+         <a href="地址">文字</a>                文字链接
 
        地址支持相对路径（./media/xx.mp4）与 http(s) 外链；其余协议会被丢弃。
-       表格里写的 <、>、& 会按文字显示；只放行 br/b/i/u/s/del/sub/sup/p/small 标签。
+       表格里写的 <、>、& 会按文字显示；只放行 br/b/i/u/s/del/sub/sup/p/small 标签，
+       外加一个受地址白名单约束的 a 链接。
        ================================================================ */
 
     /** 表格里可以直接写、且会被当作标签保留的 HTML 标签白名单 */
@@ -290,6 +292,19 @@
                 if (name.toLowerCase() === 'br') return '<br>';
                 return '<' + slash + name.toLowerCase() + '>';
             });
+    }
+
+    /** 链接地址白名单：http(s) 外链、相对路径、.html 文件、#锚点；其余一律拒绝 */
+    function safeLinkUrl(url) {
+        var u = String(url == null ? '' : url).trim();
+        if (!u) return '';
+        var ok = /^(https?:)?\/\//i.test(u)          // 绝对 / 协议相对
+            || /^\.{1,2}\//.test(u)                  // ./ 与 ../
+            || /^#/.test(u)                          // 页内锚点
+            || /^[A-Za-z0-9_\-][A-Za-z0-9_\-.\/]*\.html?(\?[^\s]*)?$/i.test(u);
+        if (!ok) return '';                          // javascript: / data: 等一律拒绝
+        return u.replace(/"/g, '%22').replace(/'/g, '%27')
+                .replace(/</g, '%3C').replace(/>/g, '%3E');
     }
 
     /** 转义为 HTML 文本（用于图注等纯文本位置） */
@@ -357,6 +372,20 @@
 
         /* 2. 转义，再把白名单标签还原（兼容旧内容里直接写的 <br> <b> 等） */
         html = restoreAllowedTags(escapeHtml(html));
+
+        /* 2.5 链接：<a href="...">文字</a>
+               —— 只放行安全地址，非法地址（javascript: 等）退化成纯文字 */
+        html = html.replace(
+            /&lt;a\s+href\s*=\s*(?:&quot;([^&]*)&quot;|&apos;([^&]*)&apos;|'([^']*)'|([^\s&]+))[\s\S]*?&gt;([\s\S]*?)&lt;\/a&gt;/gi,
+            function (m, q1, q2, q3, q4, inner) {
+                var u = safeLinkUrl(q1 || q2 || q3 || q4);
+                if (!u) return inner;
+                var blank = /^(https?:)?\/\//i.test(u)
+                    || /target\s*=\s*(?:&quot;_blank&quot;|'_blank')/i.test(m);
+                return '<a href="' + u + '"' +
+                    (blank ? ' target="_blank" rel="noopener noreferrer"' : '') +
+                    '>' + inner + '</a>';
+            });
 
         /* 3. 去掉 <br> 两侧多余的换行与缩进
               —— 旧写法常写成 "上一行\n<br><br>\n下一行"，不处理会多出空行 */
@@ -600,34 +629,50 @@
     }
 
     /**
+     * 把整格样式转成 CSS 声明串（用于模板字符串里拼 style="..."）。
+     * @param {Object} style cfgStyle() 的返回值
+     * @returns {string} 形如 "font-weight:700;text-align:center"
+     */
+    function cellStyleToCss(style) {
+        if (!style || typeof style !== 'object') return '';
+        var out = [];
+        if (style.bold) out.push('font-weight:700');
+        if (style.italic) out.push('font-style:italic');
+
+        var deco = [];
+        var u = String(style.underline || '').toLowerCase();
+        if (u) {
+            deco.push('underline');
+            if (u.indexOf('double') === 0) out.push('text-decoration-style:double');
+        }
+        if (style.strike) deco.push('line-through');
+        if (deco.length) out.push('text-decoration:' + deco.join(' '));
+
+        if (style.align) out.push('text-align:' + style.align);
+        if (style.color) out.push('color:' + style.color);
+        if (style.bg) out.push('background-color:' + style.bg);
+        if (style.scale) {
+            var v = Math.max(0.6, Math.min(2.5, parseFloat(style.scale) || 1));
+            if (Math.abs(v - 1) > 0.02) out.push('font-size:' + v + 'em');
+        }
+        return out.join(';');
+    }
+
+    /**
      * 把整格样式套成元素的内联样式。
      * @param {Element} el 目标元素
      * @param {Object} style cfgStyle() 的返回值
      * @returns {number} 实际写入的样式条数
      */
     function applyCellStyle(el, style) {
-        if (!el || !style || !el.style) return 0;
-        var s = el.style, n = 0;
-        function put(k, v) { if (v) { s.setProperty(k, v); n++; } }
-
-        if (style.bold) put('font-weight', '700');
-        if (style.italic) put('font-style', 'italic');
-
-        var deco = [];
-        var u = String(style.underline || '').toLowerCase();
-        if (u) {
-            deco.push('underline');
-            if (u.indexOf('double') === 0) put('text-decoration-style', 'double');
-        }
-        if (style.strike) deco.push('line-through');
-        if (deco.length) put('text-decoration', deco.join(' '));
-
-        if (style.align) put('text-align', style.align);
-        if (style.color) put('color', style.color);
-        if (style.bg) put('background-color', style.bg);
-        if (style.scale) {
-            var v = Math.max(0.6, Math.min(2.5, parseFloat(style.scale) || 1));
-            if (Math.abs(v - 1) > 0.02) put('font-size', v + 'em');
+        var css = cellStyleToCss(style);
+        if (!el || !el.style || !css) return 0;
+        var decls = css.split(';'), n = 0;
+        for (var i = 0; i < decls.length; i++) {
+            var j = decls[i].indexOf(':');
+            if (j <= 0) continue;
+            el.style.setProperty(decls[i].slice(0, j).trim(), decls[i].slice(j + 1).trim());
+            n++;
         }
         return n;
     }
@@ -954,6 +999,7 @@
         splitPair: splitPair,
         cfgStyle: cfgStyle,
         applyCellStyle: applyCellStyle,
+        cellStyleToCss: cellStyleToCss,
         applyTokens: applyTokens,
         applyDocMeta: applyDocMeta,
         setImg: setImg

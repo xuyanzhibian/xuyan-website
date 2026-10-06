@@ -229,14 +229,47 @@ python .虚衍网站内容配置总表.ref/verify_online.py     # 断言「页�
 | `[img:图片URL\|描述]` | 插入图片（描述作为图注与 alt） |
 | `[video:视频URL\|标题]` | 插入视频（带播放控件） |
 | `[audio:音频URL\|标题]` | 插入音频（带播放控件） |
+| `<a href="地址">文字</a>` | 文字链接（只放行 http(s)/相对路径/`#锚点`） |
 
 渲染器是 `assets/common.js` 的 `XY.renderRichText()`，块级样式在 `assets/theme.css`（`.rich-*`）。
 
 - 标记必须**成对闭合**，只写半边会原样显示。
 - 表格里写的 `<` `>` `&` 会按普通文字显示，不会破坏页面结构；只有
-  `br / b / i / u / s / sub / sup / p / small` 这几个标签会被当成格式。
+  `br / b / i / u / s / sub / sup / p / small` 这几个标签会被当成格式，
+  外加一个受地址白名单约束的 `<a>`。
 - 地址支持相对路径（`./media/x.mp4`）与 `https://` 外链，其他协议会被丢弃；
   媒体加载失败时自动显示占位提示。
+
+### 整格格式（单元格格式 → 网页）
+
+不想写标记时，可以直接给单元格设格式，网页会照搬这一格的格式：
+
+| 表格里的单元格格式 | 网页效果 |
+|---|---|
+| 加粗 / 斜体 / 下划线 / 删除线 | 整块元素对应加粗 / 倾斜 / 下划线 / 删除线 |
+| 水平对齐：居中 / 靠右 / 两端对齐 | 整块元素对齐方式 |
+| 字号（相对本表最常用字号） | 按倍率缩放（`1em` 为基准，限幅 0.6–2.5） |
+| 字体颜色 / 背景色 | 对应 `color` / `background-color` |
+
+**这是有代价的**：腾讯文档的表格接口只能设「整个单元格」的格式，**没法只给
+一句话里的某几个词**上格式。所以句中局部强调仍然要写 `[b]…[/b]` 这类标记。
+
+链路（格式读不到，必须缓存）：
+
+```
+腾讯文档单元格格式 ──sync_styles.py（WorkBuddy 内）──▶ .虚衍网站内容配置总表.ref/.cell-styles.json
+                                                              │ sync_online.py / build.py 合并
+                                                              ▼
+                                        site-config.json 里记录的「样式」/「值样式」字段
+                                                              │ 页面 XY.cfgStyle() + XY.applyCellStyle()
+                                                              ▼
+                                                        网页元素的整格格式
+```
+
+- 两条读表通道（含自动发布用的 opendoc 直读）**都读不到单元格格式**，所以只能缓存。
+- **改了单元格格式要重跑 `python sync_styles.py`**，普通发布不会自动同步格式。
+- 缓存里只会出现「被人工设过格式」的格子，所以默认格式的表格不会给网页加任何样式。
+- 元素想跳过整格格式，加 `data-config-style="off"`。
 
 ## 技术说明
 
@@ -252,6 +285,12 @@ python .虚衍网站内容配置总表.ref/verify_online.py     # 断言「页�
   `sync_online.py`（在线表 → 配置，默认直读、失败回退）、`build.py`（本地表 → 配置 / 重建表）、
   `push_github.py`（GitHub Git Data API 推送）、`verify_online.py`（线上复验）、
   `refresh_tdoc_token.py`（导出腾讯文档票据，仅兜底用）
+- 表格格式相关（需 WorkBuddy 票据）：`sync_styles.py`（抓单元格格式 → `.cell-styles.json`）、
+  `cell_styles.py`（样式缓存读写，被 `sync_online.py` / `build.py` 复用）、
+  `tdoc_write.py`（写表封装）、`convert_cell_styles.py`（行内标记 → 整格格式的一次性转换）
+- 验证脚本：`verify_all_pages.py`（7 页表格驱动哨兵值）、`verify_richtext.py`（富文本渲染）、
+  `verify_cell_styles.py`（整格格式 + 正文换行）、`verify_config.py`（防首屏闪烁 + 改表生效）、
+  `regress.py`（3 视口 × 8 页控制台/裂图/溢出）
 - 无障碍：`role=button` + `tabindex` + `aria-label`，支持 Enter/Space；`prefers-reduced-motion` 降级
 - 分享卡片：Open Graph + Twitter Card
 - `archive/` 为历史版本存档
