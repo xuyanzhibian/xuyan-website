@@ -725,6 +725,9 @@
                     // 「重点加粗」列：只把列出的词加粗（写了它就自动取消整格加粗）
                     const bold = XY.cfgBold(S, key, null);
                     if (bold) sec.boldWords = bold;
+                    // 「文本片段」：文档里给某几个字单独设的格式（加粗/斜体/删除线/字色/字号）
+                    const runs = XY.cfgRuns(S, key, null);
+                    if (runs) sec.runs = runs;
                     const bg = XY.cfgHover(S, key, null);      // 二级行的「悬停文案」当作长文本底图备用
                     if (bg && /\.(webp|png|jpe?g|gif|avif|svg)$/i.test(bg)) sec.longTextBgImage = bg;
                     (sec.tertiary || []).forEach(function (t) {
@@ -840,7 +843,8 @@
             let bgImage = sec.longTextBgImage && sec.longTextBgImage.trim() !== "" ? sec.longTextBgImage : DEFAULT_LONG_TEXT_BG;
             // 走公共渲染器：单元格里的真实换行、[b]/[center] 等标记、<a> 链接都会生效
             const bodyHtml = (window.XY && XY.renderRichText)
-                ? XY.renderRichText(content, sec.boldWords) : content;
+                ? XY.renderRichText(content, { boldWords: sec.boldWords, runs: sec.runs })
+                : content;
             // 填了「重点加粗」就不套整格加粗，否则整段都粗、局部强调失效
             const cellStyle = (sec.boldWords && window.XY && XY.stripCellBold)
                 ? XY.stripCellBold(sec.cellStyle) : sec.cellStyle;

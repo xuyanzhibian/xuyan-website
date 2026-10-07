@@ -260,17 +260,29 @@
          想让**整段正文**统一加粗 / 斜体 / 居中 / 换色，不必写标记：
          直接在腾讯文档里给那个单元格设格式即可，网页会照搬这一格的格式。
          例如单元格设「加粗 + 居中」，效果等于 [center][b]…[/b][/center]。
-
-         代价必须说清：表格接口只能设「整个单元格」的格式，
-         **没法只给一句话里的某几个词**上格式。句中局部强调仍然要写
-         [b]…[/b] / [i]…[/i] / [s]…[/s] / [u]…[/u] 这类标记。
          （整格格式经 sync_styles.py 缓存 → sync_online.py 合并 → 网页套用）
 
-       ── 重点加粗（表格里的「重点加粗」列 · 零语法）──────────────
+       ── 字间格式（表格里选中某些字单独设格式 · 推荐）──────────
+         这是**最省事也最准确**的做法：在腾讯文档里**只选中一句话里的某几个字**，
+         点加粗 / 斜体 / 删除线，或改字色、改字号 —— 网页会把这几个字原样还原，
+         其余文字不受影响。等于自动帮你写好 [b]…[/b]、[color:#c00]…[/color] 这些标记。
+
+         支持的片段格式（读到什么就还原什么）：
+           · 加粗 → <b>          · 删除线 → <s>
+           · 斜体 → <i>          · 下划线 → <u>
+           · 字色 → 该片段的颜色   · 字号 → 相对本格基准字号的倍率
+
+         读表方式：直读通道（不需要登录、双击 .bat 也能跑）直接解析出每个片段的
+         格式，已用腾讯文档「导出 Excel」的富文本逐项交叉验证（2590 格 0 差异）。
+         ⚠ 只有当**整格**格式与片段格式冲突时，规则是「片段优先」——
+           整格加粗照旧生效，被单独设过格式的那几个字以片段为准。
+
+       ── 重点加粗（表格里的「重点加粗」列 · 可选补充）────────────
          在表格「重点加粗」列里写下要加粗的词，多个用 | 或 、 分隔，例如
             虚无之域 | 不可名状 | 初始变量
-         网页会自动把正文里出现的这些词单独加粗，**只有这几个词是粗的**，
-         比你手写 [b]…[/b] 更省事，也不会因为漏写闭合标记而出错。
+         网页会自动把正文里出现的这些词单独加粗。
+         它是「字间格式」的补充手段：不想在文档里逐字选中时，填这列最省事；
+         两种方式都写了也没关系，不会重复。
 
          规则（刻意做得很直白）：
            · 该列一旦填了词，这一格的「整格加粗」就自动让位
@@ -375,8 +387,93 @@
         return spans.length;
     }
 
-    /** 去掉整格样式里的「加粗」——该行填了「重点加粗」时用 */
-    function stripCellBold(style) {
+    /* ---------- 字间格式：表格单元格里「某几个字单独设的格式」 ----------
+       直读通道会把每个单元格拆成若干「片段」，每段带自己的格式：
+
+         [{ t: '这行是粗斜体', b: 1, i: 1 },
+          { t: '这行是普通字'   },
+          { t: '这段带删除线', b: 1, s: 1, c: '#C00000' }, …]
+
+       字段：t=文字  b=加粗  i=斜体  s=删除线  u=下划线
+             c=字色 #RRGGBB  z=字号倍率（相对本格基准字号，1=同基准）
+
+       渲染有两条路：
+         · 富文本路 runsToSource()  ——  把片段转成 [b]/[color:#c00] 标记，
+            再交给 renderRichText 走完整管线（换行、媒体、链接全都照旧生效）；
+         · 纯文本路 runsToHtml()    ——  直接拼安全的 HTML，供按钮/标题这类
+            不解析标记的元素使用。
+    */
+
+    var RUN_COLOR_RE = /^#[0-9A-Fa-f]{3,8}$/;
+
+    function runScale(z) {
+        var v = parseFloat(z);
+        if (isNaN(v) || Math.abs(v - 1) <= 0.02) return 0;
+        return Math.max(0.6, Math.min(2.5, v));
+    }
+
+    /** 按内到外的顺序包住一段文字；open/close 两侧顺序互为镜像 */
+    function wrapRun(text, opens) {
+        var open = '', close = '';
+        for (var i = 0; i < opens.length; i++) {
+            open += opens[i][0];
+            close = opens[i][1] + close;
+        }
+        return open + text + close;
+    }
+
+    /** 片段样式 → [开标记, 闭标记] 列表（顺序固定，两端互为镜像） */
+    function runMarkers(r) {
+        var out = [], color = String((r && r.c) || '');
+        if (RUN_COLOR_RE.test(color)) out.push(['[color:' + color + ']', '[/color]']);
+        var z = runScale(r && r.z);
+        if (z) out.push(['[size:' + z + ']', '[/size]']);
+        if (r && r.u) out.push(['[u]', '[/u]']);
+        if (r && r.s) out.push(['[s]', '[/s]']);
+        if (r && r.b) out.push(['[b]', '[/b]']);
+        if (r && r.i) out.push(['[i]', '[/i]']);
+        return out;
+    }
+
+    /** 片段列表 → 带标记的源码（交给 renderRichText 继续处理） */
+    function runsToSource(runs) {
+        if (!runs || !runs.length) return '';
+        var out = '';
+        for (var i = 0; i < runs.length; i++) {
+            var r = runs[i] || {};
+            out += wrapRun(String(r.t == null ? '' : r.t), runMarkers(r));
+        }
+        return out;
+    }
+
+    /** 片段列表 → 安全 HTML（不解析标记，供纯文本元素用） */
+    function runsToHtml(runs) {
+        if (!runs || !runs.length) return '';
+        var out = '';
+        for (var i = 0; i < runs.length; i++) {
+            var r = runs[i] || {};
+            var text = escapeHtml(String(r.t == null ? '' : r.t)).replace(/\r\n?|\n/g, '<br>');
+            var marks = [], color = String((r && r.c) || '');
+            if (RUN_COLOR_RE.test(color)) marks.push(['<span style="color:' + color + '">', '</span>']);
+            var z = runScale(r && r.z);
+            if (z) marks.push(['<span style="font-size:' + z + 'em">', '</span>']);
+            if (r && r.u) marks.push(['<u>', '</u>']);
+            if (r && r.s) marks.push(['<s>', '</s>']);
+            if (r && r.b) marks.push(['<b>', '</b>']);
+            if (r && r.i) marks.push(['<i>', '</i>']);
+            out += wrapRun(text, marks);
+        }
+        return out;
+    }
+
+    /** 该片段列表里有没有「加粗」——用来避免和「重点加粗」列重复处理 */
+    function runsHaveBold(runs) {
+        if (!runs || !runs.length) return false;
+        for (var i = 0; i < runs.length; i++) if (runs[i] && runs[i].b) return true;
+        return false;
+    }
+
+    /** 去掉整格样式里的「加粗」——该行填了「重点加粗」时用 */    function stripCellBold(style) {
         if (!style || !style.bold) return style;
         var copy = {};
         for (var k in style) if (k !== 'bold') copy[k] = style[k];
@@ -447,12 +544,23 @@
     /**
      * 把富文本标记渲染成 HTML 字符串。
      * @param {string} text 含标记的文本
+     * @param {string|Object} [opts] 「重点加粗」列原文（字符串），
+     *        或 {boldWords:'…', runs:[片段…]}。给了 runs 就以片段格式为准。
      * @returns {string} HTML
      */
-    function renderRichText(text, boldWords) {
-        if (!text) return '';
+    function renderRichText(text, opts) {
+        var boldWords = '', runs = null;
+        if (opts && typeof opts === 'object' && !(opts instanceof Array)) {
+            boldWords = opts.boldWords || '';
+            runs = (opts.runs && opts.runs.length) ? opts.runs : null;
+        } else {
+            boldWords = opts || '';
+        }
+        /* 片段格式优先：直接把片段拼成带标记的源码，markdown/[b]/换行规则全都照旧 */
+        var src = runs ? runsToSource(runs) : String(text == null ? '' : text);
+        if (!src) return '';
         /* 0. 先把「重点加粗」列的词转成 [b] 标记，后面所有规则就自动统一处理了 */
-        var html = markBoldWords(String(text), boldWords);
+        var html = markBoldWords(src, boldWords);
         var stash = [];
         function keep(box) { stash.push(box); return '\u0000' + (stash.length - 1) + '\u0000'; }
 
@@ -518,6 +626,15 @@
         html = html.replace(/\[sub\]([\s\S]*?)\[\/sub\]/gi, '<sub>$1</sub>');
         html = html.replace(/\[sup\]([\s\S]*?)\[\/sup\]/gi, '<sup>$1</sup>');
 
+        /* 6.5 字间格式用到的行内标记：字色与字号（由表格里的片段格式自动生成） */
+        html = html.replace(/\[color:(#[0-9A-Fa-f]{3,8})\]([\s\S]*?)\[\/color\]/gi,
+            '<span style="color:$1">$2</span>');
+        html = html.replace(/\[size:([0-9]*\.?[0-9]+)\]([\s\S]*?)\[\/size\]/gi,
+            function (m, v, body) {
+                var f = runScale(v);
+                return f ? '<span style="font-size:' + f + 'em">' + body + '</span>' : body;
+            });
+
         /* 7. 段落、对齐与块级标记 */
         html = html.replace(/\[(center|left|right)\]([\s\S]*?)\[\/\1\]/gi,
             function (m, dir, body) {
@@ -543,11 +660,11 @@
      * 渲染富文本并写入指定元素。
      * @param {Element|string} target 元素或选择器
      * @param {string} text 富文本
-     * @param {string} [boldWords] 表格「重点加粗」列原文
+     * @param {string|Object} [opts] 同 renderRichText
      */
-    function renderRichTextInto(target, text, boldWords) {
+    function renderRichTextInto(target, text, opts) {
         var el = typeof target === 'string' ? document.querySelector(target) : target;
-        if (el) el.innerHTML = renderRichText(text, boldWords);
+        if (el) el.innerHTML = renderRichText(text, opts);
         return el;
     }
 
@@ -725,6 +842,24 @@
 
     var COL_STYLE = '样式';
     var COL_VALUE_STYLE = '值样式';
+
+    /* 字间格式：表格里「某几个字单独设的格式」，由直读通道解析后挂在记录的这两个字段上 */
+    var COL_RUNS = '文本片段';        // 对应「点击后显示的文本」列
+    var COL_VALUE_RUNS = '值片段';    // 对应「当前内容/值」列
+
+    /**
+     * 取某条记录对应单元格的「字间格式」片段列表。
+     * @param {string} sheet 分表名
+     * @param {string} name 元素名称
+     * @param {string} [which] 传 'value' 取「当前内容/值」那格；默认取正文那格
+     * @returns {Array|null} 形如 [{t:'文字', b:1}, …]；没有片段格式时为 null
+     */
+    function cfgRuns(sheet, name, which) {
+        var it = cfgItem(sheet, name);
+        if (!it) return null;
+        var list = (which === 'value') ? it[COL_VALUE_RUNS] : it[COL_RUNS];
+        return (list && list.length) ? list : null;
+    }
 
     /**
      * 取某条记录对应的整格样式。
@@ -963,6 +1098,10 @@
        会自动套成元素的内联样式（粒度就是整个元素）。数据来自 sync_styles.py 抓取的
        .cell-styles.json —— 直读通道读不到单元格格式，所以必须缓存。
 
+       ⚠ 关于「字间格式」（只给一句话里的某几个字设格式）：那是**直读通道直接读得到**的，
+       挂在记录的「文本片段」/「值片段」字段上，由 XY.cfgRuns() 取用。两者同时存在时
+       以片段为准（片段是内层，内联在各自 <span> 上，天然覆盖外层）。
+
        例：<button id="mainBtn" data-config-sheet="01_主页"
                    data-config-name="主按钮 · 默认态"
                    data-config-active-name="主按钮 · 激活态">了解更多</button>
@@ -995,12 +1134,16 @@
             var attr = el.getAttribute('data-config-attr');
             var styleOff = el.getAttribute('data-config-style') === 'off';
             var boldWords = item[COL_BOLD] || '';
+            /* 该格的字间格式：col 指向「点击后显示的文本」时取正文那格，否则取值那格 */
+            var runs = (col && col !== COL_TEXT) ? null
+                : (col === COL_TEXT ? item[COL_RUNS] : item[COL_VALUE_RUNS]);
+            if (!(runs && runs.length)) runs = null;
             if (value) {
                 el.setAttribute('data-config-value', value);
                 if (attr) {
                     el.setAttribute(attr, value);
-                } else if (el.getAttribute('data-config-mode') === 'rich') {
-                    el.innerHTML = renderRichText(value, boldWords);
+                } else if (el.getAttribute('data-config-mode') === 'rich' || runs) {
+                    el.innerHTML = renderRichText(value, { boldWords: boldWords, runs: runs });
                 } else {
                     el.textContent = value;
                     /* 「重点加粗」列在纯文本里也能生效：只把列出的词包成 <b> */
@@ -1033,7 +1176,8 @@
             var target = el.getAttribute('data-config-text-target');
             var longText = item['点击后显示的文本'] || '';
             if (target && longText) {
-                var tEl = renderRichTextInto(target, longText, boldWords);
+                var tEl = renderRichTextInto(target, longText,
+                    { boldWords: boldWords, runs: item[COL_RUNS] });
                 if (tEl && !styleOff) applyCellStyle(tEl, cellStyleFor(item, 'text'));
             }
         }
@@ -1114,6 +1258,11 @@
         cfgStyle: cfgStyle,
         applyCellStyle: applyCellStyle,
         cellStyleToCss: cellStyleToCss,
+        /* 字间格式（表格里「某几个字单独设的格式」） */
+        cfgRuns: cfgRuns,
+        runsToSource: runsToSource,
+        runsToHtml: runsToHtml,
+        runsHaveBold: runsHaveBold,
         /* 重点加粗（表格「重点加粗」列） */
         cfgBold: cfgBold,
         splitBoldWords: splitBoldWords,

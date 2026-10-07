@@ -1939,6 +1939,7 @@
             //    悬停文案               → 悬停提示 / 文章副标题
             //    点击后显示的文本        → 正文（支持 [b] [i] [img:] [video:] 等标记）
             //    重点加粗               → 只把列出的词加粗（写了它就自动取消整格加粗）
+            //    文本片段               → 自动读取：文档里给某几个字单独设的格式，网页原样还原
             //    资源路径               → 节点底图
             // ================================================================
             const BOOK_CFG = { nodes: 0 };
@@ -1975,6 +1976,10 @@
                             const bold = String(r["重点加粗"] || "").trim();
                             if (bold) node.article.boldWords = bold;
                             else delete node.article.boldWords;
+                            // 「文本片段」：文档里给某几个字单独设的格式（加粗/斜体/删除线/字色/字号）
+                            const runs = r["文本片段"];
+                            if (runs && runs.length) node.article.runs = runs;
+                            else delete node.article.runs;
                             // 整格格式（腾讯文档里给单元格设的加粗/斜体/居中等）
                             if (r["样式"] && node.article) node.article.cellStyle = r["样式"];
                             BOOK_CFG.nodes++;
@@ -2038,11 +2043,13 @@
             // ================================================================
             //  媒体解析 + 自定义文本样式标签
             // ================================================================
-            function renderContent(content, boldWords) {
+            function renderContent(content, boldWords, runs) {
                 /* 统一走公共库渲染器：支持 [img:URL|描述] [video:URL|标题] [audio:URL|标题]
                    以及 [b] [i] [u] [s] [center] 行内标记（定义见 assets/common.js）
-                   boldWords = 表格「重点加粗」列，写了的词会被单独加粗 */
-                return XY.renderRichText(content, boldWords);
+                   boldWords = 表格「重点加粗」列，写了的词会被单独加粗
+                   runs      = 表格「文本片段」，即文档里给某几个字单独设的格式
+                               （加粗/斜体/删除线/字色/字号），优先级高于 boldWords */
+                return XY.renderRichText(content, { boldWords: boldWords, runs: runs });
             }
 
             // ================================================================
@@ -2189,7 +2196,7 @@
                     heroTitleEl.innerText = art.mainTitle || activeNode.name;
                     heroSubEl.innerText = art.subTitle || '';
                     const rawContent = art.content || '（内容为空）';
-                    articleBody.innerHTML = renderContent(rawContent, art.boldWords);
+                    articleBody.innerHTML = renderContent(rawContent, art.boldWords, art.runs);
                     // 套用该节点在表格里的整格格式（加粗 / 斜体 / 居中 …）；
                     // 该行填了「重点加粗」就不再整格加粗，否则整段都粗、局部强调会失效
                     if (art.cellStyle && XY.applyCellStyle) {

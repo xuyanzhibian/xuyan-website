@@ -964,6 +964,12 @@
                             if (bold) art.boldWords = bold;
                             else delete art.boldWords;
                         }
+                        // 「文本片段」：文档里给某几个字单独设的格式（加粗/斜体/删除线/字色/字号）
+                        const runs = XY.cfgRuns(CFG_SHEET, row, null);
+                        if (art) {
+                            if (runs) art.runs = runs;
+                            else delete art.runs;
+                        }
                     }
                     const trow = ARTICLE_ROW[b.id];
                     if (art && trow) {
@@ -1487,7 +1493,8 @@
                     articleBody.className = 'article-body';
                     // 走公共渲染器：单元格里的真实换行、[b]/[center] 等标记、<a> 链接都会生效
                     articleBody.innerHTML = (window.XY && XY.renderRichText)
-                        ? XY.renderRichText(article.content, article.boldWords)
+                        ? XY.renderRichText(article.content,
+                            { boldWords: article.boldWords, runs: article.runs })
                         : article.content;
                     // 填了「重点加粗」就不套整格加粗，否则整段都粗、局部强调失效
                     if (article.cellStyle && window.XY && XY.applyCellStyle) {
