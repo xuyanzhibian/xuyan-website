@@ -435,13 +435,18 @@
         return out;
     }
 
-    /** 片段列表 → 带标记的源码（交给 renderRichText 继续处理） */
-    function runsToSource(runs) {
+    /** 片段列表 → 带标记的源码（交给 renderRichText 继续处理）
+     *  @param {Array} runs 片段列表
+     *  @param {string} [boldWords] 「重点加粗」列的词。只在**本来不粗**的片段里补 [b]，
+     *         否则会变成 [b][b]…[/b][/b] 这种同标签嵌套，非贪婪匹配会错位、漏出标记文字。 */
+    function runsToSource(runs, boldWords) {
         if (!runs || !runs.length) return '';
         var out = '';
         for (var i = 0; i < runs.length; i++) {
             var r = runs[i] || {};
-            out += wrapRun(String(r.t == null ? '' : r.t), runMarkers(r));
+            var text = String(r.t == null ? '' : r.t);
+            if (boldWords && !r.b) text = markBoldWords(text, boldWords);
+            out += wrapRun(text, runMarkers(r));
         }
         return out;
     }
@@ -556,11 +561,18 @@
         } else {
             boldWords = opts || '';
         }
-        /* 片段格式优先：直接把片段拼成带标记的源码，markdown/[b]/换行规则全都照旧 */
-        var src = runs ? runsToSource(runs) : String(text == null ? '' : text);
-        if (!src) return '';
-        /* 0. 先把「重点加粗」列的词转成 [b] 标记，后面所有规则就自动统一处理了 */
-        var html = markBoldWords(src, boldWords);
+        /* 片段格式优先：直接把片段拼成带标记的源码，markdown/[b]/换行规则全都照旧。
+           runs 路径下的「重点加粗」在 runsToSource 内部按片段处理（避免同标签嵌套）。 */
+        var html, src;
+        if (runs) {
+            html = runsToSource(runs, boldWords);
+        } else {
+            src = String(text == null ? '' : text);
+            if (!src) return '';
+            /* 0. 先把「重点加粗」列的词转成 [b] 标记，后面所有规则就自动统一处理了 */
+            html = markBoldWords(src, boldWords);
+        }
+        if (!html) return '';
         var stash = [];
         function keep(box) { stash.push(box); return '\u0000' + (stash.length - 1) + '\u0000'; }
 
