@@ -471,6 +471,15 @@
         return out;
     }
 
+    /** 片段列表拼回纯文字（用于校验片段与单元格文本是否一致） */
+    function runsText(runs) {
+        var out = '';
+        for (var i = 0; i < (runs ? runs.length : 0); i++) {
+            out += String((runs[i] && runs[i].t) || '');
+        }
+        return out;
+    }
+
     /** 该片段列表里有没有「加粗」——用来避免和「重点加粗」列重复处理 */
     function runsHaveBold(runs) {
         if (!runs || !runs.length) return false;
@@ -562,12 +571,14 @@
             boldWords = opts || '';
         }
         /* 片段格式优先：直接把片段拼成带标记的源码，markdown/[b]/换行规则全都照旧。
-           runs 路径下的「重点加粗」在 runsToSource 内部按片段处理（避免同标签嵌套）。 */
-        var html, src;
-        if (runs) {
+           runs 路径下的「重点加粗」在 runsToSource 内部按片段处理（避免同标签嵌套）。
+           ⚠ 只有在「片段拼回来 == 传入文本」时才用片段——万一两者不同步（比如页面
+             传入的是另一份文案），宁可退回按文本渲染，也不能把新文案吃掉。 */
+        var html, src = String(text == null ? '' : text);
+        var useRuns = runs && (!src || runsText(runs) === src);
+        if (useRuns) {
             html = runsToSource(runs, boldWords);
         } else {
-            src = String(text == null ? '' : text);
             if (!src) return '';
             /* 0. 先把「重点加粗」列的词转成 [b] 标记，后面所有规则就自动统一处理了 */
             html = markBoldWords(src, boldWords);
@@ -1274,6 +1285,7 @@
         cfgRuns: cfgRuns,
         runsToSource: runsToSource,
         runsToHtml: runsToHtml,
+        runsText: runsText,
         runsHaveBold: runsHaveBold,
         /* 重点加粗（表格「重点加粗」列） */
         cfgBold: cfgBold,
