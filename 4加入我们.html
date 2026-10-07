@@ -951,16 +951,23 @@
                 BUTTONS.length = 0;
                 Object.keys(ARTICLES).forEach(function (k) { delete ARTICLES[k]; });
                 rows.forEach(function (r) {
-                    const title = r.label || r.name;
-                    /* 副标题可选：老写法「文章 · 名字 · 标题」那一行给了就用 */
-                    const pair = parseTitlePair(XY.cfgVal(CFG_SHEET, "文章 · " + title + " · 标题", ""));
-                    const art = { mainTitle: title, subTitle: pair[1] || "", content: r.body };
+                    /* 稳定名 = 「元素名称」去掉前缀（如「万物一体」）。
+                       ⚠ 用它而不是按钮文案：文案可以随便改，文章配对不会跟着断。 */
+                    const key = r.name || r.label;
+                    /* 标题 / 副标题：优先用老写法「文章 · 名字 · 标题」那一行，
+                       那一行没写就用按钮文案当标题。 */
+                    const pair = parseTitlePair(XY.cfgVal(CFG_SHEET, "文章 · " + key + " · 标题", ""));
+                    const art = {
+                        mainTitle: pair[0] || r.label || key,
+                        subTitle: pair[1] || "",
+                        content: r.body
+                    };
                     if (r.runs) art.runs = r.runs;
                     if (r.style) art.cellStyle = r.style;
-                    ARTICLES[title] = art;
+                    ARTICLES[key] = art;
                     BUTTONS.push({
-                        id: r.id, name: title, artKey: title,
-                        labelHtml: XY.renderItemLabel(title, r.labelRuns),
+                        id: r.id, name: key, artKey: key,
+                        labelHtml: XY.renderItemLabel(r.label || key, r.labelRuns),
                         bgImg: r.bg, effect: r.effect, hoverText: r.hover
                     });
                 });
