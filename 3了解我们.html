@@ -625,28 +625,31 @@
         //  读不到表格时回落下面写死的内置默认。
         // ============================================================
         const CFG_SHEET = "06_了解我们";
-        const BUTTONS = [
+        /* 卡片清单：默认显示下面 3 张；
+           页面脚本会用表格 06_了解我们 里「卡片按钮 · *」的行重建它 ——
+           加一行就多一张卡、删一行就少一张、上下移动那一行就是调顺序。 */
+        let BUTTONS = [
             { id: "item", name: "虚衍之物", link: "0虚衍主页.html", bgImg: "./3了解我们/虚衍之物.webp", hoverText: "虚衍之物 · 万象之器，基石原型", effect: "particle" },
             { id: "record", name: "诸事纪要", link: "#", bgImg: "./3了解我们/诸事纪要.webp", hoverText: "诸事纪要 · 永恒变量，太微创世", effect: "wave" },
             { id: "ideal", name: "理想计划", link: "#", bgImg: "./3了解我们/理想计划.webp", hoverText: "理想计划 · 虚无抗体，神明分身", effect: "distortion" }
         ];
         (function readButtonConfig() {
-            if (!window.XY || !XY.cfgVal) return;
-            const NAMES = { item: "卡片按钮 · 虚衍之物", record: "卡片按钮 · 诸事纪要", ideal: "卡片按钮 · 理想计划" };
-            BUTTONS.forEach(function (b) {
-                const key = NAMES[b.id];
-                if (!key) return;
-                const name = XY.cfgVal(CFG_SHEET, key, null);
-                const link = XY.cfgLink(CFG_SHEET, key, null);
-                const hover = XY.cfgHover(CFG_SHEET, key, null);
-                const bg = XY.cfgRes(CFG_SHEET, key, null);
-                if (name) b.name = name;
-                if (link) b.link = link;
-                if (hover) b.hoverText = hover;
-                if (bg && bg !== "—") b.bgImg = bg;
+            if (!window.XY || !XY.itemRows) return;
+            const rows = XY.itemRows(CFG_SHEET, "卡片按钮");
+            if (!rows.length) return;          /* 表里没有就保留上面的内置默认 */
+            BUTTONS = rows.map(function (r) {
+                return {
+                    id: r.id,
+                    name: r.label || r.name,
+                    html: XY.renderItemLabel(r.label || r.name, r.labelRuns),
+                    link: r.link || "#",
+                    bgImg: r.bg,
+                    hoverText: r.hover,
+                    effect: r.effect
+                };
             });
         })();
-        let centerIdx = 1;
+        let centerIdx = Math.min(1, Math.max(0, BUTTONS.length - 1));
         let switching = false;
         let dragStartX = 0, dragging = false;
         const dragThreshold = 45;
@@ -898,24 +901,22 @@
         }
 
         function renderCards(animateSide = true) {
-            if(!cardsContainer) return;
+            if(!cardsContainer || !BUTTONS.length) return;
             const total = BUTTONS.length;
-            const leftIdx = (centerIdx - 1 + total) % total;
-            const rightIdx = (centerIdx + 1) % total;
-            const center = BUTTONS[centerIdx];
-            const left = BUTTONS[leftIdx];
-            const right = BUTTONS[rightIdx];
-            const html = `
-                <div class="virtue-card side-card left-side" data-name="${left.name}" data-link="${left.link}" data-bg="${left.bgImg}" data-effect="${left.effect}" data-hover="${left.hoverText}" data-pos="left">
-                    <div class="card-label">${left.name}</div>
-                </div>
-                <div class="virtue-card center-card" data-name="${center.name}" data-link="${center.link}" data-bg="${center.bgImg}" data-effect="${center.effect}" data-hover="${center.hoverText}" data-pos="center">
-                    <div class="card-label">${center.name}</div>
-                </div>
-                <div class="virtue-card side-card right-side" data-name="${right.name}" data-link="${right.link}" data-bg="${right.bgImg}" data-effect="${right.effect}" data-hover="${right.hoverText}" data-pos="right">
-                    <div class="card-label">${right.name}</div>
-                </div>
-            `;
+            /* 卡片少于 3 张时不重复显示同一张 */
+            const center = BUTTONS[Math.min(centerIdx, total - 1)];
+            const left = total > 1 ? BUTTONS[(centerIdx - 1 + total) % total] : null;
+            const right = total > 2 ? BUTTONS[(centerIdx + 1) % total] : null;
+            function cardHtml(b, cls, pos) {
+                if(!b) return '';
+                return `
+                <div class="virtue-card ${cls}" data-name="${b.name}" data-link="${b.link}" data-bg="${b.bgImg}" data-effect="${b.effect}" data-hover="${b.hoverText}" data-pos="${pos}">
+                    <div class="card-label">${b.html || b.name}</div>
+                </div>`;
+            }
+            const html = cardHtml(left, 'side-card left-side', 'left')
+                       + cardHtml(center, 'center-card', 'center')
+                       + cardHtml(right, 'side-card right-side', 'right');
             cardsContainer.innerHTML = html;
             document.querySelectorAll('.virtue-card').forEach(card => {
                 const bg = card.getAttribute('data-bg');

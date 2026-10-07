@@ -433,18 +433,21 @@
         <p class="hero-sub" data-config-sheet="03_虚衍世界" data-config-name="副标题">虚衍回响 · 万象归一</p>
     </div>
 
+    <!-- 板块按钮：默认显示下面这 3 个；页面脚本会按表格里「板块按钮 · *」的行重建它们
+         （加一行就多一个按钮、删一行就少一个、上下移动即调顺序）。
+         表格读不到时，下面这份静态兜底会原样保留，不会白屏。 -->
     <div class="button-container">
-        <div class="world-button" id="bookOfVoidBtn" data-url="1-1虚衍之书.html" data-default-link="/xuyan-book"> <!-- 虚衍之书按钮：自定义数据属性url和默认链接 -->
-            <img class="btn-bg-img" src="./1虚衍世界/1虚衍之书.webp" alt="虚衍之书" style="display: none;"> <!-- 隐藏的背景图片：用于CSS伪元素 -->
-            <span class="button-text" data-config-sheet="03_虚衍世界" data-config-name="板块按钮 · 虚衍之书">虚衍之书</span>
+        <div class="world-button" id="bookOfVoidBtn" data-url="1-1虚衍之书.html" data-effect="wave">
+            <img class="btn-bg-img" src="./1虚衍世界/1虚衍之书.webp" alt="虚衍之书" style="display: none;">
+            <span class="button-text">虚衍之书</span>
         </div>
-        <div class="world-button" id="godTearsBtn" data-url="https://example.com/god-tear" data-default-link="/god-tear"> <!-- 神明之泣按钮 -->
+        <div class="world-button" id="godTearsBtn" data-url="https://example.com/god-tear" data-effect="particle">
             <img class="btn-bg-img" src="./1虚衍世界/2神明之泣.webp" alt="神明之泣" style="display: none;">
-            <span class="button-text" data-config-sheet="03_虚衍世界" data-config-name="板块按钮 · 神明之泣">神明之泣</span>
+            <span class="button-text">神明之泣</span>
         </div>
-        <div class="world-button full-width" id="timeSpaceBtn" data-url="https://example.com/temporal-spacetime" data-default-link="/time-space"> <!-- 临世时空按钮，全宽样式 -->
+        <div class="world-button full-width" id="timeSpaceBtn" data-url="https://example.com/temporal-spacetime" data-effect="distortion full">
             <img class="btn-bg-img" src="./1虚衍世界/3临世时空.webp" alt="临世时空" style="display: none;">
-            <span class="button-text" data-config-sheet="03_虚衍世界" data-config-name="板块按钮 · 临世时空">临世时空</span>
+            <span class="button-text">临世时空</span>
         </div>
     </div>
 
@@ -465,33 +468,79 @@
 
             // ============================================================
             //  表格驱动：《配置总表》03_虚衍世界
-            //  按钮文案 / 跳转目标 / 底图 / 悬停提示 / 粒子与扭曲参数 都从表格取，
-            //  读不到表格时全部回落下面各处写死的内置默认值。
+            //  · 板块按钮 —— 表里「元素名称」以「板块按钮 ·」开头的行 = 网页上一个按钮。
+            //      加一行就多一个按钮、删一行就少一个、上下移动那一行就是调顺序，
+            //      全程不用改代码。每行可填：
+            //        当前内容/值=按钮文字  资源路径=底图  悬停文案=悬停提示
+            //        跳转目标=点击去哪      特效=wave / particle / distortion / full
+            //  · 页面标题 / Logo / 粒子与扭曲参数 同样从表格取。
+            //  读不到表格时全部回落下面写死的内置默认值。
             // ============================================================
             const CFG_SHEET = "03_虚衍世界";
             const WORLD_CFG = { text: {}, hover: {}, particles: null, distort: null, filter: null };
+
+            /* 内置默认按钮：表格读不到、或表里一个「板块按钮」行都没有时用它 */
+            const DEFAULT_WORLD_BUTTONS = [
+                { id: "bookOfVoidBtn", label: "虚衍之书", bg: "./1虚衍世界/1虚衍之书.webp",
+                  link: "1-1虚衍之书.html", hover: "虚衍之书 | 虚衍万物过去与未来之预衍", effect: "wave" },
+                { id: "godTearsBtn", label: "神明之泣", bg: "./1虚衍世界/2神明之泣.webp",
+                  link: "https://example.com/god-tear", hover: "神明之泣 | 神明与造物无尽结局之总述",
+                  effect: "particle" },
+                { id: "timeSpaceBtn", label: "临世时空", bg: "./1虚衍世界/3临世时空.webp",
+                  link: "https://example.com/temporal-spacetime",
+                  hover: "临世时空 | 平行未来所见最圆满之结局", effect: "distortion full" }
+            ];
+
+            /* 按钮清单：优先用表格里的「板块按钮 · *」行（保持表格里的上下顺序） */
+            const WORLD_BUTTONS = (function buildWorldButtonList() {
+                const fromTable = (window.XY && XY.itemRows) ? XY.itemRows(CFG_SHEET, "板块按钮") : [];
+                if (fromTable.length) return fromTable;
+                return DEFAULT_WORLD_BUTTONS.map(function (b, i) {
+                    return { id: b.id, name: b.label, label: b.label, bg: b.bg, hover: b.hover,
+                             body: "", link: b.link, effect: b.effect, index: i,
+                             runs: null, labelRuns: null };
+                });
+            })();
+
+            /* 按清单重建按钮 DOM —— 沿用原来的 .world-button 结构，样式完全不变 */
+            (function renderWorldButtons() {
+                const box = document.querySelector(".button-container");
+                if (!box) return;
+                box.innerHTML = "";
+                WORLD_BUTTONS.forEach(function (b, i) {
+                    const eff = String(b.effect || "");
+                    /* 跳转目标为空时，兼容旧写法「XXX按钮目标」那一行 */
+                    let link = b.link || "";
+                    if (!link && window.XY && XY.cfgLink && b.name) {
+                        link = XY.cfgLink(CFG_SHEET, b.name + "按钮目标", "") || "";
+                    }
+                    const btn = document.createElement("div");
+                    btn.className = "world-button" + (/(^|[^a-z])(full|通栏)/.test(eff) ? " full-width" : "");
+                    btn.id = b.id || ("worldBtn" + i);
+                    btn.setAttribute("data-url", link);
+                    btn.setAttribute("data-effect", eff);
+                    const img = document.createElement("img");
+                    img.className = "btn-bg-img";
+                    img.src = b.bg || "";
+                    img.alt = b.label || b.name || "";
+                    img.style.display = "none";
+                    const span = document.createElement("span");
+                    span.className = "button-text";
+                    span.innerHTML = (window.XY && XY.renderItemLabel)
+                        ? XY.renderItemLabel(b.label || b.name, b.labelRuns)
+                        : (b.label || b.name || "");
+                    btn.appendChild(img);
+                    btn.appendChild(span);
+                    box.appendChild(btn);
+                    if (b.hover) {
+                        WORLD_CFG.hover[btn.id] = b.hover;
+                        WORLD_CFG.text[String(b.label || b.name || "").trim()] = b.hover;
+                    }
+                });
+            })();
+
             (function readWorldConfig() {
                 if (!window.XY || !XY.cfgVal) return;
-                const MAP = [
-                    { id: "bookOfVoidBtn", name: "板块按钮 · 虚衍之书" },
-                    { id: "godTearsBtn",   name: "板块按钮 · 神明之泣" },
-                    { id: "timeSpaceBtn",  name: "板块按钮 · 临世时空" }
-                ];
-                MAP.forEach(function (m) {
-                    const btn = document.getElementById(m.id);
-                    if (!btn) return;
-                    const label = XY.cfgVal(CFG_SHEET, m.name, null);
-                    const link = XY.cfgLink(CFG_SHEET, m.name, null);
-                    const res = XY.cfgRes(CFG_SHEET, m.name, null);
-                    const hov = XY.cfgHover(CFG_SHEET, m.name, null);
-                    if (link) btn.setAttribute("data-url", link);
-                    if (res) {
-                        const img = btn.querySelector(".btn-bg-img");
-                        if (img) img.setAttribute("src", res);
-                    }
-                    const key = (label || m.name).trim();
-                    if (hov) { WORLD_CFG.hover[m.id] = hov; WORLD_CFG.text[key] = hov; }
-                });
                 WORLD_CFG.particles = XY.cfgParams(CFG_SHEET, "粒子参数", null);
                 WORLD_CFG.distort = XY.cfgParams(CFG_SHEET, "扭曲强度参数", null);
                 WORLD_CFG.filter = XY.cfgParams(CFG_SHEET, "SVG 液体扭曲滤镜", null);
@@ -616,8 +665,8 @@
             }
             function showDistortion() { if(distortionOverlay) { if(distortionHideTimeout) clearTimeout(distortionHideTimeout); distortionOverlay.style.opacity = '0.85'; startDistortion(); } } // 显示扭曲叠加层
             function hideDistortion() { if(distortionOverlay) { resetDistortion(); distortionHideTimeout = setTimeout(() => distortionOverlay.style.opacity = '0', 80); } } // 隐藏扭曲叠加层
-            function bindTimeSpaceDistortion() {
-                const btn = document.getElementById('timeSpaceBtn');
+            /* 液体扭曲特效：给任意按钮挂上（表格「特效」列写 distortion 的那个） */
+            function bindDistortionEffect(btn) {
                 if(!btn) return;
                 distortionOverlay = document.getElementById('distortionOverlay');
                 const filterElem = document.querySelector('#liquidDistortion');
@@ -670,7 +719,7 @@
             function startWaveAnim() { if(!waveActive) return; wavePhase += 0.025; drawWave(); waveAnimId = requestAnimationFrame(startWaveAnim); } // 启动波浪动画
             function showWave() { if(!waveOverlay) return; if(waveTimeout) clearTimeout(waveTimeout); waveOverlay.style.opacity = '1'; if(!waveActive){ waveActive=true; if(!waveAnimId) waveAnimId = requestAnimationFrame(startWaveAnim); } } // 显示波浪并启动动画
             function hideWave() { if(!waveOverlay) return; if(waveTimeout) clearTimeout(waveTimeout); waveTimeout = setTimeout(()=>{ waveOverlay.style.opacity='0'; if(waveActive){ waveActive=false; if(waveAnimId) cancelAnimationFrame(waveAnimId); waveAnimId=null; if(waveCtx&&waveCanvas) waveCtx.clearRect(0,0,waveCanvas.width,waveCanvas.height); } },200); } // 隐藏波浪并停止动画
-            function bindBookWave() { const btn = document.getElementById('bookOfVoidBtn'); if(!btn) return; initWave(); btn.addEventListener('mouseenter', showWave); btn.addEventListener('mouseleave', hideWave); btn.addEventListener('touchstart', showWave, {passive:true}); btn.addEventListener('touchend', hideWave); } // 绑定虚衍之书按钮的波浪特效
+            function bindWaveEffect(btn) { if(!btn) return; if(!waveCanvas) initWave(); btn.addEventListener('mouseenter', showWave); btn.addEventListener('mouseleave', hideWave); btn.addEventListener('touchstart', showWave, {passive:true}); btn.addEventListener('touchend', hideWave); } // 给按钮挂波浪特效
 
             // 粒子特效 (神明之泣)
             let particleContainer = null, activeParticles = [], particleAnimId2 = null, particleInterval = null, isParticleEmitterActive = false;
@@ -764,13 +813,22 @@
                 isParticleEmitterActive = false;
                 if (particleInterval) { clearInterval(particleInterval); particleInterval = null; }
             }
-            function bindGodTearsParticle() {
-                const btn = document.getElementById('godTearsBtn');
+            function bindParticleEffect(btn) {
                 if (!btn) return;
                 btn.addEventListener('mouseenter', activateParticleEffect);
                 btn.addEventListener('mouseleave', deactivateParticleEffect);
                 btn.addEventListener('touchstart', activateParticleEffect, { passive: true });
                 btn.addEventListener('touchend', deactivateParticleEffect);
+            }
+
+            /* 按每个按钮的「特效」列，挂上对应的悬停特效 */
+            function bindEffectsToButtons() {
+                document.querySelectorAll('.world-button').forEach(function (btn) {
+                    var e = String(btn.getAttribute('data-effect') || '').toLowerCase();
+                    if (e.indexOf('wave') >= 0 || e.indexOf('波浪') >= 0) bindWaveEffect(btn);
+                    if (e.indexOf('particle') >= 0 || e.indexOf('粒子') >= 0) bindParticleEffect(btn);
+                    if (e.indexOf('distortion') >= 0 || e.indexOf('扭曲') >= 0) bindDistortionEffect(btn);
+                });
             }
 
             // 底部文字提示
@@ -781,16 +839,16 @@
             function showBottomText(t) { if(bottomTip){ if(tipTimeout) clearTimeout(tipTimeout); bottomTip.innerText = t; bottomTip.style.opacity = '1'; } } // 显示底部提示文字
             function hideBottomText() { if(bottomTip){ if(tipTimeout) clearTimeout(tipTimeout); tipTimeout = setTimeout(()=>{ if(bottomTip) bottomTip.style.opacity='0'; },500); } } // 隐藏底部提示文字
             function bindBottomText(btn, txt){ if(!btn||!txt) return; btn.addEventListener('mouseenter',(e)=>{ e.stopPropagation(); showBottomText(txt); }); btn.addEventListener('mouseleave',(e)=>{ e.stopPropagation(); hideBottomText(); }); btn.addEventListener('touchstart',(e)=>{ e.stopPropagation(); showBottomText(txt); },{passive:true}); btn.addEventListener('touchend',(e)=>{ e.stopPropagation(); hideBottomText(); }); } // 为按钮绑定提示文字事件
-            /* 三个按钮的悬停提示：优先取表格「悬停文案」列，缺失时用 textMap 默认 */
+            /* 按钮的悬停提示：优先取表格「悬停文案」列，缺失时用刚渲染进去的按钮文字兜底 */
             function initBottomText() {
                 bottomTip = document.getElementById('bottomTextTip');
                 if(!bottomTip) return;
-                [['bookOfVoidBtn', '虚衍之书'], ['godTearsBtn', '神明之泣'], ['timeSpaceBtn', '临世时空']]
-                    .forEach(function (p) {
-                        var btn = document.getElementById(p[0]);
-                        var txt = (WORLD_CFG.hover && WORLD_CFG.hover[p[0]]) || textMap[p[1]];
-                        bindBottomText(btn, txt);
-                    });
+                document.querySelectorAll('.world-button').forEach(function (btn) {
+                    var tEl = btn.querySelector('.button-text');
+                    var txt = (WORLD_CFG.hover && WORLD_CFG.hover[btn.id])
+                        || textMap[(tEl ? tEl.textContent : '').trim()];
+                    bindBottomText(btn, txt);
+                });
             } // 初始化底部提示
 
             // Logo 跳转主页
@@ -813,9 +871,7 @@
                 if (window.XY && XY.applyDocMeta) XY.applyDocMeta(CFG_SHEET);
                 bindJumpLinks();
                 setupHomeLogo();
-                bindTimeSpaceDistortion();
-                bindBookWave();
-                bindGodTearsParticle();
+                bindEffectsToButtons();
                 initBottomText();
                 bindProjectionToButtons();
             }
