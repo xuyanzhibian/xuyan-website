@@ -903,6 +903,13 @@
                 }
             };
 
+            /* 按钮 + 点开后的界面：默认显示下面这 3 个；
+               页面脚本会用表格 07_加入我们 里「按钮 · *」的行重建它 ——
+               加一行就多一个按钮（连带一个点开后的界面），删一行就少一个，
+               上下移动那一行就是调顺序。每行可填：
+                 当前内容/值 = 按钮文字　　资源路径 = 底图　　悬停文案 = 悬停提示
+                 点击后显示的文本 = 界面正文　特效 = particle / wave / distortion
+                 跳转目标 = 点击去的地址　　可新增 = 填「否」可把这一条临时下线 */
             const BUTTONS = [
                 { id: "unity", name: "万物一体", artKey: "万物一体", bgImg: "./4加入我们/万物一体.webp", effect: "particle", hoverText: "万物一体 · 宇宙共荣之链" },
                 { id: "equal", name: "共同平等", artKey: "共同平等", bgImg: "./4加入我们/共同平等.webp", effect: "wave", hoverText: "共同平等 · 虚衍无差别之境" },
@@ -912,15 +919,10 @@
 
             // ============================================================
             //  表格驱动：《配置总表》07_加入我们
-            //  · 「按钮 · X」行        → 按钮文案 / 底图 / 悬停提示 / 正文
-            //  · 「文章 · X · 标题」行  → 文章标题与副标题
-            //      （支持「标题：X」换行「副标题：Y」，也支持「X / Y」）
+            //  · 「按钮 · X」行 → 一个按钮 + 它点开后的界面（正文取自该行「点击后显示的文本」）
             //  读不到表格时全部回落上面写死的内置默认。
-            //  artKey 是文章的内部键，改按钮文案不会影响文章配对。
             // ============================================================
             const CFG_SHEET = "07_加入我们";
-            const ARTICLE_ROW = { "unity": "文章 · 万物一体 · 标题", "equal": "文章 · 共同平等 · 标题", "become": "文章 · 成为我们 · 标题" };
-            const BTN_ROW = { "unity": "按钮 · 万物一体", "equal": "按钮 · 共同平等", "become": "按钮 · 成为我们" };
             // 文章「标题 / 副标题」一行有三种写法，都认：
             //   ① 标题：X  换行  副标题：Y      ← 表格里目前就是这种
             //   ② X / Y                        ← 早期的写法
@@ -941,42 +943,26 @@
                     .filter(Boolean);
                 return [lines[0] || "", lines[1] || ""];
             }
+            /* 用表格里的「按钮 · *」行重建按钮与界面；表里没有就保留内置默认 */
             (function readJoinConfig() {
-                if (!window.XY || !XY.cfgVal) return;
-                BUTTONS.forEach(function (b) {
-                    const art = ARTICLES[b.artKey];
-                    const row = BTN_ROW[b.id];
-                    if (row) {
-                        const name = XY.cfgVal(CFG_SHEET, row, null);
-                        const bg = XY.cfgRes(CFG_SHEET, row, null);
-                        const hover = XY.cfgHover(CFG_SHEET, row, null);
-                        const body = XY.cfgText(CFG_SHEET, row, null);
-                        if (name) b.name = name;
-                        if (bg && bg !== "—") b.bgImg = bg;
-                        if (hover) b.hoverText = hover;
-                        if (art && body) art.content = body;
-                        // 该格在表格里的整格格式（加粗 / 斜体 / 居中 …）
-                        const st = XY.cfgStyle(CFG_SHEET, row, null);
-                        if (art) { if (st) art.cellStyle = st; else delete art.cellStyle; }
-                        // 「重点加粗」列：只把列出的词加粗（写了它就自动取消整格加粗）
-                        const bold = XY.cfgBold(CFG_SHEET, row, null);
-                        if (art) {
-                            if (bold) art.boldWords = bold;
-                            else delete art.boldWords;
-                        }
-                        // 「文本片段」：文档里给某几个字单独设的格式（加粗/斜体/删除线/字色/字号）
-                        const runs = XY.cfgRuns(CFG_SHEET, row, null);
-                        if (art) {
-                            if (runs) art.runs = runs;
-                            else delete art.runs;
-                        }
-                    }
-                    const trow = ARTICLE_ROW[b.id];
-                    if (art && trow) {
-                        const pair = parseTitlePair(XY.cfgVal(CFG_SHEET, trow, ""));
-                        if (pair[0]) art.mainTitle = pair[0];
-                        if (pair[1]) art.subTitle = pair[1];
-                    }
+                if (!window.XY || !XY.itemRows) return;
+                const rows = XY.itemRows(CFG_SHEET, "按钮");
+                if (!rows.length) return;
+                BUTTONS.length = 0;
+                Object.keys(ARTICLES).forEach(function (k) { delete ARTICLES[k]; });
+                rows.forEach(function (r) {
+                    const title = r.label || r.name;
+                    /* 副标题可选：老写法「文章 · 名字 · 标题」那一行给了就用 */
+                    const pair = parseTitlePair(XY.cfgVal(CFG_SHEET, "文章 · " + title + " · 标题", ""));
+                    const art = { mainTitle: title, subTitle: pair[1] || "", content: r.body };
+                    if (r.runs) art.runs = r.runs;
+                    if (r.style) art.cellStyle = r.style;
+                    ARTICLES[title] = art;
+                    BUTTONS.push({
+                        id: r.id, name: title, artKey: title,
+                        labelHtml: XY.renderItemLabel(title, r.labelRuns),
+                        bgImg: r.bg, effect: r.effect, hoverText: r.hover
+                    });
                 });
             })();
 
@@ -1410,7 +1396,7 @@
                     BUTTONS.forEach((btn, idx) => {
                         const btnDiv = document.createElement('div');
                         btnDiv.className = 'virtue-small-btn';
-                        btnDiv.innerHTML = `<div class="btn-text">${btn.name}</div>`;
+                        btnDiv.innerHTML = `<div class="btn-text">${btn.labelHtml || btn.name}</div>`;
                         setBtnBg(btnDiv, btn.bgImg);
 
                         btnDiv.addEventListener('click', (e) => {
@@ -1452,7 +1438,7 @@
                         const btnDiv = document.createElement('div');
                         const isActive = (idx === activeIdx);
                         btnDiv.className = `dynamic-virtue-btn ${isActive ? 'active-btn' : 'inactive-btn'}`;
-                        btnDiv.innerHTML = `<div class="btn-text">${btn.name}</div>`;
+                        btnDiv.innerHTML = `<div class="btn-text">${btn.labelHtml || btn.name}</div>`;
                         setBtnBg(btnDiv, btn.bgImg);
 
                         btnDiv.addEventListener('click', (e) => {
@@ -1493,14 +1479,10 @@
                     articleBody.className = 'article-body';
                     // 走公共渲染器：单元格里的真实换行、[b]/[center] 等标记、<a> 链接都会生效
                     articleBody.innerHTML = (window.XY && XY.renderRichText)
-                        ? XY.renderRichText(article.content,
-                            { boldWords: article.boldWords, runs: article.runs })
+                        ? XY.renderRichText(article.content, article.runs)
                         : article.content;
-                    // 填了「重点加粗」就不套整格加粗，否则整段都粗、局部强调失效
                     if (article.cellStyle && window.XY && XY.applyCellStyle) {
-                        XY.applyCellStyle(articleBody,
-                            article.boldWords ? XY.stripCellBold(article.cellStyle)
-                                              : article.cellStyle);
+                        XY.applyCellStyle(articleBody, article.cellStyle);
                     }
                     rightArea.appendChild(articleBody);
 

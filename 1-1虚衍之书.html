@@ -1938,9 +1938,10 @@
             //    当前内容/值            → 标题、悬停提示（形如 1 级节点「标题」；悬停提示「…」）
             //    悬停文案               → 悬停提示 / 文章副标题
             //    点击后显示的文本        → 正文（支持 [b] [i] [img:] [video:] 等标记）
-            //    重点加粗               → 只把列出的词加粗（写了它就自动取消整格加粗）
             //    文本片段               → 自动读取：文档里给某几个字单独设的格式，网页原样还原
             //    资源路径               → 节点底图
+            //  ★ 表里出现内置树没有的「章节节点 · 新名字」行时，会自动补成网页上的新条目
+            //    （想挂在某个节点下面，就写成「章节节点 · 新名字（父名字 下）」）。
             // ================================================================
             const BOOK_CFG = { nodes: 0 };
             (function applyBookConfig() {
@@ -1955,6 +1956,23 @@
                     const key = nm.replace(/^[^·]*·\s*/, "").replace(/[（(][^）)]*[）)]\s*$/, "").trim();
                     if (key) byKey[key] = r;
                 });
+                /* 内置树里原本就有哪些节点名（用来分辨「表里新加的行」） */
+                const builtinKeys = {};
+                (function collect(list) {
+                    (list || []).forEach(function (n) {
+                        builtinKeys[n.name] = true;
+                        if (n.children) collect(n.children);
+                    });
+                })(CONTENT_DATA);
+                /* 按名字找树里的节点（表里新加的节点要挂到它父节点下面时用） */
+                function findByName(list, nm) {
+                    for (let i = 0; i < (list || []).length; i++) {
+                        if (list[i].name === nm) return list[i];
+                        const hit = findByName(list[i].children, nm);
+                        if (hit) return hit;
+                    }
+                    return null;
+                }
                 function brackets(t) {
                     const m = String(t || "").match(/「([^」]*)」/g) || [];
                     return m.map(function (s) { return s.slice(1, -1); });
@@ -1972,10 +1990,6 @@
                             if (hover) { node.hoverText = hover; node.article.subTitle = hover; }
                             if (bg && bg !== "—") node.bgImg = bg;
                             if (body) node.article.content = body;
-                            // 「重点加粗」列：只把列出的词加粗（零语法，比手写 [b] 省事）
-                            const bold = String(r["重点加粗"] || "").trim();
-                            if (bold) node.article.boldWords = bold;
-                            else delete node.article.boldWords;
                             // 「文本片段」：文档里给某几个字单独设的格式（加粗/斜体/删除线/字色/字号）
                             const runs = r["文本片段"];
                             if (runs && runs.length) node.article.runs = runs;
@@ -1988,6 +2002,38 @@
                     });
                 }
                 walk(CONTENT_DATA);
+
+                /* ------------------------------------------------------------
+                   表里「多出来」的章节节点行 → 自动补成网页上的新条目
+                   （内置树里没有那个名字，说明是后来在表格里新加的）
+                     「章节节点 · 新名字」            → 顶层节点
+                     「章节节点 · 新名字（父名字 下）」 → 挂到「父名字」下面
+                   所以在表里加一行，网页左侧树就多一个可以点开的条目。 */
+                const added = [];
+                Object.keys(byKey).forEach(function (key) {
+                    if (builtinKeys[key]) return;              // 已有的节点，上面已经覆盖过
+                    const r = byKey[key];
+                    const pm = String(r["元素名称"] || "").match(/[（(]\s*([^）)]*?)\s*下\s*[）)]\s*$/);
+                    const g2 = brackets(r["当前内容/值"]);
+                    const t = (g2[0] || key).trim();
+                    const hv = String(r["悬停文案"] || "").trim() || (g2[1] || "").trim();
+                    const node = {
+                        id: "XYNEW-" + (added.length + 1),
+                        name: t,
+                        bgImg: String(r["资源路径"] || "").trim(),
+                        hoverText: hv,
+                        article: { mainTitle: t, subTitle: hv,
+                                   content: String(r["点击后显示的文本"] || "").trim() }
+                    };
+                    if (r["文本片段"] && r["文本片段"].length) node.article.runs = r["文本片段"];
+                    if (r["样式"]) node.article.cellStyle = r["样式"];
+                    const host = pm ? findByName(CONTENT_DATA, pm[1].trim()) : null;
+                    if (host) { (host.children = host.children || []).push(node); }
+                    else CONTENT_DATA.push(node);
+                    added.push(t);
+                    BOOK_CFG.nodes++;
+                });
+                BOOK_CFG.added = added;
             })();
 
             // ================================================================
@@ -2043,13 +2089,12 @@
             // ================================================================
             //  媒体解析 + 自定义文本样式标签
             // ================================================================
-            function renderContent(content, boldWords, runs) {
+            function renderContent(content, runs) {
                 /* 统一走公共库渲染器：支持 [img:URL|描述] [video:URL|标题] [audio:URL|标题]
                    以及 [b] [i] [u] [s] [center] 行内标记（定义见 assets/common.js）
-                   boldWords = 表格「重点加粗」列，写了的词会被单独加粗
-                   runs      = 表格「文本片段」，即文档里给某几个字单独设的格式
-                               （加粗/斜体/删除线/字色/字号），优先级高于 boldWords */
-                return XY.renderRichText(content, { boldWords: boldWords, runs: runs });
+                   runs = 表格「文本片段」，即文档里给某几个字单独设的格式
+                          （加粗/斜体/删除线/字色/字号） */
+                return XY.renderRichText(content, runs);
             }
 
             // ================================================================
@@ -2196,12 +2241,10 @@
                     heroTitleEl.innerText = art.mainTitle || activeNode.name;
                     heroSubEl.innerText = art.subTitle || '';
                     const rawContent = art.content || '（内容为空）';
-                    articleBody.innerHTML = renderContent(rawContent, art.boldWords, art.runs);
-                    // 套用该节点在表格里的整格格式（加粗 / 斜体 / 居中 …）；
-                    // 该行填了「重点加粗」就不再整格加粗，否则整段都粗、局部强调会失效
+                    articleBody.innerHTML = renderContent(rawContent, art.runs);
+                    // 套用该节点在表格里的整格格式（加粗 / 斜体 / 居中 …）
                     if (art.cellStyle && XY.applyCellStyle) {
-                        XY.applyCellStyle(articleBody,
-                            art.boldWords ? XY.stripCellBold(art.cellStyle) : art.cellStyle);
+                        XY.applyCellStyle(articleBody, art.cellStyle);
                     }
                     updateProjection(activeNode.bgImg);
                 } else {

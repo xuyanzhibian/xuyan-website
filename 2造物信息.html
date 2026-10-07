@@ -531,24 +531,41 @@
         // ============================================================
         const CFG_SHEET = "05_造物信息";
         const CARD_CFG = {};
+        /* 卡片清单：表格 05_造物信息 里「卡片 · *」的行 = 网页上的一张卡片
+           （有几行就有几张，从上到下就是叠放顺序，最后一张显示在最上层）。
+           每行可填：当前内容/值 = 卡片名字　资源路径 = 底图
+                    悬停文案 = 卡片说明　跳转目标 = 点击去的地址
+                    特效 = distortion / particle / wave（悬停时触发的效果）
+           表里一行都没有时，沿用下面 HTML 里写死的那两张卡。 */
+        let CARDS = [];
         (function readCardConfig() {
-            if (!window.XY || !XY.cfgVal) return;
-            [["fantasyCard", "卡片 · 虚拟幻想"], ["realityCard", "卡片 · 现实具象"]].forEach(function (p) {
-                const card = document.getElementById(p[0]);
-                if (!card) return;
-                const label = XY.cfgVal(CFG_SHEET, p[1], null);
-                const link = XY.cfgLink(CFG_SHEET, p[1], null);
-                const expl = XY.cfgHover(CFG_SHEET, p[1], null);
-                const bg = XY.cfgRes(CFG_SHEET, p[1], null);
-                if (link) card.setAttribute("data-link", link);
-                if (expl) card.setAttribute("data-explanation", expl);
-                if (bg) card.setAttribute("data-bg", bg);
-                if (label) {
-                    const t = card.querySelector(".card-title");
-                    if (t) t.textContent = label;
-                }
-                CARD_CFG[p[0]] = { label: label, link: link, expl: expl, bg: bg };
-            });
+            const stack = document.getElementById('cardStack');
+            const rows = (window.XY && XY.itemRows) ? XY.itemRows(CFG_SHEET, '卡片') : [];
+            if (rows.length && stack) {
+                stack.innerHTML = '';
+                rows.forEach(function (r, i) {
+                    const card = document.createElement('div');
+                    card.className = 'creation-card inactive-shadow';
+                    card.id = r.id || ('creationCard' + (i + 1));
+                    card.setAttribute('data-link', r.link || '');
+                    card.setAttribute('data-explanation', r.hover || '');
+                    card.setAttribute('data-bg', r.bg || '');
+                    card.setAttribute('data-effect', r.effect || '');
+                    const box = document.createElement('div');
+                    box.className = 'card-content';
+                    const title = document.createElement('div');
+                    title.className = 'card-title';
+                    title.innerHTML = (window.XY && XY.renderItemLabel)
+                        ? XY.renderItemLabel(r.label || r.name, r.labelRuns)
+                        : (r.label || r.name || '');
+                    box.appendChild(title);
+                    card.appendChild(box);
+                    stack.appendChild(card);
+                    CARD_CFG[card.id] = { label: r.label, link: r.link, expl: r.hover, bg: r.bg };
+                });
+            }
+            /* 静态兜底：表里没有卡片行时，沿用 HTML 里那两张 */
+            CARDS = [].slice.call(document.querySelectorAll('#cardStack .creation-card'));
         })();
         // ---------- 图片背景注入器 ----------
         const styleSheet = (function(){
@@ -565,15 +582,14 @@
             card.dataset.bgUrl = imageUrl;
         }
 
-        const fantasyCard = document.getElementById('fantasyCard');
-        const realityCard = document.getElementById('realityCard');
-        const fantasyBg = fantasyCard.getAttribute('data-bg');
-        const realityBg = realityCard.getAttribute('data-bg');
-        if(fantasyBg) setBgForCard(fantasyCard, fantasyBg);
-        if(realityBg) setBgForCard(realityCard, realityBg);
+        /* 最后一张卡显示在最上层（初始激活的就是它） */
+        let activeIdx = Math.max(0, CARDS.length - 1);
+        CARDS.forEach(function (c) {
+            const bg = c.getAttribute('data-bg');
+            if (bg) setBgForCard(c, bg);
+        });
 
         const bgProjection = document.getElementById('bgProjection');
-        let activeType = 'reality';
         let isSwitching = false;
         let dragStartY = 0;
         let isDragging = false;
@@ -581,8 +597,8 @@
         const dragThreshold = 35;
 
         function updateProjection() {
-            const activeCard = (activeType === 'fantasy') ? fantasyCard : realityCard;
-            const bgUrl = activeCard.dataset.bgUrl;
+            const activeCard = CARDS[activeIdx];
+            const bgUrl = activeCard ? activeCard.dataset.bgUrl : '';
             if(bgUrl) {
                 bgProjection.classList.remove('active');
                 bgProjection.style.backgroundImage = `url('${bgUrl}')`;
@@ -724,23 +740,20 @@
         }
         window.addEventListener('resize', () => { activeParticles = activeParticles.filter(p => p.parentNode); });
 
-        // 卡片切换逻辑
+        // 卡片切换逻辑（卡片有几张由表格决定，这里只按索引切换）
         function updateCardAppearance(animateNewCard = false) {
-            if(activeType === 'fantasy') {
-                fantasyCard.classList.add('active-card');
-                fantasyCard.classList.remove('inactive-shadow');
-                realityCard.classList.add('inactive-shadow');
-                realityCard.classList.remove('active-card');
-            } else {
-                realityCard.classList.add('active-card');
-                realityCard.classList.remove('inactive-shadow');
-                fantasyCard.classList.add('inactive-shadow');
-                fantasyCard.classList.remove('active-card');
-            }
-            fantasyCard.classList.remove('slide-from-bottom', 'slide-out-up');
-            realityCard.classList.remove('slide-from-bottom', 'slide-out-up');
-            if(animateNewCard) {
-                const newActiveCard = (activeType === 'fantasy') ? fantasyCard : realityCard;
+            CARDS.forEach(function (c, i) {
+                c.classList.remove('slide-from-bottom', 'slide-out-up');
+                if (i === activeIdx) {
+                    c.classList.add('active-card');
+                    c.classList.remove('inactive-shadow');
+                } else {
+                    c.classList.add('inactive-shadow');
+                    c.classList.remove('active-card');
+                }
+            });
+            if(animateNewCard && CARDS[activeIdx]) {
+                const newActiveCard = CARDS[activeIdx];
                 newActiveCard.classList.add('slide-from-bottom');
                 setTimeout(() => newActiveCard.classList.remove('slide-from-bottom'), 500);
             }
@@ -752,13 +765,15 @@
         }
 
         function switchActiveType() {
-            if(isSwitching) return;
+            if(isSwitching || CARDS.length < 2) return;
             isSwitching = true;
             cleanupEffects();
-            const oldCard = (activeType === 'fantasy') ? fantasyCard : realityCard;
-            oldCard.classList.add('slide-out-up');
-            setTimeout(() => oldCard.classList.remove('slide-out-up'), 350);
-            activeType = (activeType === 'fantasy') ? 'reality' : 'fantasy';
+            const oldCard = CARDS[activeIdx];
+            if(oldCard) {
+                oldCard.classList.add('slide-out-up');
+                setTimeout(() => oldCard.classList.remove('slide-out-up'), 350);
+            }
+            activeIdx = (activeIdx + 1) % CARDS.length;
             updateCardAppearance(true);
             bindSwipeToActiveCard();
             updateProjection();
@@ -772,14 +787,14 @@
                 const targetCard = e.currentTarget;
                 if(targetCard.classList.contains('inactive-shadow')) switchActiveType();
             };
-            fantasyCard.removeEventListener('click', handleInactiveClick);
-            realityCard.removeEventListener('click', handleInactiveClick);
-            fantasyCard.addEventListener('click', handleInactiveClick);
-            realityCard.addEventListener('click', handleInactiveClick);
+            CARDS.forEach(function (c) {
+                c.removeEventListener('click', handleInactiveClick);
+                c.addEventListener('click', handleInactiveClick);
+            });
         }
 
-        let currentActiveCard = realityCard;
-        function updateActiveCardRef() { currentActiveCard = (activeType === 'fantasy') ? fantasyCard : realityCard; }
+        let currentActiveCard = CARDS[activeIdx];
+        function updateActiveCardRef() { currentActiveCard = CARDS[activeIdx]; }
         function onPointerStart(e) {
             if(isSwitching) return;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -801,7 +816,7 @@
         }
         function onPointerEnd() { isDragging = false; hasTriggeredSwitch = false; }
         function bindSwipeToActiveCard() {
-            [fantasyCard, realityCard].forEach(c => {
+            CARDS.forEach(c => {
                 c.removeEventListener('mousedown', onPointerStart);
                 c.removeEventListener('touchstart', onPointerStart);
             });
@@ -809,7 +824,8 @@
             document.removeEventListener('mouseup', onPointerEnd);
             document.removeEventListener('touchmove', onPointerMove);
             document.removeEventListener('touchend', onPointerEnd);
-            const activeCard = (activeType === 'fantasy') ? fantasyCard : realityCard;
+            const activeCard = CARDS[activeIdx];
+            if(!activeCard) return;
             activeCard.addEventListener('mousedown', onPointerStart);
             activeCard.addEventListener('touchstart', onPointerStart, { passive: false });
             document.addEventListener('mousemove', onPointerMove);
@@ -825,8 +841,7 @@
                 const link = e.currentTarget.getAttribute('data-link');
                 if(link && link !== '#') window.open(link, '_blank');
             };
-            fantasyCard.addEventListener('click', handleJump);
-            realityCard.addEventListener('click', handleJump);
+            CARDS.forEach(function (c) { c.addEventListener('click', handleJump); });
         }
 
         // 底部浮动提示
