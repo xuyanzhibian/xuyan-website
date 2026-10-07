@@ -277,21 +277,6 @@
          ⚠ 只有当**整格**格式与片段格式冲突时，规则是「片段优先」——
            整格加粗照旧生效，被单独设过格式的那几个字以片段为准。
 
-       ── 重点加粗（表格里的「重点加粗」列 · 可选补充）────────────
-         在表格「重点加粗」列里写下要加粗的词，多个用 | 或 、 分隔，例如
-            虚无之域 | 不可名状 | 初始变量
-         网页会自动把正文里出现的这些词单独加粗。
-         它是「字间格式」的补充手段：不想在文档里逐字选中时，填这列最省事；
-         两种方式都写了也没关系，不会重复。
-
-         规则（刻意做得很直白）：
-           · 该列一旦填了词，这一格的「整格加粗」就自动让位
-             （斜体 / 居中 / 字色仍然保留）——否则整段都粗，局部加粗没意义；
-           · 该列留空 ⇒ 完全不影响原有行为，照旧读整格格式；
-           · 只匹配「整段等于这个词」以外的所有出现位置，长词优先
-             （「变量之初」不会被「变量」抢先切碎）；
-           · 词里含 [ 或 ] 时跳过该词（避免和标记语法打架）。
-
        ── 换行 ────────────────────────────────────────────────
          单元格里直接按回车换行即可（换行符会渲染成 <br>）；
          表格里已经不需要再写 <br>——旧内容里的 <br> 仍兼容。
@@ -307,84 +292,9 @@
        外加一个受地址白名单约束的 a 链接。
        ================================================================ */
 
-    /* ---------- 重点加粗：表格「重点加粗」列 ----------
-       列里写「虚无之域 | 不可名状」，正文里这些词就单独加粗。
-       对富文本走「先插 [b] 标记再统一渲染」，对纯文本走 DOM 包裹 <b>，
-       两条路都把「怎么加粗」交给同一个词表。 */
-
-    /** 把「a | b、c」这类写法拆成词表；空串返回 [] */
-    function splitBoldWords(spec) {
-        if (!spec) return [];
-        var seen = {};
-        return String(spec).split(/[|｜、,，;；\r\n]+/)
-            .map(function (s) { return s.trim(); })
-            .filter(function (w) {
-                if (!w || /[\[\]]/.test(w)) return false;       // 含方括号会与标记语法冲突
-                if (seen[w]) return false;
-                seen[w] = 1;
-                return true;
-            });
-    }
-
     /** 正则元字符转义 */
     function escapeRe(s) {
         return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    /**
-     * 给纯文本里的重点词包上标记（供 renderRichText 复用）。
-     * 用一次性替换 + 按长度降序，避免短词把长词切碎。
-     */
-    function markBoldWords(text, spec) {
-        var words = splitBoldWords(spec);
-        if (!words.length || text == null) return text;
-        var src = String(text);
-        words = words.slice().sort(function (a, b) { return b.length - a.length; });
-        var re = new RegExp(words.map(escapeRe).join('|'), 'g');
-        /* 用私有区字符做书签，避免「替换出来的 [b] 又被后续规则碰到」 */
-        src = src.replace(re, function (m) { return '\uE000' + m + '\uE001'; });
-        return src.replace(/\uE000([\s\S]*?)\uE001/g, '[b]$1[/b]');
-    }
-
-    /**
-     * 给已经渲染好的纯文本元素做局部加粗（不引入 HTML，只包一层 <b>）。
-     * @param {Element} el
-     * @param {string} spec 「重点加粗」列原文
-     */
-    function applyBoldWordsInElement(el, spec) {
-        var words = splitBoldWords(spec);
-        if (!el || !words.length) return 0;
-        var text = el.textContent || '';
-        if (!text) return 0;
-        words = words.slice().sort(function (a, b) { return b.length - a.length; });
-        /* 找出所有命中的区间，按「左到右、不重叠」收集 */
-        var spans = [], lower = text;
-        for (var i = 0; i < words.length; i++) {
-            var from = 0, at;
-            while ((at = lower.indexOf(words[i], from)) >= 0) {
-                var end = at + words[i].length, clash = false;
-                for (var j = 0; j < spans.length; j++) {
-                    if (at < spans[j][1] && end > spans[j][0]) { clash = true; break; }
-                }
-                if (!clash) spans.push([at, end]);
-                from = end;
-            }
-        }
-        if (!spans.length) return 0;
-        spans.sort(function (a, b) { return a[0] - b[0]; });
-
-        var frag = document.createDocumentFragment(), pos = 0;
-        spans.forEach(function (sp) {
-            if (sp[0] > pos) frag.appendChild(document.createTextNode(text.slice(pos, sp[0])));
-            var b = document.createElement('b');
-            b.textContent = text.slice(sp[0], sp[1]);
-            frag.appendChild(b);
-            pos = sp[1];
-        });
-        if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
-        el.textContent = '';
-        el.appendChild(frag);
-        return spans.length;
     }
 
     /* ---------- 字间格式：表格单元格里「某几个字单独设的格式」 ----------
@@ -436,17 +346,13 @@
     }
 
     /** 片段列表 → 带标记的源码（交给 renderRichText 继续处理）
-     *  @param {Array} runs 片段列表
-     *  @param {string} [boldWords] 「重点加粗」列的词。只在**本来不粗**的片段里补 [b]，
-     *         否则会变成 [b][b]…[/b][/b] 这种同标签嵌套，非贪婪匹配会错位、漏出标记文字。 */
-    function runsToSource(runs, boldWords) {
+     *  @param {Array} runs 片段列表 */
+    function runsToSource(runs) {
         if (!runs || !runs.length) return '';
         var out = '';
         for (var i = 0; i < runs.length; i++) {
             var r = runs[i] || {};
-            var text = String(r.t == null ? '' : r.t);
-            if (boldWords && !r.b) text = markBoldWords(text, boldWords);
-            out += wrapRun(text, runMarkers(r));
+            out += wrapRun(String(r.t == null ? '' : r.t), runMarkers(r));
         }
         return out;
     }
@@ -480,24 +386,9 @@
         return out;
     }
 
-    /** 该片段列表里有没有「加粗」——用来避免和「重点加粗」列重复处理 */
-    function runsHaveBold(runs) {
-        if (!runs || !runs.length) return false;
-        for (var i = 0; i < runs.length; i++) if (runs[i] && runs[i].b) return true;
-        return false;
-    }
-
-    /** 去掉整格样式里的「加粗」——该行填了「重点加粗」时用 */    function stripCellBold(style) {
-        if (!style || !style.bold) return style;
-        var copy = {};
-        for (var k in style) if (k !== 'bold') copy[k] = style[k];
-        return copy;
-    }
-
-    /** 该行实际该套的整格样式：填了「重点加粗」就不用整格加粗 */
+    /** 该行该套的整格样式（表格里给这一格设的加粗/斜体/居中/字色…） */
     function cellStyleFor(item, which) {
-        var st = item ? item[which === 'value' ? COL_VALUE_STYLE : COL_STYLE] : null;
-        return (item && item[COL_BOLD]) ? stripCellBold(st) : st;
+        return item ? item[which === 'value' ? COL_VALUE_STYLE : COL_STYLE] : null;
     }
 
     /** 表格里可以直接写、且会被当作标签保留的 HTML 标签白名单 */
@@ -558,30 +449,22 @@
     /**
      * 把富文本标记渲染成 HTML 字符串。
      * @param {string} text 含标记的文本
-     * @param {string|Object} [opts] 「重点加粗」列原文（字符串），
-     *        或 {boldWords:'…', runs:[片段…]}。给了 runs 就以片段格式为准。
+     * @param {Array|Object} [opts] 片段格式列表（或 {runs:[片段…]}）。
+     *        给了 runs 且与 text 对得上，就以片段里的字间格式为准。
      * @returns {string} HTML
      */
     function renderRichText(text, opts) {
-        var boldWords = '', runs = null;
-        if (opts && typeof opts === 'object' && !(opts instanceof Array)) {
-            boldWords = opts.boldWords || '';
-            runs = (opts.runs && opts.runs.length) ? opts.runs : null;
-        } else {
-            boldWords = opts || '';
-        }
+        var runs = null;
+        if (opts && opts instanceof Array) runs = opts.length ? opts : null;
+        else if (opts && typeof opts === 'object' && opts.runs && opts.runs.length) runs = opts.runs;
         /* 片段格式优先：直接把片段拼成带标记的源码，markdown/[b]/换行规则全都照旧。
-           runs 路径下的「重点加粗」在 runsToSource 内部按片段处理（避免同标签嵌套）。
            ⚠ 只有在「片段拼回来 == 传入文本」时才用片段——万一两者不同步（比如页面
              传入的是另一份文案），宁可退回按文本渲染，也不能把新文案吃掉。 */
         var html, src = String(text == null ? '' : text);
-        var useRuns = runs && (!src || runsText(runs) === src);
-        if (useRuns) {
-            html = runsToSource(runs, boldWords);
+        if (runs && (!src || runsText(runs) === src)) {
+            html = runsToSource(runs);
         } else {
-            if (!src) return '';
-            /* 0. 先把「重点加粗」列的词转成 [b] 标记，后面所有规则就自动统一处理了 */
-            html = markBoldWords(src, boldWords);
+            html = src;
         }
         if (!html) return '';
         var stash = [];
@@ -850,13 +733,131 @@
     var COL_HOVER = '悬停文案';
     var COL_LINK = '跳转目标';
     var COL_RES = '资源路径';
-    var COL_BOLD = '重点加粗';       // 只把列出来的词加粗（零语法，见 markBoldWords）
 
     function cfgVal(sheet, name, d) { return cfgCell(sheet, name, COL_VALUE, d); }
     function cfgText(sheet, name, d) { return cfgCell(sheet, name, COL_TEXT, d); }
     function cfgHover(sheet, name, d) { return cfgCell(sheet, name, COL_HOVER, d); }
     function cfgRes(sheet, name, d) { return cfgCell(sheet, name, COL_RES, d); }
-    function cfgBold(sheet, name, d) { return cfgCell(sheet, name, COL_BOLD, d); }
+
+    /* ================================================================
+       列表条目 —— 「表里有几行，网页就有几个按钮 / 卡片 / 界面」
+       ----------------------------------------------------------------
+       约定：分表里「元素名称」以某个前缀开头的行，就是一个「可增删条目」。
+       例：03_虚衍世界 的「板块按钮 · 虚衍之书」。
+
+       网页只认**表格里从上到下的顺序**：删掉一行就少一个按钮，新增一行就
+       多一个，想调顺序就在表里上下移动那一行 —— 全程不用改任何代码。
+
+       每个条目能填的列（都可以留空，留空就用页面内置的默认值）：
+         当前内容/值       按钮或卡片上显示的文字
+         资源路径          底图
+         悬停文案          鼠标悬停时底部提示条的文字
+         点击后显示的文本  点开后的界面正文（富文本标记全都支持）
+         跳转目标          点击后跳转的地址
+         特效              版式 / 特效开关，如 particle · wave · distortion · full
+         代码标识          可选的内部 id（留空自动生成）
+         可新增            写「否 / 隐藏 / 停用」可把这一条临时下线（留空 = 显示）
+
+       读不到表格时返回空数组，页面自然回落写在 HTML / JS 里的内置默认。
+       ================================================================ */
+
+    var ITEM_OFF = { '否': 1, 'no': 1, 'off': 1, '0': 1,
+                     '隐藏': 1, '停用': 1, '不显示': 1, '下线': 1 };
+
+    /** 去掉空格与各种分隔符，便于宽松比较前缀（「板块按钮·X」和「板块按钮 · X」等价） */
+    function normKey(s) {
+        return String(s == null ? '' : s).replace(/[\s·・,，、\-—_]+/g, '');
+    }
+
+    /** 条目短名：「板块按钮 · 虚衍之书」→「虚衍之书」（去掉前缀与末尾括号说明） */
+    function itemShortName(fullName, prefix) {
+        var s = String(fullName == null ? '' : fullName).trim();
+        if (prefix) {
+            var re = new RegExp('^\\s*' + escapeRe(prefix) + '\\s*[·・:：\\-—]*\\s*');
+            s = s.replace(re, '');
+        }
+        return s.replace(/[（(][^）)]*[）)]\s*$/, '').trim();
+    }
+
+    /** 单条记录取一列，空 / 占位符返回 '' */
+    function cfgCellOf(it, col) {
+        var v = it ? it[col] : '';
+        if (v === undefined || v === null) return '';
+        v = String(v).trim();
+        return EMPTY_CELLS[v] ? '' : v;
+    }
+
+    /** 从「代码标识」列里抠出一个可用的内部 id */
+    function itemCode(raw) {
+        var s = String(raw == null ? '' : raw);
+        var m = s.match(/id\s*=\s*([A-Za-z0-9_\-]+)/) || s.match(/#([A-Za-z0-9_\-]+)/)
+             || s.match(/^[A-Za-z0-9_\-]+/);
+        return m ? m[1] : '';
+    }
+
+    /** 把一条表格记录整理成页面好用的条目对象 */
+    function itemView(it, fullName, prefix, index) {
+        var label = String(it[COL_VALUE] || '').trim();
+        var short = itemShortName(fullName, prefix);
+        return {
+            key: fullName,                                  // 元素名称全名（唯一）
+            name: short || label,                           // 去前缀后的短名
+            label: label || short,                          // 显示文字
+            bg: cfgCellOf(it, COL_RES),                     // 底图
+            hover: cfgCellOf(it, COL_HOVER),                // 悬停提示
+            body: String(it[COL_TEXT] || ''),               // 界面正文
+            link: cfgCellOf(it, COL_LINK),                  // 跳转目标
+            effect: cfgCellOf(it, '特效'),                   // 版式 / 特效标记
+            id: itemCode(it['代码标识']) || ('item' + index),
+            index: index,
+            runs: (it[COL_RUNS] && it[COL_RUNS].length) ? it[COL_RUNS] : null,
+            style: it[COL_STYLE] || null,
+            labelRuns: (it[COL_VALUE_RUNS] && it[COL_VALUE_RUNS].length) ? it[COL_VALUE_RUNS] : null,
+            labelStyle: it[COL_VALUE_STYLE] || null,
+            item: it
+        };
+    }
+
+    /**
+     * 取一个分表里「元素名称以 prefix 开头」的全部行，按表格顺序返回。
+     * @param {string} sheet 分表名，如 '03_虚衍世界'
+     * @param {string} [prefix] 元素名称前缀，如 '板块按钮'（分隔符可省）
+     * @returns {Array<Object>} 条目数组；表里没有、或读不到表时返回 []（页面用内置默认）
+     */
+    function itemRows(sheet, prefix) {
+        var list = cfgSheet(sheet);
+        if (!list || !list.length) return [];
+        var want = normKey(prefix), out = [];
+        for (var i = 0; i < list.length; i++) {
+            var it = list[i] || {};
+            var full = String(it['元素名称'] || '').trim();
+            if (!full) continue;
+            if (want && normKey(full).indexOf(want) !== 0) continue;
+            if (ITEM_OFF[normKey(it['可新增']).toLowerCase()]) continue;
+            var v = itemView(it, full, prefix, out.length);
+            /* 完全空白的行（模板占位）不生成空按钮 */
+            if (!v.label && !v.bg && !v.body && !v.hover && !v.link) continue;
+            out.push(v);
+        }
+        return out;
+    }
+
+    /** 条目数组里按内部 id 找一条（页面要配对时用） */
+    function itemBy(rows, id) {
+        for (var i = 0; i < (rows ? rows.length : 0); i++) {
+            if (rows[i].id === id || rows[i].name === id || rows[i].key === id) return rows[i];
+        }
+        return null;
+    }
+
+    /**
+     * 条目文字渲染成 HTML：有片段格式走片段，否则按纯文本转义。
+     * 用于按钮文案、卡片标题这类**不解析标记**的位置。
+     */
+    function renderItemLabel(text, runs) {
+        if (runs && runs.length) return runsToHtml(runs);
+        return escapeHtml(String(text == null ? '' : text)).replace(/\r\n?|\n/g, '<br>');
+    }
 
     /* ---------- 整格样式（表格里的单元格格式） ----------
        腾讯文档的「加粗 / 居中 / 斜体」只能设在**整个单元格**上，网页这边
@@ -1156,7 +1157,6 @@
             if (col) value = item[col] || '';
             var attr = el.getAttribute('data-config-attr');
             var styleOff = el.getAttribute('data-config-style') === 'off';
-            var boldWords = item[COL_BOLD] || '';
             /* 该格的字间格式：col 指向「点击后显示的文本」时取正文那格，否则取值那格 */
             var runs = (col && col !== COL_TEXT) ? null
                 : (col === COL_TEXT ? item[COL_RUNS] : item[COL_VALUE_RUNS]);
@@ -1166,17 +1166,14 @@
                 if (attr) {
                     el.setAttribute(attr, value);
                 } else if (el.getAttribute('data-config-mode') === 'rich' || runs) {
-                    el.innerHTML = renderRichText(value, { boldWords: boldWords, runs: runs });
+                    el.innerHTML = renderRichText(value, runs);
                 } else {
                     el.textContent = value;
-                    /* 「重点加粗」列在纯文本里也能生效：只把列出的词包成 <b> */
-                    applyBoldWordsInElement(el, boldWords);
                 }
             }
 
             /* 整格样式：默认套用「取值那一列」对应的单元格格式。
-               写成属性（href 等）时不套样式；data-config-style="off" 可显式关掉。
-               ⚠ 该行填了「重点加粗」时，整格加粗自动让位（见 cellStyleFor）。 */
+               写成属性（href 等）时不套样式；data-config-style="off" 可显式关掉。 */
             if (!attr && !styleOff) {
                 var which = 'value';
                 if (col) which = (col === COL_TEXT) ? 'text' : null;
@@ -1199,8 +1196,7 @@
             var target = el.getAttribute('data-config-text-target');
             var longText = item['点击后显示的文本'] || '';
             if (target && longText) {
-                var tEl = renderRichTextInto(target, longText,
-                    { boldWords: boldWords, runs: item[COL_RUNS] });
+                var tEl = renderRichTextInto(target, longText, item[COL_RUNS]);
                 if (tEl && !styleOff) applyCellStyle(tEl, cellStyleFor(item, 'text'));
             }
         }
@@ -1286,13 +1282,14 @@
         runsToSource: runsToSource,
         runsToHtml: runsToHtml,
         runsText: runsText,
-        runsHaveBold: runsHaveBold,
-        /* 重点加粗（表格「重点加粗」列） */
-        cfgBold: cfgBold,
-        splitBoldWords: splitBoldWords,
-        markBoldWords: markBoldWords,
-        applyBoldWordsInElement: applyBoldWordsInElement,
-        stripCellBold: stripCellBold,
+        /* 列表条目（表里有几行，网页就有几个按钮/卡片/界面） */
+        itemRows: itemRows,
+        itemBy: itemBy,
+        itemView: itemView,
+        itemShortName: itemShortName,
+        itemCode: itemCode,
+        normKey: normKey,
+        renderItemLabel: renderItemLabel,
         cellStyleFor: cellStyleFor,
         applyTokens: applyTokens,
         applyDocMeta: applyDocMeta,
