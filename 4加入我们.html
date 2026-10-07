@@ -958,6 +958,12 @@
                         // 该格在表格里的整格格式（加粗 / 斜体 / 居中 …）
                         const st = XY.cfgStyle(CFG_SHEET, row, null);
                         if (art) { if (st) art.cellStyle = st; else delete art.cellStyle; }
+                        // 「重点加粗」列：只把列出的词加粗（写了它就自动取消整格加粗）
+                        const bold = XY.cfgBold(CFG_SHEET, row, null);
+                        if (art) {
+                            if (bold) art.boldWords = bold;
+                            else delete art.boldWords;
+                        }
                     }
                     const trow = ARTICLE_ROW[b.id];
                     if (art && trow) {
@@ -1481,9 +1487,13 @@
                     articleBody.className = 'article-body';
                     // 走公共渲染器：单元格里的真实换行、[b]/[center] 等标记、<a> 链接都会生效
                     articleBody.innerHTML = (window.XY && XY.renderRichText)
-                        ? XY.renderRichText(article.content) : article.content;
+                        ? XY.renderRichText(article.content, article.boldWords)
+                        : article.content;
+                    // 填了「重点加粗」就不套整格加粗，否则整段都粗、局部强调失效
                     if (article.cellStyle && window.XY && XY.applyCellStyle) {
-                        XY.applyCellStyle(articleBody, article.cellStyle);
+                        XY.applyCellStyle(articleBody,
+                            article.boldWords ? XY.stripCellBold(article.cellStyle)
+                                              : article.cellStyle);
                     }
                     rightArea.appendChild(articleBody);
 
