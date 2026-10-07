@@ -241,6 +241,16 @@ python .虚衍网站内容配置总表.ref/verify_online.py     # 断言「页�
 
 渲染器是 `assets/common.js` 的 `XY.renderRichText()`，块级样式在 `assets/theme.css`（`.rich-*`）。
 
+- 标记必须**成对闭合**，只写半边会原样显示。
+- 表格里写的 `<` `>` `&` 会按普通文字显示，不会破坏页面结构；只有
+  `br / b / i / u / s / sub / sup / p / small` 这几个标签会被当成格式，
+  外加一个受地址白名单约束的 `<a>`。
+- 地址支持相对路径（`./media/x.mp4`）与 `https://` 外链，其他协议会被丢弃；
+  媒体加载失败时自动显示占位提示。
+- ⚠ 渲染顺序不能动：① 提取媒体放占位符 → ② 转义 + 白名单还原标签 →
+  ③ **去掉 `<br>` 两侧的换行**（兼容旧写法）→ ④ `\n` → `<br>` → ⑤ Markdown / 方括号 / 对齐。
+  漏掉 ③，历史正文会多出好几个空行、行距炸掉。
+
 ### 字间格式（单元格内「某几个字单独设的格式」· **首选**）
 
 在腾讯文档里**只选中一句话里的某几个字**，点工具栏设加粗 / 斜体 / 删除线 / 下划线 /
@@ -308,13 +318,6 @@ body / link / effect / id / index / runs / style / labelRuns / labelStyle / item
 
 回归：`verify_items.py`（静态接线 / `itemRows` 判定语义 / 6 页真实渲染 / 拦截注入 / 无配置兜底）。
 
-- 标记必须**成对闭合**，只写半边会原样显示。
-- 表格里写的 `<` `>` `&` 会按普通文字显示，不会破坏页面结构；只有
-  `br / b / i / u / s / sub / sup / p / small` 这几个标签会被当成格式，
-  外加一个受地址白名单约束的 `<a>`。
-- 地址支持相对路径（`./media/x.mp4`）与 `https://` 外链，其他协议会被丢弃；
-  媒体加载失败时自动显示占位提示。
-
 ### 整格格式（单元格格式 → 网页）
 
 不想写标记时，可以直接给单元格设格式，网页会照搬这一格的格式：
@@ -327,7 +330,10 @@ body / link / effect / id / index / runs / style / labelRuns / labelStyle / item
 | 字体颜色 / 背景色 | 对应 `color` / `background-color` |
 
 **这是有代价的**：腾讯文档的表格接口只能设「整个单元格」的格式，**没法只给
-一句话里的某几个词**上格式。所以句中局部强调仍然要写 `[b]…[/b]` 这类标记。
+一句话里的某几个词**上格式 —— 整格设加粗 = 整段都粗。所以想让「某几个字」单独变粗 /
+变色 / 变字号，用上文的**字间格式**（进单元格选中那几个字再设格式），不要给整格设加粗。
+整格格式与字间格式同时存在时，**字间格式只负责覆盖那几段文字的样式**，整格上原本的
+加粗 / 斜体 / 对齐仍然生效。
 
 链路（格式读不到，必须缓存；但缓存会随发布自动刷新）：
 
@@ -369,7 +375,7 @@ body / link / effect / id / index / runs / style / labelRuns / labelStyle / item
 - 验证脚本：`verify_all_pages.py`（7 页表格驱动哨兵值）、`verify_richtext.py`（富文本渲染）、
   `verify_cell_styles.py`（整格格式 + 正文换行）、`verify_rich_runs.py`（字间格式：解析层
   离线 protobuf 夹具 + 精简层 + 前端 + 端到端）、`verify_config.py`（防首屏闪烁 + 改表生效）、
-  `verify_bold_words.py`（「重点加粗」局部加粗 + 白话表头下读表仍正常）、
+  `verify_items.py`（列表条目：静态接线 + `itemRows` 判定语义 + 6 页渲染 + 拦截注入 + 兜底）、
   `verify_mobile_nav.py`（移动端长按展开 + 点击跳转，11 项）、
   `regress.py`（3 视口 × 8 页控制台/裂图/溢出）
 - 无障碍：`role=button` + `tabindex` + `aria-label`，支持 Enter/Space；`prefers-reduced-motion` 降级
