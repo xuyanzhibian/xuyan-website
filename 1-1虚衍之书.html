@@ -1938,6 +1938,7 @@
             //    当前内容/值            → 标题、悬停提示（形如 1 级节点「标题」；悬停提示「…」）
             //    悬停文案               → 悬停提示 / 文章副标题
             //    点击后显示的文本        → 正文（支持 [b] [i] [img:] [video:] 等标记）
+            //    重点加粗               → 只把列出的词加粗（写了它就自动取消整格加粗）
             //    资源路径               → 节点底图
             // ================================================================
             const BOOK_CFG = { nodes: 0 };
@@ -1970,6 +1971,10 @@
                             if (hover) { node.hoverText = hover; node.article.subTitle = hover; }
                             if (bg && bg !== "—") node.bgImg = bg;
                             if (body) node.article.content = body;
+                            // 「重点加粗」列：只把列出的词加粗（零语法，比手写 [b] 省事）
+                            const bold = String(r["重点加粗"] || "").trim();
+                            if (bold) node.article.boldWords = bold;
+                            else delete node.article.boldWords;
                             // 整格格式（腾讯文档里给单元格设的加粗/斜体/居中等）
                             if (r["样式"] && node.article) node.article.cellStyle = r["样式"];
                             BOOK_CFG.nodes++;
@@ -2033,10 +2038,11 @@
             // ================================================================
             //  媒体解析 + 自定义文本样式标签
             // ================================================================
-            function renderContent(content) {
+            function renderContent(content, boldWords) {
                 /* 统一走公共库渲染器：支持 [img:URL|描述] [video:URL|标题] [audio:URL|标题]
-                   以及 [b] [i] [u] [s] [center] 行内标记（定义见 assets/common.js） */
-                return XY.renderRichText(content);
+                   以及 [b] [i] [u] [s] [center] 行内标记（定义见 assets/common.js）
+                   boldWords = 表格「重点加粗」列，写了的词会被单独加粗 */
+                return XY.renderRichText(content, boldWords);
             }
 
             // ================================================================
@@ -2183,10 +2189,12 @@
                     heroTitleEl.innerText = art.mainTitle || activeNode.name;
                     heroSubEl.innerText = art.subTitle || '';
                     const rawContent = art.content || '（内容为空）';
-                    articleBody.innerHTML = renderContent(rawContent);
-                    // 套用该节点在表格里的整格格式（加粗 / 斜体 / 居中 …）
+                    articleBody.innerHTML = renderContent(rawContent, art.boldWords);
+                    // 套用该节点在表格里的整格格式（加粗 / 斜体 / 居中 …）；
+                    // 该行填了「重点加粗」就不再整格加粗，否则整段都粗、局部强调会失效
                     if (art.cellStyle && XY.applyCellStyle) {
-                        XY.applyCellStyle(articleBody, art.cellStyle);
+                        XY.applyCellStyle(articleBody,
+                            art.boldWords ? XY.stripCellBold(art.cellStyle) : art.cellStyle);
                     }
                     updateProjection(activeNode.bgImg);
                 } else {

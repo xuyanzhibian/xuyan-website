@@ -266,6 +266,20 @@
          [b]…[/b] / [i]…[/i] / [s]…[/s] / [u]…[/u] 这类标记。
          （整格格式经 sync_styles.py 缓存 → sync_online.py 合并 → 网页套用）
 
+       ── 重点加粗（表格里的「重点加粗」列 · 零语法）──────────────
+         在表格「重点加粗」列里写下要加粗的词，多个用 | 或 、 分隔，例如
+            虚无之域 | 不可名状 | 初始变量
+         网页会自动把正文里出现的这些词单独加粗，**只有这几个词是粗的**，
+         比你手写 [b]…[/b] 更省事，也不会因为漏写闭合标记而出错。
+
+         规则（刻意做得很直白）：
+           · 该列一旦填了词，这一格的「整格加粗」就自动让位
+             （斜体 / 居中 / 字色仍然保留）——否则整段都粗，局部加粗没意义；
+           · 该列留空 ⇒ 完全不影响原有行为，照旧读整格格式；
+           · 只匹配「整段等于这个词」以外的所有出现位置，长词优先
+             （「变量之初」不会被「变量」抢先切碎）；
+           · 词里含 [ 或 ] 时跳过该词（避免和标记语法打架）。
+
        ── 换行 ────────────────────────────────────────────────
          单元格里直接按回车换行即可（换行符会渲染成 <br>）；
          表格里已经不需要再写 <br>——旧内容里的 <br> 仍兼容。
@@ -280,6 +294,100 @@
        表格里写的 <、>、& 会按文字显示；只放行 br/b/i/u/s/del/sub/sup/p/small 标签，
        外加一个受地址白名单约束的 a 链接。
        ================================================================ */
+
+    /* ---------- 重点加粗：表格「重点加粗」列 ----------
+       列里写「虚无之域 | 不可名状」，正文里这些词就单独加粗。
+       对富文本走「先插 [b] 标记再统一渲染」，对纯文本走 DOM 包裹 <b>，
+       两条路都把「怎么加粗」交给同一个词表。 */
+
+    /** 把「a | b、c」这类写法拆成词表；空串返回 [] */
+    function splitBoldWords(spec) {
+        if (!spec) return [];
+        var seen = {};
+        return String(spec).split(/[|｜、,，;；\r\n]+/)
+            .map(function (s) { return s.trim(); })
+            .filter(function (w) {
+                if (!w || /[\[\]]/.test(w)) return false;       // 含方括号会与标记语法冲突
+                if (seen[w]) return false;
+                seen[w] = 1;
+                return true;
+            });
+    }
+
+    /** 正则元字符转义 */
+    function escapeRe(s) {
+        return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    /**
+     * 给纯文本里的重点词包上标记（供 renderRichText 复用）。
+     * 用一次性替换 + 按长度降序，避免短词把长词切碎。
+     */
+    function markBoldWords(text, spec) {
+        var words = splitBoldWords(spec);
+        if (!words.length || text == null) return text;
+        var src = String(text);
+        words = words.slice().sort(function (a, b) { return b.length - a.length; });
+        var re = new RegExp(words.map(escapeRe).join('|'), 'g');
+        /* 用私有区字符做书签，避免「替换出来的 [b] 又被后续规则碰到」 */
+        src = src.replace(re, function (m) { return '\uE000' + m + '\uE001'; });
+        return src.replace(/\uE000([\s\S]*?)\uE001/g, '[b]$1[/b]');
+    }
+
+    /**
+     * 给已经渲染好的纯文本元素做局部加粗（不引入 HTML，只包一层 <b>）。
+     * @param {Element} el
+     * @param {string} spec 「重点加粗」列原文
+     */
+    function applyBoldWordsInElement(el, spec) {
+        var words = splitBoldWords(spec);
+        if (!el || !words.length) return 0;
+        var text = el.textContent || '';
+        if (!text) return 0;
+        words = words.slice().sort(function (a, b) { return b.length - a.length; });
+        /* 找出所有命中的区间，按「左到右、不重叠」收集 */
+        var spans = [], lower = text;
+        for (var i = 0; i < words.length; i++) {
+            var from = 0, at;
+            while ((at = lower.indexOf(words[i], from)) >= 0) {
+                var end = at + words[i].length, clash = false;
+                for (var j = 0; j < spans.length; j++) {
+                    if (at < spans[j][1] && end > spans[j][0]) { clash = true; break; }
+                }
+                if (!clash) spans.push([at, end]);
+                from = end;
+            }
+        }
+        if (!spans.length) return 0;
+        spans.sort(function (a, b) { return a[0] - b[0]; });
+
+        var frag = document.createDocumentFragment(), pos = 0;
+        spans.forEach(function (sp) {
+            if (sp[0] > pos) frag.appendChild(document.createTextNode(text.slice(pos, sp[0])));
+            var b = document.createElement('b');
+            b.textContent = text.slice(sp[0], sp[1]);
+            frag.appendChild(b);
+            pos = sp[1];
+        });
+        if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
+        el.textContent = '';
+        el.appendChild(frag);
+        return spans.length;
+    }
+
+    /** 去掉整格样式里的「加粗」——该行填了「重点加粗」时用 */
+    function stripCellBold(style) {
+        if (!style || !style.bold) return style;
+        var copy = {};
+        for (var k in style) if (k !== 'bold') copy[k] = style[k];
+        return copy;
+    }
+
+    /** 该行实际该套的整格样式：填了「重点加粗」就不用整格加粗 */
+    function cellStyleFor(item, which) {
+        var st = item ? item[which === 'value' ? COL_VALUE_STYLE : COL_STYLE] : null;
+        return (item && item[COL_BOLD]) ? stripCellBold(st) : st;
+    }
 
     /** 表格里可以直接写、且会被当作标签保留的 HTML 标签白名单 */
     var HTML_ALLOW = /^(br|b|strong|i|em|u|s|del|sub|sup|p|small)$/i;
@@ -341,9 +449,10 @@
      * @param {string} text 含标记的文本
      * @returns {string} HTML
      */
-    function renderRichText(text) {
+    function renderRichText(text, boldWords) {
         if (!text) return '';
-        var html = String(text);
+        /* 0. 先把「重点加粗」列的词转成 [b] 标记，后面所有规则就自动统一处理了 */
+        var html = markBoldWords(String(text), boldWords);
         var stash = [];
         function keep(box) { stash.push(box); return '\u0000' + (stash.length - 1) + '\u0000'; }
 
@@ -434,10 +543,11 @@
      * 渲染富文本并写入指定元素。
      * @param {Element|string} target 元素或选择器
      * @param {string} text 富文本
+     * @param {string} [boldWords] 表格「重点加粗」列原文
      */
-    function renderRichTextInto(target, text) {
+    function renderRichTextInto(target, text, boldWords) {
         var el = typeof target === 'string' ? document.querySelector(target) : target;
-        if (el) el.innerHTML = renderRichText(text);
+        if (el) el.innerHTML = renderRichText(text, boldWords);
         return el;
     }
 
@@ -600,11 +710,13 @@
     var COL_HOVER = '悬停文案';
     var COL_LINK = '跳转目标';
     var COL_RES = '资源路径';
+    var COL_BOLD = '重点加粗';       // 只把列出来的词加粗（零语法，见 markBoldWords）
 
     function cfgVal(sheet, name, d) { return cfgCell(sheet, name, COL_VALUE, d); }
     function cfgText(sheet, name, d) { return cfgCell(sheet, name, COL_TEXT, d); }
     function cfgHover(sheet, name, d) { return cfgCell(sheet, name, COL_HOVER, d); }
     function cfgRes(sheet, name, d) { return cfgCell(sheet, name, COL_RES, d); }
+    function cfgBold(sheet, name, d) { return cfgCell(sheet, name, COL_BOLD, d); }
 
     /* ---------- 整格样式（表格里的单元格格式） ----------
        腾讯文档的「加粗 / 居中 / 斜体」只能设在**整个单元格**上，网页这边
@@ -882,25 +994,27 @@
             if (col) value = item[col] || '';
             var attr = el.getAttribute('data-config-attr');
             var styleOff = el.getAttribute('data-config-style') === 'off';
+            var boldWords = item[COL_BOLD] || '';
             if (value) {
                 el.setAttribute('data-config-value', value);
                 if (attr) {
                     el.setAttribute(attr, value);
                 } else if (el.getAttribute('data-config-mode') === 'rich') {
-                    el.innerHTML = renderRichText(value);
+                    el.innerHTML = renderRichText(value, boldWords);
                 } else {
                     el.textContent = value;
+                    /* 「重点加粗」列在纯文本里也能生效：只把列出的词包成 <b> */
+                    applyBoldWordsInElement(el, boldWords);
                 }
             }
 
             /* 整格样式：默认套用「取值那一列」对应的单元格格式。
-               写成属性（href 等）时不套样式；data-config-style="off" 可显式关掉。 */
+               写成属性（href 等）时不套样式；data-config-style="off" 可显式关掉。
+               ⚠ 该行填了「重点加粗」时，整格加粗自动让位（见 cellStyleFor）。 */
             if (!attr && !styleOff) {
                 var which = 'value';
                 if (col) which = (col === COL_TEXT) ? 'text' : null;
-                if (which) {
-                    applyCellStyle(el, item[which === 'value' ? COL_VALUE_STYLE : COL_STYLE]);
-                }
+                if (which) applyCellStyle(el, cellStyleFor(item, which));
             }
 
             /* 备用态（如按钮激活态）文案：挂到属性上由页面自取 */
@@ -919,8 +1033,8 @@
             var target = el.getAttribute('data-config-text-target');
             var longText = item['点击后显示的文本'] || '';
             if (target && longText) {
-                var tEl = renderRichTextInto(target, longText);
-                if (tEl && !styleOff) applyCellStyle(tEl, item[COL_STYLE]);
+                var tEl = renderRichTextInto(target, longText, boldWords);
+                if (tEl && !styleOff) applyCellStyle(tEl, cellStyleFor(item, 'text'));
             }
         }
         return hit;
@@ -1000,6 +1114,13 @@
         cfgStyle: cfgStyle,
         applyCellStyle: applyCellStyle,
         cellStyleToCss: cellStyleToCss,
+        /* 重点加粗（表格「重点加粗」列） */
+        cfgBold: cfgBold,
+        splitBoldWords: splitBoldWords,
+        markBoldWords: markBoldWords,
+        applyBoldWordsInElement: applyBoldWordsInElement,
+        stripCellBold: stripCellBold,
+        cellStyleFor: cellStyleFor,
         applyTokens: applyTokens,
         applyDocMeta: applyDocMeta,
         setImg: setImg
