@@ -769,6 +769,14 @@
         return String(s == null ? '' : s).replace(/[\s·・,，、\-—_]+/g, '');
     }
 
+    /** 元素名称的「第一段」（按 · : 、空格 等切分）—— 用来认这是哪一类条目
+     *  「卡片 · 虚拟幻想」→「卡片」；「卡片说明文案」→「卡片说明文案」（不会被当成卡片） */
+    function itemPrefixOf(fullName) {
+        var parts = String(fullName == null ? '' : fullName).trim()
+            .split(/[\s·・:：\-—、,，]+/);
+        return parts[0] || '';
+    }
+
     /** 条目短名：「板块按钮 · 虚衍之书」→「虚衍之书」（去掉前缀与末尾括号说明） */
     function itemShortName(fullName, prefix) {
         var s = String(fullName == null ? '' : fullName).trim();
@@ -819,9 +827,11 @@
     }
 
     /**
-     * 取一个分表里「元素名称以 prefix 开头」的全部行，按表格顺序返回。
+     * 取一个分表里「元素名称以 prefix 打头」的全部行，按表格顺序返回。
+     * 判据是「名称的第一段」等于 prefix —— 所以「卡片 · 虚拟幻想」算卡片，
+     * 「卡片说明文案」「按钮底图」这类说明行不会被误当成条目。
      * @param {string} sheet 分表名，如 '03_虚衍世界'
-     * @param {string} [prefix] 元素名称前缀，如 '板块按钮'（分隔符可省）
+     * @param {string} [prefix] 条目前缀，如 '板块按钮'
      * @returns {Array<Object>} 条目数组；表里没有、或读不到表时返回 []（页面用内置默认）
      */
     function itemRows(sheet, prefix) {
@@ -832,7 +842,7 @@
             var it = list[i] || {};
             var full = String(it['元素名称'] || '').trim();
             if (!full) continue;
-            if (want && normKey(full).indexOf(want) !== 0) continue;
+            if (want && normKey(itemPrefixOf(full)) !== want) continue;
             if (ITEM_OFF[normKey(it['可新增']).toLowerCase()]) continue;
             var v = itemView(it, full, prefix, out.length);
             /* 完全空白的行（模板占位）不生成空按钮 */
@@ -1287,6 +1297,7 @@
         itemBy: itemBy,
         itemView: itemView,
         itemShortName: itemShortName,
+        itemPrefixOf: itemPrefixOf,
         itemCode: itemCode,
         normKey: normKey,
         renderItemLabel: renderItemLabel,

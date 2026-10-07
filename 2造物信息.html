@@ -859,23 +859,28 @@
             tipTimeout = setTimeout(() => { dynamicTip.style.opacity = '0'; }, 300);
         }
 
+        /* 悬停触发的效果，按每张卡自己的「特效」列派发 */
+        function cardEffectOn(card) {
+            const e = String(card.getAttribute('data-effect') || '').toLowerCase();
+            if(e.indexOf('distortion') >= 0 || e.indexOf('扭曲') >= 0) showDistortion();
+            if(e.indexOf('particle') >= 0 || e.indexOf('粒子') >= 0) activateRealityParticles();
+        }
+        function cardEffectOff(card) {
+            const e = String(card.getAttribute('data-effect') || '').toLowerCase();
+            if(e.indexOf('distortion') >= 0 || e.indexOf('扭曲') >= 0) hideDistortion();
+            if(e.indexOf('particle') >= 0 || e.indexOf('粒子') >= 0) deactivateRealityParticles();
+        }
         function bindHoverAndTip() {
             const handleEnter = (card) => {
                 const expl = card.getAttribute('data-explanation');
                 if(expl) showBottomText(expl);
-                if(card.classList.contains('active-card')) {
-                    if(card.id === 'fantasyCard') showDistortion();
-                    if(card.id === 'realityCard') activateRealityParticles();
-                }
+                if(card.classList.contains('active-card')) cardEffectOn(card);
             };
             const handleLeave = (card) => {
                 hideBottomText();
-                if(card.classList.contains('active-card')) {
-                    if(card.id === 'fantasyCard') hideDistortion();
-                    if(card.id === 'realityCard') deactivateRealityParticles();
-                }
+                if(card.classList.contains('active-card')) cardEffectOff(card);
             };
-            [fantasyCard, realityCard].forEach(card => {
+            CARDS.forEach(card => {
                 card.addEventListener('mouseenter', () => handleEnter(card));
                 card.addEventListener('mouseleave', () => handleLeave(card));
                 card.addEventListener('touchstart', () => handleEnter(card), { passive: true });
@@ -902,7 +907,7 @@
             setupLogo((window.XY && XY.cfgLink)
                 ? XY.cfgLink(CFG_SHEET, "左上角 Logo", "./0虚衍主页.html")
                 : "./0虚衍主页.html", '.logo', 'logoImg', '返回主页');
-            activeType = 'reality';
+            activeIdx = Math.max(0, CARDS.length - 1);
             updateCardAppearance(false);
             updateActiveCardRef();
             bindSwipeToActiveCard();

@@ -739,6 +739,61 @@
                     });
                 });
             });
+
+            /* ---------- 在表里加一行 = 网页上多一个菜单项 ----------
+               新加的菜单请照这样写「元素名称」（上级写在括号里）：
+                 一级菜单 · 新板块
+                 二级菜单 · 新分组（新板块 下）
+                 三级菜单 · 新条目（新分组 下）
+               已有菜单仍然按上面的老写法改文案 / 底图 / 正文，两种写法互不影响。 */
+            (function appendMenuFromTable() {
+                if (!XY.itemRows) return;
+                const lv1 = XY.itemRows(S, "一级菜单");
+                const lv2 = XY.itemRows(S, "二级菜单");
+                const lv3 = XY.itemRows(S, "三级菜单");
+                function parentOf(full) {
+                    const m = String(full || "").match(/[（(]\s*([^）)]*?)\s*下\s*[）)]\s*$/);
+                    return m ? m[1].trim() : "";
+                }
+                function hasSec(list, nm) {
+                    return (list || []).some(function (s) { return s.title === nm; });
+                }
+                lv1.forEach(function (r) {
+                    const nm = r.label || r.name;
+                    if (menuStructure.some(function (m) { return m.name === nm; })) return;
+                    menuStructure.push({ id: r.id || ("pri_" + menuStructure.length),
+                                         name: nm, secondary: [] });
+                });
+                lv2.forEach(function (r) {
+                    const nm = r.label || r.name, up = parentOf(r.key);
+                    let host = null;
+                    menuStructure.forEach(function (m) { if (m.name === up) host = m; });
+                    if (!host || hasSec(host.secondary, nm)) return;
+                    const sec = {
+                        title: nm,
+                        image: r.bg || "",
+                        longText: r.body || "",
+                        longTextBgImage: /\.(webp|png|jpe?g|gif|avif|svg)$/i.test(r.hover) ? r.hover : "",
+                        tertiary: []
+                    };
+                    if (r.runs) sec.runs = r.runs;
+                    if (r.style) sec.cellStyle = r.style;
+                    (host.secondary = host.secondary || []).push(sec);
+                });
+                lv3.forEach(function (r) {
+                    const nm = r.label || r.name, up = parentOf(r.key);
+                    let host = null;
+                    menuStructure.forEach(function (m) {
+                        (m.secondary || []).forEach(function (s) { if (s.title === up) host = s; });
+                    });
+                    if (!host) return;
+                    if ((host.tertiary || []).some(function (t) { return t.name === nm; })) return;
+                    (host.tertiary = host.tertiary || []).push({
+                        name: nm, link: r.link || "#", image: r.bg || "",
+                        hoverText: r.hover || "", targetId: r.link || ""
+                    });
+                });
+            })();
         })();
 
         // ======================= 辅助函数 =======================
