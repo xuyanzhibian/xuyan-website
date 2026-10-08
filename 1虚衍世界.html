@@ -200,13 +200,11 @@
             height: auto; /* 高度：自动 */
             padding: 0.8rem 1rem; /* 内边距：上下0.8rem，左右1rem */
         }
-        /* 全宽横幅：底图按 100%×100% 铺满整条。
-           上面两张卡是 4:5 竖图，底图用 cover 居中裁切正好；但全宽条又扁又长，
-           cover 会只截到竖图正中一条、看不出纹理。按 100% 100% 压扁铺满，
-           才和设计稿里那条「临世时空」横幅一致。 */
-        .world-button.full-width::before {
-            background-size: 100% 100%;
-        }
+        /* 全宽横幅的底图仍用 ::before 的 cover 居中裁切（见上面 .world-button::before）。
+           593×85 的扁条配 922×922 方图，cover 后只露出竖图正中约 15% 的一条 —— 这正是
+           设计稿里「临世时空」那条横幅的样子（已用参考图做过相关性比对，r=0.89）。
+           ⚠ 不要再改成 background-size:100% 100%（压扁铺满）：那会把漩涡纹理拉平、变暗，
+           和设计稿不一致。 */
         .world-button::before {
             content: ""; /* 伪元素内容：空 */
             position: absolute; /* 定位方式：绝对定位 */
@@ -486,6 +484,11 @@
             const CFG_SHEET = "03_虚衍世界";
             const WORLD_CFG = { text: {}, hover: {}, particles: null, distort: null, filter: null };
 
+            /* 「特效」列里出现 full / full-width / 通栏 / 全宽 中任意一个 ⇒ 这个按钮通栏
+               （grid-column: 1/-1，占满整行，变成一条横幅）；不写就是和上面卡片一样大的竖卡。
+               注意关键字前后要是非英文字母（空格、·、括号都行），免得误伤 "fully" 这类词。 */
+            const FULL_RE = /(^|[^a-zA-Z])(full-width|full|通栏|全宽)/;
+
             /* 内置默认按钮：表格读不到、或表里一个「板块按钮」行都没有时用它 */
             const DEFAULT_WORLD_BUTTONS = [
                 { id: "bookOfVoidBtn", label: "虚衍之书", bg: "./1虚衍世界/1虚衍之书.webp",
@@ -522,7 +525,7 @@
                         link = XY.cfgLink(CFG_SHEET, b.name + "按钮目标", "") || "";
                     }
                     const btn = document.createElement("div");
-                    btn.className = "world-button" + (/(^|[^a-z])(full|通栏)/.test(eff) ? " full-width" : "");
+                    btn.className = "world-button" + (FULL_RE.test(eff) ? " full-width" : "");
                     btn.id = b.id || ("worldBtn" + i);
                     btn.setAttribute("data-url", link);
                     btn.setAttribute("data-effect", eff);
