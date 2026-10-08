@@ -200,6 +200,13 @@
             height: auto; /* 高度：自动 */
             padding: 0.8rem 1rem; /* 内边距：上下0.8rem，左右1rem */
         }
+        /* 全宽横幅：底图按 100%×100% 铺满整条。
+           上面两张卡是 4:5 竖图，底图用 cover 居中裁切正好；但全宽条又扁又长，
+           cover 会只截到竖图正中一条、看不出纹理。按 100% 100% 压扁铺满，
+           才和设计稿里那条「临世时空」横幅一致。 */
+        .world-button.full-width::before {
+            background-size: 100% 100%;
+        }
         .world-button::before {
             content: ""; /* 伪元素内容：空 */
             position: absolute; /* 定位方式：绝对定位 */
