@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://xuyanzhibian.github.io/xuyan-website/sitemap.xml
